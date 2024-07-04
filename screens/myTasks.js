@@ -26,14 +26,15 @@ const getData = async () => {
 function MyTasks() {
   const [tasks, setTasks] = useState([]); // Bu görevlerin tutulduğu liste
   const [taskText, setTaskText] = useState(''); // Bu yeni görev 
+  const [editingIndex, setEditingIndex] = useState(-1); // Düzenleme modunda olan görevin index'i
 
   const addTask = () => {
     if (acType === 'Admin') {
-      if (taskText.trim() !== '') { // .trim başındaki ve sonundaki boşlukları kaldırıyor
-        const newTask = { text: taskText, color: 'red' }; // Görevin başlangıçta kırmızı olması
+      if (taskText.trim() !== '') {
+        const newTask = { text: taskText, color: 'red' };
         const newList = [...tasks, newTask];
-        setTasks(newList); // yeni görevi görev listesine ekliyoruz
-        setTaskText(''); // görevi ekledikten sonra input alanını temizleme
+        setTasks(newList);
+        setTaskText('');
         storeData(newList);
       }
     } else {
@@ -75,13 +76,28 @@ function MyTasks() {
     storeData(newList);
   };
 
+  const startEditingTask = (index) => {
+    if (acType === 'Admin'){setEditingIndex(index);}
+    else{Alert.alert('Yetki Hatası', 'Görevleri düzenleme yetkiniz yok!');}
+  };
+
+  const finishEditingTask = (index, newText) => {
+    const newList = tasks.map((task, taskIndex) => {
+      if (taskIndex === index) {
+        return { ...task, text: newText };
+      }
+      return task;
+    });
+    setTasks(newList);
+    storeData(newList);
+    setEditingIndex(-1); // Düzenleme modunu sonlandır
+  };
+
   const getValues = async () => {
     const storedTasks = await getData();
     setTasks(storedTasks);
   };
 
-  // useEffect ilk çalışan kod, [] kullanımı olmaz ise döngüye girer 
-  // [] içerisine yazılan değeri takip eder 
   useEffect(() => {
     getValues();
   }, []);
@@ -103,16 +119,37 @@ function MyTasks() {
           <Icon name="remove" size={30} color="black" />
         </TouchableOpacity>
       </View>
-      {tasks.length > 0 && tasks.map((task, index) => ( // tasks.map bu dize içerisindeki her eleman için bu işlemi yapıyor
-        // key={index} benzersiz olması için ID gibi bir şey
+
+      {tasks.length > 0 && tasks.map((task, index) => (
         <View key={index} style={styles.taskContainer}>
-          <Text style={[styles.taskText, { color: task.color }]}>{index + 1} - {task.text}</Text>
-          <TouchableOpacity onPress={() => toggleTaskColor(index)}>
-            <Icon name="check" size={20} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => removeTask(index)}>
-            <Icon name="trash" size={20} color="black" />
-          </TouchableOpacity>
+          {editingIndex === index ? (
+            <View style={styles.editContainer}>
+              <TextInput
+                style={styles.editInput}
+                value={taskText}
+                onChangeText={setTaskText}
+                autoFocus
+              />
+              <TouchableOpacity onPress={() => finishEditingTask(index, taskText)} style={styles.editButton}>
+                <Text style={styles.editButtonText}>Onayla</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              <Text style={[styles.taskText, { color: task.color }]}>{index + 1} - {task.text}</Text>
+              <View style={styles.buttonsContainer}>
+                <TouchableOpacity onPress={() => toggleTaskColor(index)} style={styles.taskButton}>
+                  <Icon name="check" size={20} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => startEditingTask(index)} style={styles.taskButton}>
+                  <Icon name="edit" size={20} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => removeTask(index)} style={styles.taskButton}>
+                  <Icon name="trash" size={20} color="black" />
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
         </View>
       ))}
     </ScrollView>
@@ -121,7 +158,7 @@ function MyTasks() {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1, // İçerik büyüdükçe container büyür
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -145,10 +182,41 @@ const styles = StyleSheet.create({
   },
   taskText: {
     fontSize: 18,
+    flex: 1,
   },
   touchableStyle: {
     width: 80,
     alignItems: 'center',
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  taskButton: {
+    marginLeft: 10,
+  },
+  editContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  editInput: {
+    flex: 1,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    marginRight: 10,
+  },
+  editButton: {
+    backgroundColor: 'blue',
+    padding: 10,
+    borderRadius: 5,
+  },
+  editButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
