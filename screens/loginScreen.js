@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { View,SafeAreaView,Text,StyleSheet, TextInput, Button, TouchableOpacity } from "react-native";
 
 
+
 function Login( { navigation }) {
     const[text,onChangeText]= React.useState("");
     const[password,onChangePassword]= React.useState("");
     
+   
     function sifreunuttum(){
         alert('Sifre değiştir');
     }
@@ -21,7 +23,6 @@ function Login( { navigation }) {
           console.log("admin giris basarili");
           onChangePassword('');
           onChangeText('');
-          accountType='admin';
           navigation.navigate('MainScreen');
           acType='Admin';
           
@@ -31,7 +32,6 @@ function Login( { navigation }) {
           console.log("Çalışan giris basarili");
           onChangePassword('');
           onChangeText('');
-          accountType='worker';
           navigation.navigate('MainScreen');
           acType= 'Worker';
           
@@ -40,6 +40,7 @@ function Login( { navigation }) {
         {
           console.log("giris basarisiz");
           onChangePassword('');
+          alert('Giriş başarısız');
         }
     }
       
@@ -67,7 +68,7 @@ function Login( { navigation }) {
         <View style={Style.buttonView}>
           <Button title="Giriş Yap" onPress={Auth} ></Button>
           <View style={Style.spacer}></View>
-          <TouchableOpacity onPress={sifreunuttum}>
+          <TouchableOpacity onPress={()=>{console.log(acType)}}>
             <Text style={Style.color}>
               Şifremi Unuttum
             </Text>

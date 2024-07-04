@@ -1,20 +1,29 @@
 import React from 'react';
 import { View, Text, Button,StyleSheet,SafeAreaView,TouchableOpacity } from 'react-native';
-import { acType } from './loginScreen';
+import Login, { acType } from './loginScreen';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import IonIcons from 'react-native-vector-icons/Ionicons';
+import style from './style';
+
 
 
 
 
 
 function MainScreen({ navigation }) {
+
   return (
     <SafeAreaView style={style.safearea}>
+      <View style={style.topBar}>
+        <Text>{acType} olarak giriş yaptın</Text>
+      </View>
       <View style={style.firstTopView}>
         <View style={style.insideView}>
-          <TouchableOpacity style={style.touchableStyle}>
-            <Text>1</Text>
+          <TouchableOpacity style={style.touchableStyle} onPress={()=>{navigation.navigate('MyTasks')}}  >
+            <Icon name="tasks" size={90} color="black" />
+            <Text style={{fontSize:20,color:'black'}}>Görevlerim</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={style.touchableStyle}>
+          <TouchableOpacity style={style.touchableStyle} onPress={()=>{Login.log}}>
             <Text>2</Text>
           </TouchableOpacity>
         </View>
@@ -30,55 +39,26 @@ function MainScreen({ navigation }) {
           <TouchableOpacity style={style.touchableStyle}>
             <Text>5</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={style.touchableStyle}>
+          <TouchableOpacity style={style.touchableStyle} onPress={()=>{console.log(acType)}}>
             <Text>6</Text>
           </TouchableOpacity>
         </View>
       </View>
       <View style={style.firstBottomView}>
-          <TouchableOpacity style={style.touchableStyle}>
-            <Text>7</Text>
+          <TouchableOpacity style={style.touchableStyle} onPress={()=>{navigation.navigate('Login')} }>
+            <Icon name="sign-out" size={20} color="black" />
           </TouchableOpacity>
           <TouchableOpacity style={style.touchableStyle}>
-            <Text>8</Text>
+          <Icon name="circle-o" size={20} color="black" />
           </TouchableOpacity>
           <TouchableOpacity style={style.touchableStyle}>
-            <Text>9</Text>
+          <IonIcons name="settings" size={20} color="black" />
           </TouchableOpacity>
-      </View>
+        </View>
+      
     </SafeAreaView>
   );
 }
-
-const style= StyleSheet.create({
-  safearea:{
-    flex:1,
-    backgroundColor:'red',
-  },
-  firstTopView:{
-    flex:9,
-    backgroundColor:'blue',
-  },
-  firstBottomView:{
-    flexDirection:'row',
-    backgroundColor:'green',
-    flex :1,
-  },
-  insideView:{
-    flex:1,
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'center',
-    backgroundColor:'white',
-  },
-  touchableStyle:{
-    alignSelf:'stretch',
-    alignItems:'center',
-    justifyContent:'center',
-    flex:1,
-    
-  }
-})
 
 
 export default MainScreen;
