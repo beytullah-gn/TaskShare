@@ -1,125 +1,116 @@
 import React, { useState } from "react";
-import { View,SafeAreaView,Text,StyleSheet, TextInput, Button, TouchableOpacity } from "react-native";
+import { View, SafeAreaView, Text, StyleSheet, TextInput, Button, TouchableOpacity } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+function Login({ navigation }) {
+    const [text, onChangeText] = useState("");
+    const [password, onChangePassword] = useState("");
 
-
-function Login( { navigation }) {
-    const[text,onChangeText]= React.useState("");
-    const[password,onChangePassword]= React.useState("");
-    
-   
-    function sifreunuttum(){
-        alert('Sifre değiştir');
-    }
-    const AdminUsername = 'admin';
-    const AdminPassword = 1234;
-    const WorkerUsername = 'worker';
-    const WorkerPassword = 12345;
-    
-
-    function Auth(){
-        if(text==AdminUsername && password == AdminPassword)
-        {
-          console.log("admin giris basarili");
-          onChangePassword('');
-          onChangeText('');
-          navigation.navigate('MainScreen');
-          acType='Admin';
-          
-          
-        }
-        else if (text==WorkerUsername && password == WorkerPassword){
-          console.log("Çalışan giris basarili");
-          onChangePassword('');
-          onChangeText('');
-          navigation.navigate('MainScreen');
-          acType= 'Worker';
-          
-        }
-        else 
-        {
-          console.log("giris basarisiz");
-          onChangePassword('');
-          alert('Giriş başarısız');
+    async function getUsers() {
+        try {
+            const jsonValue = await AsyncStorage.getItem('@users');
+            return jsonValue != null ? JSON.parse(jsonValue) : [];
+        } catch (e) {
+            console.error("Kullanıcı verileri alınamadı: ", e);
+            return [];
         }
     }
-      
-    return(
-    <SafeAreaView style={
-      Style.container
-    }>
-      <View style={Style.firstView}/>
-      <View style={Style.Viewstyle}>
-        <Text>
-          GİRİŞ YAP
-        </Text>
-        <TextInput 
-        style={Style.InputStyle}
-        value={text} 
-        placeholder="Kullanici Adi"
-        onChangeText={onChangeText}
-        ></TextInput>
-        <TextInput 
-        style={Style.InputStyle}
-        value={password} 
-        onChangeText={onChangePassword}
-        placeholder="Sifre"
-        ></TextInput>
-        <View style={Style.buttonView}>
-          <Button title="Giriş Yap" onPress={Auth} ></Button>
-          <View style={Style.spacer}></View>
-          <TouchableOpacity onPress={()=>{console.log(acType)}}>
-            <Text style={Style.color}>
-              Şifremi Unuttum
-            </Text>
-          </TouchableOpacity>
-        </View>
+
+    async function Auth() {
+        const users = await getUsers();
+        const user = users.find(u => u.username === text && u.password === password);
+
+        if (user) {
+            console.log(`${user.accountType} girişi başarılı`);
+            onChangePassword('');
+            onChangeText('');
+            acType = user.accountType;
+            acId = user.id;
+            console.log(acId);
+            if(acType=='Admin'){
+              navigation.navigate('MainScreen');
+            }
+            if(acType=='worker'){
+              navigation.navigate('MainScreenWorker');
+            }
+            
+            
+        } else {
+            console.log("Giriş başarısız");
+            onChangePassword('');
+            alert('Giriş başarısız');
+        }
+    }
+
+    function sifreunuttum() {
+        alert('Şifre değiştir');
         
+    }
 
-      </View>
-
-    </SafeAreaView>
-
-   );
-  
+    return (
+        <SafeAreaView style={Style.container}>
+            <View style={Style.firstView} />
+            <View style={Style.Viewstyle}>
+                <Text>GİRİŞ YAP</Text>
+                <TextInput 
+                    style={Style.InputStyle}
+                    value={text}
+                    placeholder="Kullanıcı Adı"
+                    onChangeText={onChangeText}
+                />
+                <TextInput 
+                    style={Style.InputStyle}
+                    value={password}
+                    onChangeText={onChangePassword}
+                    placeholder="Şifre"
+                    secureTextEntry
+                />
+                <View style={Style.buttonView}>
+                    <Button title="Giriş Yap" onPress={Auth} />
+                    <View style={Style.spacer}></View>
+                    <TouchableOpacity onPress={sifreunuttum}>
+                        <Text style={Style.color}>Şifremi Unuttum</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </SafeAreaView>
+    );
 }
 
 const Style = StyleSheet.create({
-    container:{
-      flex:1,
-      backgroundColor:'whitesmoke'
+    container: {
+        flex: 1,
+        backgroundColor: 'whitesmoke'
     },
-    firstView:{
-      marginTop:30
+    firstView: {
+        marginTop: 30
     },
-    Viewstyle:{
-      flex:1,
-      justifyContent:'center',
-      alignItems:'center',
-      backgroundColor:'white',
+    Viewstyle: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
     },
-    InputStyle:{
-      width:300,
-      height: 30,
-      borderWidth:1,
-      margin:5,
-      padding:7,
-      borderRadius:12,
-    
+    InputStyle: {
+        width: 300,
+        height: 40,
+        borderWidth: 1,
+        margin: 5,
+        padding: 7,
+        borderRadius: 12,
     },
-    buttonView:{
-      flexDirection:'row',
-      margin:10,
-      alignItems:'center',
-      
+    buttonView: {
+        flexDirection: 'row',
+        margin: 10,
+        alignItems: 'center',
     },
-   spacer:{
-      width:20,
-   },
-   color:{
-    color:'blue'
-   }
-})
+    spacer: {
+        width: 20,
+    },
+    color: {
+        color: 'blue'
+    }
+});
 
 export default Login;
-export let acType;
+export let acType,acId;
