@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import Login from "./screens/loginScreen";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
@@ -10,16 +10,38 @@ import MyTasksWorker from "./screens/workerScreens/myTasksWorker";
 import MainScreenWorker from "./screens/workerScreens/mainScreenWorker";
 import NewWorker from "./screens/adminScreens/newWorkerAccount";
 import SettingsScreen from "./screens/settings";
+import {
+   ref,
+   onValue,
+   push,
+   update,
+   remove,
+   database,
+ } from 'firebase/database';
+ import { db } from "./screens/firebase-config";
 
 
-
-
+function prin(val){
+   console.log(val);
+}
 
 const Stack = createNativeStackNavigator();
 function App() {
-   /*storeUserData(() => {
+   /*addusers(() => {
       
     }, []); */
+    
+    useEffect(() => {
+      return onValue(ref(db, '/users'), querySnapShot => {
+        let data = querySnapShot.val() || {};
+        let todoItems = {...data};
+        prin(todoItems);
+      });
+    }, []);
+  
+
+
+
    return(
     
     <NavigationContainer>
