@@ -1,23 +1,32 @@
-import React, { useState } from "react";
-import { View, SafeAreaView, Text, StyleSheet, TextInput, Button, TouchableOpacity } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from 'react';
+import { View, SafeAreaView, Text, StyleSheet, TextInput, Button, TouchableOpacity, Modal } from 'react-native';
+import { ref, onValue, push } from 'firebase/database';
+import { db } from './firebase-config'; // Firebase bağlantı noktanızı buraya ekleyin
 
 function Login({ navigation }) {
-    const [text, onChangeText] = useState("");
-    const [password, onChangePassword] = useState("");
+    const [text, onChangeText] = useState('');
+    const [password, onChangePassword] = useState('');
+    const [users, setUsers] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [requestText, setRequestText] = useState('');
 
-    async function getUsers() {
-        try {
-            const jsonValue = await AsyncStorage.getItem('@users');
-            return jsonValue != null ? JSON.parse(jsonValue) : [];
-        } catch (e) {
-            console.error("Kullanıcı verileri alınamadı: ", e);
-            return [];
-        }
-    }
+    useEffect(() => {
+        const usersRef = ref(db, '/users');
+        onValue(usersRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const usersArray = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key],
+                }));
+                setUsers(usersArray);
+            }
+        }, (error) => {
+            console.error("Kullanıcı verileri alınamadı: ", error);
+        });
+    }, []);
 
-    async function Auth() {
-        const users = await getUsers();
+    function Auth() {
         const user = users.find(u => u.username === text && u.password === password);
 
         if (user) {
@@ -26,15 +35,13 @@ function Login({ navigation }) {
             onChangeText('');
             acType = user.accountType;
             acId = user.id;
-            console.log(acId);
-            if(acType=='Admin'){
-              navigation.navigate('MainScreen');
-            }
-            if(acType=='worker'){
-              navigation.navigate('MainScreenWorker');
-            }
+            acName = user.username;
             
-            
+            if (user.accountType === 'Admin') {
+                navigation.navigate('MainScreen');
+            } else if (user.accountType === 'worker') {
+                navigation.navigate('MainScreenWorker');
+            }
         } else {
             console.log("Giriş başarısız");
             onChangePassword('');
@@ -43,47 +50,93 @@ function Login({ navigation }) {
     }
 
     function sifreunuttum() {
-        alert('Şifre değiştir');
-        
+        setModalVisible(true); // Şifremi Unuttum modal'ını aç
     }
 
+    function sendPasswordRequest() {
+        if (requestText.trim() !== '') {
+            const newRequestRef = ref(db, '/passwordRequests'); // Referansı doğru şekilde al
+            push(newRequestRef, {
+                message: requestText,
+                timestamp: new Date().toISOString(),
+            })
+            .then(() => {
+                setRequestText(''); // İsteği gönderdikten sonra input'u temizle
+                setModalVisible(false); // Modal'ı kapat
+                alert('Şifre sıfırlama isteğiniz gönderildi. Yöneticiniz yeni giriş bilgilerini size iletecektir. ');
+            })
+            .catch(error => {
+                console.error('Şifre sıfırlama isteği gönderme hatası:', error);
+                alert('Şifre sıfırlama isteği gönderilemedi. Lütfen tekrar deneyin.');
+            });
+        } else {
+            alert('Lütfen bir mesaj yazın.');
+        }
+    }
+    
     return (
-        <SafeAreaView style={Style.container}>
-            <View style={Style.firstView} />
-            <View style={Style.Viewstyle}>
+        <SafeAreaView style={styles.container}>
+            <View style={styles.firstView} />
+            <View style={styles.Viewstyle}>
                 <Text>GİRİŞ YAP</Text>
                 <TextInput 
-                    style={Style.InputStyle}
+                    style={styles.InputStyle}
                     value={text}
                     placeholder="Kullanıcı Adı"
                     onChangeText={onChangeText}
                 />
                 <TextInput 
-                    style={Style.InputStyle}
+                    style={styles.InputStyle}
                     value={password}
                     onChangeText={onChangePassword}
                     placeholder="Şifre"
                     secureTextEntry
                 />
-                <View style={Style.buttonView}>
+                <View style={styles.buttonView}>
                     <Button title="Giriş Yap" onPress={Auth} />
-                    <View style={Style.spacer}></View>
+                    <View style={styles.spacer}></View>
                     <TouchableOpacity onPress={sifreunuttum}>
-                        <Text style={Style.color}>Şifremi Unuttum</Text>
+                        <Text style={styles.color}>Şifremi Unuttum</Text>
                     </TouchableOpacity>
                 </View>
+
+                {/* Şifremi Unuttum modal'ı */}
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => setModalVisible(false)}
+                >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalText}>Şifre Sıfırlama İsteği</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={requestText}
+                                onChangeText={setRequestText}
+                                placeholder="Şifresini unuttuğunuz hesabınızın kullanıcı adını belirtin..."
+                                multiline={true}
+                            />
+                            <View style={styles.modalButtons}>
+                                <Button title="Gönder" onPress={sendPasswordRequest} />
+                                <Button title="İptal" onPress={() => setModalVisible(false)} />
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+
             </View>
         </SafeAreaView>
     );
 }
 
-const Style = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'whitesmoke'
+        backgroundColor: 'whitesmoke',
     },
     firstView: {
-        marginTop: 30
+        marginTop: 30,
     },
     Viewstyle: {
         flex: 1,
@@ -108,9 +161,42 @@ const Style = StyleSheet.create({
         width: 20,
     },
     color: {
-        color: 'blue'
-    }
+        color: 'blue',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Arka planı opak yapar
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+        alignItems: 'center',
+    },
+    modalText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    input: {
+        width: '100%',
+        height: 100,
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 10,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: '100%',
+        marginTop: 10,
+    },
 });
 
 export default Login;
-export let acType,acId;
+export let acType, acId,acName;

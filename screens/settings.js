@@ -1,148 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  Button,
-  ScrollView,
-  TextInput
-} from 'react-native';
-import CheckBox from 'expo-checkbox';
-import {
-  ref,
-  onValue,
-  push,
-  update,
-  remove
-} from 'firebase/database';
-import { db } from './firebase-config.js';
+import { useState } from 'react';
+import { Button, Image, View, StyleSheet } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 
-const SettingsScreen = () => {
-  const [todos, setTodos] = useState({});
-  const [presentTodo, setPresentTodo] = useState('');
-  const todosKeys = Object.keys(todos);
+export default function SettingsScreen() {
+  const [image, setImage] = useState(null);
 
-  useEffect(() => {
-    return onValue(ref(db, '/todos'), querySnapShot => {
-      let data = querySnapShot.val() || {};
-      let todoItems = {...data};
-      setTodos(todoItems);
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
-  }, []);
 
-  function addNewTodo() {
-    push(ref(db, '/todos'), {
-      done: false,
-      title: presentTodo,
-    });
-    setPresentTodo('');
-  }
+    console.log(result);
 
-  function clearTodos() {
-    remove(ref(db, '/todos'));
-  }
-
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainerStyle}>
-      <View>
-        {todosKeys.length > 0 ? (
-          todosKeys.map(key => (
-            <ToDoItem
-              key={key}
-              id={key}
-              todoItem={todos[key]}
-            />
-          ))
-        ) : (
-          <Text>No todo item</Text>
-        )}
-      </View>
-
-      <TextInput
-        placeholder="New todo"
-        value={presentTodo}
-        style={styles.textInput}
-        onChangeText={text => {
-          setPresentTodo(text);
-        }}
-        onSubmitEditing={addNewTodo}
-      />
-
-      <View>
-        <View style={{marginTop: 20}}>
-          <Button
-            title="Add new todo"
-            onPress={addNewTodo}
-            color="green"
-            disabled={presentTodo == ''}
-            />
-        </View>
-
-        <View style={{marginTop: 20}}>
-          <Button
-            title="Clear the todo list"
-            onPress={clearTodos}
-            color="red"
-            style={{marginTop: 20}}
-          />
-        </View>
-      </View>
-    </ScrollView>
-  );
-}
-
-const ToDoItem = ({todoItem: {title, done}, id}) => {
-  const [doneState, setDone] = useState(done);
-
-  const onCheck = (isChecked) => {
-    setDone(isChecked);
-    update(ref(db, '/todos'), {
-      [id]: {
-        title,
-        done: !doneState,
-      },
-    });
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
   };
+
   return (
-    <View style={styles.todoItem}>
-      <CheckBox
-        onValueChange={onCheck}
-        value={doneState}
-      />
-      <Text style={[styles.todoText, {opacity: doneState ? 0.2 : 1}]}>
-        {title}
-      </Text>
+    <View style={styles.container}>
+      <Button title="Pick an image from camera roll" onPress={pickImage} />
+      {image && <Image source={{ uri: image }} style={styles.image} />}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 12
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  contentContainerStyle: {
-    padding: 24
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: '#afafaf',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginVertical: 20,
-    fontSize: 20,
-  },
-  todoItem: {
-    flexDirection: 'row',
-    marginVertical: 10,
-    alignItems: 'center'
-  },
-  todoText: {
-    paddingHorizontal: 5,
-    fontSize: 16
+  image: {
+    width: 200,
+    height: 200,
   },
 });
-
-export default SettingsScreen;

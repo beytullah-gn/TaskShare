@@ -9,7 +9,7 @@ import { StyleSheet } from "react-native"
     },
     firstTopView:{
       flex:9,
-      backgroundColor:'blue',
+      backgroundColor:'whitesmoke',
       margin:2,
     },
     firstBottomView:{

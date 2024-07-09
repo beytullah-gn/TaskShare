@@ -1,60 +1,62 @@
 import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TouchableOpacity, View, StyleSheet, Text, ScrollView, TextInput, Alert, Modal, FlatList, SafeAreaView } from 'react-native';
+import CheckBox from 'expo-checkbox';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { ref, onValue, push, update, remove } from 'firebase/database';
+import { db } from '../firebase-config.js';
 import { acType } from '../loginScreen';
-
-
-const storeData = async (key, value) => {
-  try {
-    const jsonValue = JSON.stringify(value);
-    await AsyncStorage.setItem(key, jsonValue);
-  } catch (e) {
-    console.error(`Error saving ${key}`, e);
-  }
-};
-
-const getData = async (key) => {
-  try {
-    const jsonValue = await AsyncStorage.getItem(key);
-    return jsonValue != null ? JSON.parse(jsonValue) : [];
-  } catch (e) {
-    console.error(`Error reading ${key}`, e);
-    return [];
-  }
-};
 
 function MyTasks() {
   const [tasks, setTasks] = useState([]); // Görevlerin tutulduğu liste
   const [taskText, setTaskText] = useState(''); // Yeni görev metni
   const [editingIndex, setEditingIndex] = useState(-1); // Düzenleme modundaki görevin index'i
-
   const [users, setUsers] = useState([]); // Kullanıcıların listesi
   const [selectedUserId, setSelectedUserId] = useState(null); // Seçilen kullanıcının ID'si
-
   const [modalVisible, setModalVisible] = useState(false); // Modal görünürlüğü
 
   // Kullanıcı verilerini okuyan fonksiyon
   const getUsers = async () => {
-    try {
-      const jsonValue = await AsyncStorage.getItem('@users');
-      return jsonValue != null ? JSON.parse(jsonValue) : [];
-    } catch (e) {
-      console.error("Kullanıcı verileri alınamadı: ", e);
-      return [];
-    }
+    const usersRef = ref(db, '/users');
+    onValue(usersRef, snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const usersArray = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key],
+        }));
+        setUsers(usersArray);
+      }
+    });
+  };
+
+  // Görevleri okuyan fonksiyon
+  const getTasks = () => {
+    const tasksRef = ref(db, '/tasks');
+    onValue(tasksRef, snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const tasksArray = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key],
+        }));
+        setTasks(tasksArray);
+      }
+    });
   };
 
   // Görev ekleme işlemi
   const addTask = () => {
     if (acType === 'Admin') {
       if (taskText.trim() !== '' && selectedUserId !== null) {
-        const newTask = { text: taskText, color: 'red', userId: selectedUserId };
-        const newList = [...tasks, newTask];
-        setTasks(newList);
+        const newTask = {
+          text: taskText,
+          color: 'red',
+          userId: selectedUserId,
+          done: false,
+        };
+        push(ref(db, '/tasks'), newTask);
         setTaskText('');
         setSelectedUserId(null);
-        storeData('my-key', newList); // Verileri anahtarla kaydet
       } else {
         Alert.alert('Eksik Bilgi', 'Lütfen görev metni ve kullanıcı seçimi yapınız!');
       }
@@ -64,42 +66,40 @@ function MyTasks() {
   };
 
   // Görev silme işlemi
-  const removeTask = (index) => {
-    if (acType === 'Admin') {
-      const newList = tasks.filter((_, taskIndex) => taskIndex !== index);
-      setTasks(newList);
-      storeData('my-key', newList); // Verileri anahtarla kaydet
-    } else {
-      Alert.alert('Yetki Hatası', 'Görev silme yetkiniz yok!');
-    }
-  };
+const removeTask = (id) => {
+  if (acType === 'Admin') {
+    const taskRef = ref(db, `/tasks/${id}`);
+    remove(taskRef)
+      .then(() => {
+        // Görev Firebase'den silindiğinde görev listesini güncelle
+        setTasks(tasks.filter(task => task.id !== id));
+      })
+      .catch(error => console.error('Görev silme hatası:', error));
+  } else {
+    Alert.alert('Yetki Hatası', 'Görev silme yetkiniz yok!');
+  }
+};
 
   // Tüm görevleri silme işlemi
-  const removeAllTasks = async () => {
+  const removeAllTasks = () => {
     if (acType === 'Admin') {
-      try {
-        await AsyncStorage.removeItem('my-key');
-        setTasks([]);
-      } catch (e) {
-        console.error("Error removing value", e);
-      }
+      const tasksRef = ref(db, '/tasks');
+      remove(tasksRef);
+      setTasks([]); // Tüm görevler silindikten sonra görev listesini temizle
     } else {
       Alert.alert('Yetki Hatası', 'Tüm görevleri silme yetkiniz yok!');
     }
   };
 
-  // Görevin rengini değiştirme işlemi
-  const toggleTaskColor = (index) => {
-    const newList = tasks.map((task, taskIndex) => {
-      if (taskIndex === index) {
-        return { ...task, color: task.color === 'red' ? 'green' : 'red' };
-      }
-      return task;
-    });
-    setTasks(newList);
-    storeData('my-key', newList); // Verileri anahtarla kaydet
+  // Görevin rengini ve tamamlanma durumunu değiştirme işlemi
+    const toggleTaskColor = (id, currentColor, currentDone) => {
+    const newColor = currentColor === 'red' ? 'green' : 'red';
+    const newDone = !currentDone;
+    const taskRef = ref(db, `/tasks/${id}`);
+    update(taskRef, { color: newColor, done: newDone })
+      .then(() => console.log('Görev rengi ve tamamlanma durumu güncellendi'))
+      .catch(error => console.error('Görev rengi ve tamamlanma durumu güncelleme hatası:', error));
   };
-
   // Görev düzenleme işlemine başlama
   const startEditingTask = (index) => {
     if (acType === 'Admin') {
@@ -111,32 +111,15 @@ function MyTasks() {
   };
 
   // Görev düzenleme işlemi tamamlama
-  const finishEditingTask = (index, newText) => {
-    const newList = tasks.map((task, taskIndex) => {
-      if (taskIndex === index) {
-        return { ...task, text: newText };
-      }
-      return task;
-    });
-    setTasks(newList);
-    storeData('my-key', newList); // Verileri anahtarla kaydet
+  const finishEditingTask = (id, newText) => {
+    const taskRef = ref(db, `/tasks/${id}`);
+    update(taskRef, { text: newText });
     setEditingIndex(-1); // Düzenleme modunu sonlandır
   };
 
-  // Kayıtlı görevleri ve kullanıcıları getirme işlemi
-  const getValues = async () => {
-    
-    const storedTasks = await getData('my-key');
-    setTasks(storedTasks);
-    const storedUsers = await getUsers();
-    setUsers(storedUsers);
-    console.log("Görevler:", storedTasks);
-  };
-
   useEffect(() => {
-    
-    getValues();
-    
+    getTasks();
+    getUsers();
   }, []);
 
   // Kullanıcı seçim modal'ı
@@ -181,33 +164,33 @@ function MyTasks() {
   );
 
   return (
-    
-      <ScrollView contentContainerStyle={styles.container}>
-        <TextInput
-          style={styles.input}
-          value={taskText}
-          placeholder="Görev"
-          onChangeText={setTaskText}
-        />
+    <ScrollView contentContainerStyle={styles.container}>
+      <TextInput
+        style={styles.input}
+        value={taskText}
+        placeholder="Görev"
+        onChangeText={setTaskText}
+      />
 
-        {/* Kullanıcı seçimi butonu */}
-        <TouchableOpacity style={styles.selectUserButton} onPress={() => setModalVisible(true)}>
-          <Text style={styles.selectUserButtonText}>Kullanıcı Seç</Text>
+      {/* Kullanıcı seçimi butonu */}
+      <TouchableOpacity style={styles.selectUserButton} onPress={() => setModalVisible(true)}>
+        <Text style={styles.selectUserButtonText}>Kullanıcı Seç</Text>
+      </TouchableOpacity>
+
+      {/* Görev ekleme ve temizleme işlemleri */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+        <TouchableOpacity style={styles.touchableStyle} onPress={addTask}>
+          <Icon name="plus" size={30} color="black" />
         </TouchableOpacity>
+        <TouchableOpacity style={styles.touchableStyle} onPress={removeAllTasks}>
+          <Icon name="remove" size={30} color="black" />
+        </TouchableOpacity>
+      </View>
 
-        {/* Görev ekleme ve temizleme işlemleri */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-          <TouchableOpacity style={styles.touchableStyle} onPress={addTask}>
-            <Icon name="plus" size={30} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.touchableStyle} onPress={removeAllTasks}>
-            <Icon name="remove" size={30} color="black" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Görev listesi */}
-        {tasks.length > 0 && tasks.map((task, index) => (
-          <View key={index} style={styles.taskContainer}>
+      {/* Görev listesi */}
+      {tasks.length > 0 ? (
+        tasks.map((task, index) => (
+          <View key={task.id} style={styles.taskContainer}>
             {editingIndex === index ? (
               <View style={styles.editContainer}>
                 <TextInput
@@ -216,36 +199,41 @@ function MyTasks() {
                   onChangeText={setTaskText}
                   autoFocus
                 />
-                <TouchableOpacity onPress={() => finishEditingTask(index, taskText)} style={styles.editButton}>
+                <TouchableOpacity onPress={() => finishEditingTask(task.id, taskText)} style={styles.editButton}>
                   <Text style={styles.editButtonText}>Onayla</Text>
                 </TouchableOpacity>
               </View>
             ) : (
               <>
-                <Text style={[styles.taskText, { color: task.color }]}>{index + 1} - {task.text}</Text>
+                <CheckBox
+                  onValueChange={() => toggleTaskColor(task.id, task.color, task.done)}
+                  value={task.color === 'green'}
+                />
+                <Text style={[styles.taskText, { color: task.color }]}>
+                  {index + 1} - {task.text}
+                </Text>
                 <View style={styles.buttonsContainer}>
-                  <TouchableOpacity onPress={() => toggleTaskColor(index)} style={styles.taskButton}>
-                    <Icon name="check" size={20} color="black" />
-                  </TouchableOpacity>
                   <TouchableOpacity onPress={() => startEditingTask(index)} style={styles.taskButton}>
                     <Icon name="edit" size={20} color="black" />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => removeTask(index)} style={styles.taskButton}>
+                  <TouchableOpacity onPress={() => removeTask(task.id)} style={styles.taskButton}>
                     <Icon name="trash" size={20} color="black" />
                   </TouchableOpacity>
                 </View>
               </>
             )}
           </View>
-        ))}
+        ))
+      ) : (
+        <Text>Görev yok</Text>
+      )}
 
-        {/* Kullanıcı seçim modal'ı */}
-        {renderUserPicker()}
-      </ScrollView>
-      
-
+      {/* Kullanıcı seçim modal'ı */}
+      {renderUserPicker()}
+    </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -297,29 +285,25 @@ const styles = StyleSheet.create({
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
-    paddingHorizontal: 10,
     marginRight: 10,
+    paddingHorizontal: 10,
   },
   editButton: {
-    backgroundColor: 'blue',
+    backgroundColor: 'green',
     padding: 10,
     borderRadius: 5,
   },
   editButtonText: {
     color: 'white',
-    fontWeight: 'bold',
   },
   selectUserButton: {
-    marginTop: 10,
-    backgroundColor: 'lightblue',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    backgroundColor: '#DDDDDD',
+    padding: 10,
     borderRadius: 5,
-    alignItems: 'center',
+    marginBottom: 20,
   },
   selectUserButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
   },
   centeredView: {
     flex: 1,
@@ -345,29 +329,24 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: 20,
   },
   userItem: {
-    marginBottom: 10,
     padding: 10,
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
   },
   closeButton: {
-    marginTop: 10,
-    backgroundColor: 'red',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    backgroundColor: '#2196F3',
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
   },
   closeButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
     color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
 export default MyTasks;
-

@@ -1,38 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, SafeAreaView, Text, TextInput, View, TouchableOpacity, Modal, Alert, ScrollView } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const storeUserData = async (users) => {
-  try {
-    const jsonValue = JSON.stringify(users);
-    await AsyncStorage.setItem('@users', jsonValue);
-    console.log("Kullanıcı verileri başarıyla kaydedildi.");
-  } catch (e) {
-    console.error("Kullanıcı verileri kaydedilemedi: ", e);
-  }
-};
-
-const getUserData = async () => {
-  try {
-    const storedUsers = await AsyncStorage.getItem('@users');
-    return storedUsers ? JSON.parse(storedUsers) : [];
-  } catch (e) {
-    console.error("Kullanıcı verileri getirilemedi: ", e);
-    return [];
-  }
-};
-
-const deleteUser = async (userId) => {
-  try {
-    const storedUsers = await AsyncStorage.getItem('@users');
-    const users = storedUsers ? JSON.parse(storedUsers) : [];
-    const filteredUsers = users.filter(user => user.id !== userId);
-    await storeUserData(filteredUsers);
-    console.log("Kullanıcı başarıyla silindi.");
-  } catch (e) {
-    console.error("Kullanıcı silinemedi: ", e);
-  }
-};
+import { ref, onValue, push, remove } from 'firebase/database';
+import { db } from "../firebase-config";
 
 function NewWorker() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -42,6 +11,15 @@ function NewWorker() {
   const [accountType, setAccountType] = useState('');
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const usersRef = ref(db, '/users');
+    onValue(usersRef, (snapshot) => {
+      const data = snapshot.val();
+      const loadedUsers = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+      setUsers(loadedUsers);
+    });
+  }, []);
 
   const handleOption = (type) => {
     setAccountType(type);
@@ -54,17 +32,21 @@ function NewWorker() {
       return;
     }
 
+    // Check if username already exists
+    const usernameExists = users.some(user => user.username === username);
+    if (usernameExists) {
+      setError("Bu kullanıcı adı zaten mevcut.");
+      return;
+    }
+
     const newUser = {
-      id: Date.now().toString(),
       username: username,
       password: password,
       accountType: accountType,
     };
     try {
-      const storedUsers = await AsyncStorage.getItem('@users');
-      const users = storedUsers ? JSON.parse(storedUsers) : [];
-      users.push(newUser);
-      await storeUserData(users);
+      const usersRef = ref(db, '/users');
+      await push(usersRef, newUser);
       console.log("Yeni kullanıcı başarıyla kaydedildi.");
 
       // Formu sıfırla
@@ -78,9 +60,6 @@ function NewWorker() {
   };
 
   const handleViewUsers = async () => {
-    const users = await getUserData();
-    console.log(users);
-    setUsers(users);
     setUserModalVisible(true);
   };
 
@@ -90,29 +69,33 @@ function NewWorker() {
       return;
     }
 
-    await deleteUser(userId);
-    const users = await getUserData();
-    setUsers(users);
+    try {
+      const userRef = ref(db, `/users/${userId}`);
+      await remove(userRef);
+      console.log("Kullanıcı başarıyla silindi.");
+    } catch (e) {
+      console.error("Kullanıcı silinemedi: ", e);
+    }
   };
 
   return (
-    <SafeAreaView style={style.safeStyle}>
+    <SafeAreaView style={styles.safeStyle}>
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={style.modalOverlay}>
-          <View style={style.modalContent}>
-            <Text style={style.modalTitle}>Yetki Düzeyi Seçin</Text>
-            <TouchableOpacity style={style.modalButton} onPress={() => handleOption('Admin')}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Yetki Düzeyi Seçin</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={() => handleOption('Admin')}>
               <Text>Yönetici</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={style.modalButton} onPress={() => handleOption('worker')}>
+            <TouchableOpacity style={styles.modalButton} onPress={() => handleOption('worker')}>
               <Text>Çalışan</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={style.modalButton} onPress={() => setModalVisible(false)}>
+            <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
               <Text>Kapat</Text>
             </TouchableOpacity>
           </View>
@@ -125,36 +108,36 @@ function NewWorker() {
         visible={userModalVisible}
         onRequestClose={() => setUserModalVisible(false)}
       >
-        <View style={style.modalOverlay}>
-          <View style={style.modalContent}>
-            <Text style={style.modalTitle}>Kullanıcılar</Text>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Kullanıcılar</Text>
             <ScrollView style={{ width: '100%' }}>
               {users.map((user) => (
-                <View key={user.id} style={style.userContainer}>
+                <View key={user.id} style={styles.userContainer}>
                   <Text>{`${user.username} (${user.accountType})`}</Text>
-                  <TouchableOpacity style={style.deleteButton} onPress={() => handleDeleteUser(user.id)}>
+                  <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteUser(user.id)}>
                     <Text>Sil</Text>
                   </TouchableOpacity>
                 </View>
               ))}
             </ScrollView>
-            <TouchableOpacity style={style.modalButton} onPress={() => setUserModalVisible(false)}>
+            <TouchableOpacity style={styles.modalButton} onPress={() => setUserModalVisible(false)}>
               <Text>Kapat</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      <View style={style.topAreaView}>
+      <View style={styles.topAreaView}>
         <Text style={{ fontSize: 20, color: 'green' }}>Yeni Kullanıcı Oluştur</Text>
       </View>
 
-      <View style={style.BottomAreaView}>
+      <View style={styles.BottomAreaView}>
         <View>
           <Text>Kullanıcı Adı</Text>
-          <TextInput style={style.inputStyle} value={username} onChangeText={setUsername} />
+          <TextInput style={styles.inputStyle} value={username} onChangeText={setUsername} />
           <Text>Şifre</Text>
-          <TextInput style={style.inputStyle} value={password} onChangeText={setPassword} />
+          <TextInput style={styles.inputStyle} value={password} onChangeText={setPassword} secureTextEntry />
         </View>
         <View style={{ width: '90%', paddingVertical: 20 }}>
           <Text>Oluşturulacak hesabın yetki düzeyini seçin</Text>
@@ -167,7 +150,7 @@ function NewWorker() {
               <Text style={{ color: 'white' }}>Yetki Düzeyi Seç</Text>
             </TouchableOpacity>
           </View>
-          {error ? <Text style={style.errorText}>{error}</Text> : null}
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
           <TouchableOpacity
             style={{ backgroundColor: 'blue', alignItems: 'center', justifyContent: 'center', borderRadius: 5, padding: 10 }}
             onPress={handleSaveUser}
@@ -187,7 +170,7 @@ function NewWorker() {
   );
 }
 
-const style = StyleSheet.create({
+const styles = StyleSheet.create({
   safeStyle: {
     flex: 1,
   },

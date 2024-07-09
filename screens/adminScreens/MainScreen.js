@@ -33,18 +33,19 @@ function MainScreen({ navigation }) {
       </View>
       <View style={style.firstTopView}>
         <View style={style.insideView}>
-          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('MyTasks')} >
+          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Görev Ata')} >
             <Icon name="tasks" size={90} color="black" />
-            <Text style={{ fontSize: 20, color: 'black' }}>Görevler</Text>
+            <Text style={{ fontSize: 20, color: 'black' }}>Görevleri Yönet</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('NewWorker')}>
+          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Kullanıcıları Yönet')}>
             <Icon name="user" size={90} color="black" />
             <Text style={{ fontSize: 17, color: 'black' }}>Kullanıcıları Yönet</Text>
           </TouchableOpacity>
         </View>
         <View style={style.insideView}>
-          <TouchableOpacity style={style.touchableStyle}>
-            <Text>3</Text>
+          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Mesajlarım')}>
+            <Icon name="envelope-o" size={90} color="black" />
+            <Text style={{ fontSize: 17, color: 'black' }}>Mesajlarım</Text>
           </TouchableOpacity>
           <TouchableOpacity style={style.touchableStyle}>
             <Text>4</Text>
@@ -61,12 +62,12 @@ function MainScreen({ navigation }) {
       </View>
       <View style={style.firstBottomView}>
         <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Login')} >
-          <Icon name="sign-out" size={20} color="black" />
+          <Icon name="reply" size={20} color="black" />
         </TouchableOpacity>
         <TouchableOpacity style={style.touchableStyle}>
           <Icon name="circle-o" size={20} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('SettingsScreen')}>
+        <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Ayarlar')}>
           <IonIcons name="settings" size={20} color="black" />
         </TouchableOpacity>
       </View>

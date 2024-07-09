@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
-import Login, { acType } from '../loginScreen';
+import Login, { acType,acName } from '../loginScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 import style from '../style';
@@ -27,16 +27,17 @@ function MainScreenWorker({ navigation }) {
   return (
     <SafeAreaView style={style.safearea}>
       <View style={style.topBar}>
-        <Text>{acType} olarak giriş yaptın</Text>
+        <Text>{acName} olarak giriş yaptın</Text>
       </View>
       <View style={style.firstTopView}>
         <View style={style.insideView}>
-          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('MyTasksWorker')} >
+          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Görevlerim')} >
             <Icon name="tasks" size={90} color="black" />
             <Text style={{ fontSize: 20, color: 'black' }}>Görevlerim</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={style.touchableStyle} >
-            <Text>2</Text>
+          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Mesajlarım')} >
+            <Icon name="envelope-o" size={90} color="black" />
+            <Text style={{ fontSize: 20, color: 'black' }}>Mesajlarım</Text>
           </TouchableOpacity>
         </View>
         <View style={style.insideView}>
@@ -58,7 +59,7 @@ function MainScreenWorker({ navigation }) {
       </View>
       <View style={style.firstBottomView}>
         <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Login')} >
-          <Icon name="sign-out" size={20} color="black" />
+          <Icon name="reply" size={20} color="black" />
         </TouchableOpacity>
         <TouchableOpacity style={style.touchableStyle}>
           <Icon name="circle-o" size={20} color="black" />

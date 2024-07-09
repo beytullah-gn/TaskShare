@@ -1,51 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import { ref, onValue, update } from 'firebase/database';
+import { db } from '../firebase-config';
 import { acId } from '../loginScreen';
+import CheckBox from 'expo-checkbox';
 
-const getData = async (key) => {
-  try {
-    const jsonValue = await AsyncStorage.getItem(key);
-    return jsonValue != null ? JSON.parse(jsonValue) : [];
-  } catch (e) {
-    console.error(`Error reading ${key}`, e);
-    return [];
-  }
-};
-async function getUsers() {
-    try {
-        const jsonValue = await AsyncStorage.getItem('@users');
-        
-        return jsonValue != null ? JSON.parse(jsonValue) : [];
-    } catch (e) {
-        console.error("Kullanıcı verileri alınamadı: ", e);
-        return [];
-    }
-}
-function UserTasks({ userId=acId }) {
+function UserTasks({ userId = acId }) {
   const [tasks, setTasks] = useState([]); // Görevlerin tutulduğu liste
 
   // Görevleri getirme işlemi
-  const getTasks = async () => {
-
-    const storedTasks = await getData('my-key');
-    const userTasks = storedTasks.filter(task => task.userId === userId);
-    setTasks(userTasks);
-    
-  };
-
   useEffect(() => {
-    
-    getUsers();
-    getTasks();
-  }, []);
+    const tasksRef = ref(db, '/tasks');
+    onValue(tasksRef, snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        // Tüm görevleri diziye çevir
+        const tasksArray = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key],
+        }));
+
+        // Sadece kullanıcının kendisine atanmış görevleri filtrele
+        const userTasks = tasksArray.filter(task => task.userId === userId);
+        setTasks(userTasks);
+      } else {
+        setTasks([]);
+      }
+    });
+  }, [userId]); // useEffect'in userId değiştiğinde yeniden çalışmasını sağlar
+
+ // Checkbox durumu değiştirme işlemi
+const toggleTaskDone = (taskId, currentDoneStatus) => {
+  const taskRef = ref(db, `/tasks/${taskId}`);
+  update(taskRef, { done: !currentDoneStatus, color: !currentDoneStatus ? 'green' : 'red' })
+    .then(() => console.log('Görev durumu güncellendi'))
+    .catch(error => console.error('Görev durumu güncelleme hatası:', error));
+};
+
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {tasks.length > 0 ? (
         tasks.map((task, index) => (
-          <View key={index} style={styles.taskContainer}>
-            <Text style={[styles.taskText, { color: task.color }]}>{index + 1} - {task.text}</Text>
+          <View key={task.id} style={styles.taskContainer}>
+            <CheckBox
+              value={task.done}
+              onValueChange={() => toggleTaskDone(task.id, task.done)}
+              style={styles.checkbox}
+            />
+            <Text style={[styles.taskText, { color: task.done ? 'green' : 'red' }]}>
+              {index + 1} - {task.text}
+            </Text>
           </View>
         ))
       ) : (
@@ -68,7 +74,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'gray',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
   taskText: {
@@ -79,6 +84,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'gray',
     marginTop: 20,
+  },
+  checkbox: {
+    marginRight: 10,
   },
 });
 
