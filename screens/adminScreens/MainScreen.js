@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
-import Login, { acType } from '../loginScreen';
+import Login, { acId, acType } from '../loginScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 import style from '../style';
@@ -55,7 +55,7 @@ function MainScreen({ navigation }) {
           <TouchableOpacity style={style.touchableStyle}>
             <Text>5</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={style.touchableStyle} onPress={() => console.log(acType)}>
+          <TouchableOpacity style={style.touchableStyle} onPress={() => console.log(acType,acId)}>
             <Text>6</Text>
           </TouchableOpacity>
         </View>

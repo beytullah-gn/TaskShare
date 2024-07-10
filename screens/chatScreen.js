@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Image } from 'react-native';
 import { ref, onChildAdded, push, remove, query, orderByChild } from 'firebase/database';
-import { db } from './firebase-config';
+import { db, storage } from './firebase-config';
 import { acId } from './loginScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { ref as refStorage, getDownloadURL } from 'firebase/storage';
 
 function ChatScreen({ route }) {
   const { userId, username } = route.params; // Alıcı ID'sini ve kullanıcı adını al
   
   const [messages, setMessages] = useState([]); // Mesaj listesi
   const [messageText, setMessageText] = useState(''); // Mesaj metni
+  const [recipientImage, setRecipientImage] = useState(null); // Alıcı profil fotoğrafı
 
   useEffect(() => {
     const messagesRef = query(ref(db, '/messages'), orderByChild('timestamp'));
@@ -21,6 +23,19 @@ function ChatScreen({ route }) {
     });
 
     return () => unsubscribe();
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchRecipientImage = async () => {
+      try {
+        const imageUrl = await getDownloadURL(refStorage(storage,`images/${userId}/profilepicture.jpg`));
+        setRecipientImage(imageUrl);
+      } catch (error) {
+        console.error('Profil fotoğrafı getirme hatası:', error);
+      }
+    };
+
+    fetchRecipientImage();
   }, [userId]);
 
   const sendMessage = () => {
@@ -53,12 +68,17 @@ function ChatScreen({ route }) {
     <View style={styles.container}>
       {/* Başlık alanı */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Şuna gönder : {username}</Text>
+        {recipientImage ? (
+          <Image source={{ uri: recipientImage }} style={styles.profileImage} />
+        ) : (
+          <Icon name="user" size={40} color="black" style={styles.profileIcon} />
+        )}
+        <Text style={styles.headerText}>{`Şuna gönder: ${username}`}</Text>
       </View>
 
       {/* Mesajlar gösterilecek alan */}
       <FlatList
-        style={{paddingHorizontal:10}}
+        style={{ paddingHorizontal: 10 }}
         data={messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))} // Tarihsel olarak sıralama
         renderItem={({ item }) => (
           <View style={[
@@ -99,21 +119,34 @@ function ChatScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    
   },
   header: {
+    flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
-    backgroundColor:'greenyellow',
-    alignItems:'flex-start',
-    marginBottom:20,
-  
+    backgroundColor: 'greenyellow',
+    marginBottom: 20,
+    paddingHorizontal: 15,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  profileIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+    backgroundColor: 'lightgray',
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
   headerText: {
     fontSize: 18,
     fontWeight: 'bold',
-    paddingHorizontal:15,
-    color:"navy"
+    color: 'navy',
   },
   messageContainer: {
     maxWidth: '80%',
@@ -137,6 +170,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ccc',
     paddingVertical: 10,
+    paddingHorizontal: 10,
   },
   input: {
     flex: 1,

@@ -64,7 +64,7 @@ function MainScreenWorker({ navigation }) {
         <TouchableOpacity style={style.touchableStyle}>
           <Icon name="circle-o" size={20} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity style={style.touchableStyle}>
+        <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Ayarlar')}>
           <IonIcons name="settings" size={20} color="black" />
         </TouchableOpacity>
       </View>
