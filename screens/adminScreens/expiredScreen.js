@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { FlatList, Text, View, StyleSheet, TouchableOpacity, Alert, Button } from "react-native";
 import { db } from '../firebase-config.js';
 import {
     ref,
     onValue,
-    update
+    update,
+    remove // Firebase'den silme işlemi için gerekli olan fonksiyon
 } from 'firebase/database';
 
 function ExpiredScreen() {
@@ -63,6 +64,28 @@ function ExpiredScreen() {
         // Güncellenen görevleri yeniden yükle
         getTasks();
     };
+    const removeAllExpiredTasks = async () => {
+        const expiredTasks = tasks.filter(task => task.expired === true);
+        expiredTasks.forEach(async task => {
+            const taskRef = ref(db, `/tasks/${task.id}`);
+            try {
+                await remove(taskRef);
+                setTasks(prevTasks => prevTasks.filter(prevTask => prevTask.id !== task.id));
+            } catch (error) {
+                console.error('Görev silme hatası:', error);
+            }
+        });
+    };
+
+    const removeTask = async (taskId) => {
+        const taskRef = ref(db, `/tasks/${taskId}`);
+        try {
+            await remove(taskRef);
+            setTasks(prevTasks => prevTasks.filter(prevTask => prevTask.id !== taskId));
+        } catch (error) {
+            console.error('Görev silme hatası:', error);
+        }
+    };
 
     const renderItem = ({ item }) => {
         const backgroundColor = item.done ? 'green' : 'red';
@@ -83,7 +106,12 @@ function ExpiredScreen() {
                 </View>
                 <TouchableOpacity onPress={() => toggleExpired(item.id, item.expired, item.finishDate, item.done)}>
                     <View style={styles.button}>
-                        <Text style={styles.buttonText}>Kaldır</Text>
+                        <Text style={styles.buttonText}>Taşı</Text>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => removeTask(item.id)}>
+                    <View style={[styles.button, { backgroundColor: 'red', marginLeft: 10 }]}>
+                        <Text style={styles.buttonText}>Sil</Text>
                     </View>
                 </TouchableOpacity>
             </View>
@@ -99,6 +127,7 @@ function ExpiredScreen() {
                 keyExtractor={(item) => item.id}
                 style={styles.flatList}
             />
+            <Button title="Hepsini Sil" onPress={removeAllExpiredTasks} />
         </View>
     );
 }

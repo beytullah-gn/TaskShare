@@ -140,13 +140,20 @@ const renderStartDatePicker = () => {
 
   const removeAllTasks = () => {
     if (acType === 'Admin') {
-      const tasksRef = ref(db, '/tasks');
-      remove(tasksRef);
-      setTasks([]);
+      const tasksToRemove = tasks.filter(task => !task.expired); // Sadece expired: false olan görevleri filtrele
+      tasksToRemove.forEach(task => {
+        const taskRef = ref(db, `/tasks/${task.id}`);
+        remove(taskRef)
+          .then(() => {
+            setTasks(prevTasks => prevTasks.filter(prevTask => prevTask.id !== task.id));
+          })
+          .catch((error) => console.error('Görev silme hatası:', error));
+      });
     } else {
       Alert.alert('Yetki Hatası', 'Tüm görevleri silme yetkiniz yok!');
     }
   };
+  
 
   const toggleTaskColor = (id, currentColor, currentDone) => {
     const newColor = currentColor === 'red' ? 'green' : 'red';
@@ -329,17 +336,18 @@ const renderStartDatePicker = () => {
               </Text>
             </View>
           )}
-        <TouchableOpacity
-          style={styles.dateSelectButton}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Text style={styles.selectUserButtonText}>Bitiş Tarihi Seç</Text>
-        </TouchableOpacity>
+        
         <TouchableOpacity
           style={styles.dateSelectButton}
           onPress={() => setShowStartDatePicker(true)}
         >
           <Text style={styles.selectUserButtonText}>Başlangıç Tarihi Seç</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.dateSelectButton}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <Text style={styles.selectUserButtonText}>Bitiş Tarihi Seç</Text>
         </TouchableOpacity>
       </View>
 
@@ -534,6 +542,7 @@ const styles = StyleSheet.create({
   taskActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    
   },
   editButton: {
     marginRight: 10,
@@ -543,14 +552,18 @@ const styles = StyleSheet.create({
   },
   colorToggleButton: {
     marginRight: 10,
+    
   },
   editInputContainer: {
+    
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
+    
   },
   editInput: {
-    flex: 1,
+    
+    
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 5,
