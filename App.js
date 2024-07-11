@@ -21,6 +21,8 @@ import {
  import { db } from "./screens/firebase-config";
 import ChatScreen from "./screens/chatScreen";
 import PasswordRequest from "./screens/adminScreens/passwordRequests";
+import CalendarScreen from "./screens/calendarScreen";
+import ExpiredScreen from "./screens/adminScreens/expiredScreen";
 
 
 
@@ -67,6 +69,8 @@ function App() {
             <Stack.Screen name="Mesajlarım" component={MyMessagesWorker} />
             <Stack.Screen name="Sohbet" component={ChatScreen} />
             <Stack.Screen name="Şifre Talepleri" component={PasswordRequest} />
+            <Stack.Screen name="Takvim" component={CalendarScreen} />
+            <Stack.Screen name="Arşiv" component={ExpiredScreen} />
                           
             
          </Stack.Navigator>

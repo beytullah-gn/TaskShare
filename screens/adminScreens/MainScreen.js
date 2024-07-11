@@ -4,20 +4,11 @@ import Login, { acId, acType } from '../loginScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 import style from '../style';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
-// Kullanıcı verilerini okuma fonksiyonunu ekleyin
-const getUsers = async () => {
-    try {
-        const jsonValue = await AsyncStorage.getItem('@users');
-        return jsonValue != null ? JSON.parse(jsonValue) : [];
-    } catch (e) {
-        console.error("Kullanıcı verileri alınamadı: ", e);
-        return [];
-    }
-};
+
+
 
 function MainScreen({ navigation }) {
   // Kullanıcı verilerini konsola yazdıracak fonksiyonu tanımlayın
@@ -47,8 +38,9 @@ function MainScreen({ navigation }) {
             <Icon name="envelope-o" size={90} color="black" />
             <Text style={{ fontSize: 17, color: 'black' }}>Mesajlarım</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={style.touchableStyle}>
-            <Text>4</Text>
+          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Takvim')}>
+            <Icon name="calendar" size={90} color="black" />
+            <Text style={{ fontSize: 17, color: 'black' }}>Takvim</Text>
           </TouchableOpacity>
         </View>
         <View style={style.insideView}>

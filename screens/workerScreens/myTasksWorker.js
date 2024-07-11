@@ -14,14 +14,14 @@ function UserTasks({ userId = acId }) {
     onValue(tasksRef, snapshot => {
       const data = snapshot.val();
       if (data) {
-        // Tüm görevleri diziye çevir
+        // Tüm görevleri diziye çevir ve bitiş tarihine göre sırala
         const tasksArray = Object.keys(data).map(key => ({
           id: key,
           ...data[key],
-        }));
+        })).sort((a, b) => new Date(a.finishDate) - new Date(b.finishDate));
 
-        // Sadece kullanıcının kendisine atanmış görevleri filtrele
-        const userTasks = tasksArray.filter(task => task.userId === userId);
+        // Kullanıcının görevlerini filtrele
+        const userTasks = tasksArray.filter(task => task.userIds.includes(userId));
         setTasks(userTasks);
       } else {
         setTasks([]);
@@ -29,34 +29,44 @@ function UserTasks({ userId = acId }) {
     });
   }, [userId]); // useEffect'in userId değiştiğinde yeniden çalışmasını sağlar
 
- // Checkbox durumu değiştirme işlemi
-const toggleTaskDone = (taskId, currentDoneStatus) => {
-  const taskRef = ref(db, `/tasks/${taskId}`);
-  update(taskRef, { done: !currentDoneStatus, color: !currentDoneStatus ? 'green' : 'red' })
-    .then(() => console.log('Görev durumu güncellendi'))
-    .catch(error => console.error('Görev durumu güncelleme hatası:', error));
-};
+  // Checkbox durumu değiştirme işlemi
+  const toggleTaskDone = (taskId, currentDoneStatus) => {
+    const taskRef = ref(db, `/tasks/${taskId}`);
+    update(taskRef, { done: !currentDoneStatus, color: !currentDoneStatus ? 'green' : 'red' })
+      .then(() => console.log('Görev durumu güncellendi'))
+      .catch(error => console.error('Görev durumu güncelleme hatası:', error));
+  };
 
-
-
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {tasks.length > 0 ? (
-        tasks.map((task, index) => (
-          <View key={task.id} style={styles.taskContainer}>
-            <CheckBox
-              value={task.done}
-              onValueChange={() => toggleTaskDone(task.id, task.done)}
-              style={styles.checkbox}
-            />
+  const renderTasks = () => {
+    // Expired özelliği true olan görevleri filtrele
+    const activeTasks = tasks.filter(task => !task.expired);
+  
+    return activeTasks.length > 0 ? (
+      activeTasks.map((task, index) => (
+        <View key={task.id} style={styles.taskContainer}>
+          <CheckBox
+            value={task.done}
+            onValueChange={() => toggleTaskDone(task.id, task.done)}
+            style={styles.checkbox}
+          />
+          <View style={styles.taskTextContainer}>
             <Text style={[styles.taskText, { color: task.done ? 'green' : 'red' }]}>
               {index + 1} - {task.text}
             </Text>
+            <Text style={styles.taskDate}>
+              Başlangıç Tarihi: {task.startDate} - Bitiş Tarihi: {task.finishDate}
+            </Text>
           </View>
-        ))
-      ) : (
-        <Text style={styles.noTasksText}>Henüz size atanmış görev bulunmamaktadır.</Text>
-      )}
+        </View>
+      ))
+    ) : (
+      <Text style={styles.noTasksText}>Henüz size atanmış görev bulunmamaktadır.</Text>
+    );
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      {renderTasks()}
     </ScrollView>
   );
 }
@@ -76,9 +86,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  taskTextContainer: {
+    flex: 1,
+  },
   taskText: {
     fontSize: 18,
-    flex: 1,
+  },
+  taskDate: {
+    fontSize: 14,
+    color: 'gray',
   },
   noTasksText: {
     fontSize: 16,

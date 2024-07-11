@@ -41,8 +41,9 @@ function MainScreenWorker({ navigation }) {
           </TouchableOpacity>
         </View>
         <View style={style.insideView}>
-          <TouchableOpacity style={style.touchableStyle}>
-            <Text>3</Text>
+          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Takvim')}>
+            <Icon name="calendar" size={90} color="black" />
+            <Text style={{ fontSize: 20, color: 'black' }}>Takvim</Text>
           </TouchableOpacity>
           <TouchableOpacity style={style.touchableStyle}>
             <Text>4</Text>

@@ -1,26 +1,74 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View, StyleSheet, Text, ScrollView, TextInput, Alert, Modal, FlatList, SafeAreaView } from 'react-native';
-import CheckBox from 'expo-checkbox';
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  ScrollView,
+  TextInput,
+  Alert,
+  StyleSheet,
+  Modal,
+  FlatList,
+} from 'react-native';
+import CheckBox from 'expo-checkbox'; // Expo'nun checkbox bileşeni
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { ref, onValue, push, update, remove } from 'firebase/database';
-import { db } from '../firebase-config.js';
-import { acType } from '../loginScreen';
+import {
+  ref,
+  onValue,
+  push,
+  update,
+  remove,
+} from 'firebase/database'; // Firebase Realtime Database fonksiyonları
+import { db } from '../firebase-config.js'; // Firebase bağlantı yapılandırması
+import { acType } from '../loginScreen'; // Kullanıcı türü import ediliyor
+import DatePicker from '@react-native-community/datetimepicker'; // Tarih seçim bileşeni
 
-function MyTasks() {
-  const [tasks, setTasks] = useState([]); // Görevlerin tutulduğu liste
-  const [taskText, setTaskText] = useState(''); // Yeni görev metni
-  const [editingIndex, setEditingIndex] = useState(-1); // Düzenleme modundaki görevin index'i
-  const [users, setUsers] = useState([]); // Kullanıcıların listesi
-  const [selectedUserId, setSelectedUserId] = useState(null); // Seçilen kullanıcının ID'si
-  const [modalVisible, setModalVisible] = useState(false); // Modal görünürlüğü
+function MyTasks({ navigation }) {
+  const [tasks, setTasks] = useState([]); // Görevler state'i
+  const [taskText, setTaskText] = useState(''); // Görev metni state'i
+  const [editingIndex, setEditingIndex] = useState(-1); // Düzenleme index'i state'i
+  const [users, setUsers] = useState([]); // Kullanıcılar state'i
+  const [selectedUserIds, setSelectedUserIds] = useState([]); // Seçilen kullanıcı id'leri state'i
+  const [modalVisible, setModalVisible] = useState(false); // Modal görünürlük state'i
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Seçilen tarih state'i
+  const [showDatePicker, setShowDatePicker] = useState(false); // Tarih seçim bileşeni görünürlük state'i
+  const [selectedStartDate, setSelectedStartDate] = useState(new Date()); // Seçilen başlangıç tarihi state'i
+const [showStartDatePicker, setShowStartDatePicker] = useState(false); // Başlangıç tarih seçim bileşeni görünürlük state'i
 
-  // Kullanıcı verilerini okuyan fonksiyon
+const handleStartDateSelect = (event, selectedDate) => {
+  setShowStartDatePicker(false); // Başlangıç tarih seçim bileşenini kapat
+  if (selectedDate) {
+    setSelectedStartDate(selectedDate); // Seçilen başlangıç tarihini state'e ata
+    console.log('Seçilen Başlangıç Tarihi:', selectedDate); // Konsola seçilen tarihi yazdır
+  }
+};
+
+const renderStartDatePicker = () => {
+  if (showStartDatePicker) {
+    return (
+      <DatePicker
+        value={selectedStartDate}
+        mode="date"
+        display="default"
+        minimumDate={new Date()} // minimumDate'i tekrar ekledik
+        onChange={handleStartDateSelect}
+      />
+    );
+  }
+  return null;
+};
+
+
+
+
+
+
   const getUsers = async () => {
     const usersRef = ref(db, '/users');
-    onValue(usersRef, snapshot => {
+    onValue(usersRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const usersArray = Object.keys(data).map(key => ({
+        const usersArray = Object.keys(data).map((key) => ({
           id: key,
           ...data[key],
         }));
@@ -29,34 +77,45 @@ function MyTasks() {
     });
   };
 
-  // Görevleri okuyan fonksiyon
   const getTasks = () => {
     const tasksRef = ref(db, '/tasks');
-    onValue(tasksRef, snapshot => {
+    onValue(tasksRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const tasksArray = Object.keys(data).map(key => ({
-          id: key,
-          ...data[key],
-        }));
+        const tasksArray = Object.keys(data)
+          .map((key) => ({
+            id: key,
+            ...data[key],
+          }))
+          .filter((task) => !task.expired) // Sadece expired: false olanları al
+          .sort((a, b) => new Date(a.finishDate) - new Date(b.finishDate)); // Bitiş tarihine göre sırala
         setTasks(tasksArray);
       }
     });
   };
+  
+  
 
-  // Görev ekleme işlemi
   const addTask = () => {
     if (acType === 'Admin') {
-      if (taskText.trim() !== '' && selectedUserId !== null) {
+      if (taskText.trim() !== '' && selectedUserIds.length > 0) {
         const newTask = {
           text: taskText,
           color: 'red',
-          userId: selectedUserId,
+          userIds: selectedUserIds,
           done: false,
+          startDate: selectedStartDate.toISOString().split('T')[0], // Başlangıç tarihini ekledik
+          finishDate: selectedDate.toISOString().split('T')[0],
+          expired: false,
         };
-        push(ref(db, '/tasks'), newTask);
-        setTaskText('');
-        setSelectedUserId(null);
+        push(ref(db, '/tasks'), newTask)
+          .then(() => {
+            setTaskText('');
+            setSelectedUserIds([]);
+          })
+          .catch((error) =>
+            console.error('Görev ekleme hatası:', error)
+          );
       } else {
         Alert.alert('Eksik Bilgi', 'Lütfen görev metni ve kullanıcı seçimi yapınız!');
       }
@@ -64,57 +123,59 @@ function MyTasks() {
       Alert.alert('Yetki Hatası', 'Görev ekleme yetkiniz yok!');
     }
   };
+  
 
-  // Görev silme işlemi
-const removeTask = (id) => {
-  if (acType === 'Admin') {
-    const taskRef = ref(db, `/tasks/${id}`);
-    remove(taskRef)
-      .then(() => {
-        // Görev Firebase'den silindiğinde görev listesini güncelle
-        setTasks(tasks.filter(task => task.id !== id));
-      })
-      .catch(error => console.error('Görev silme hatası:', error));
-  } else {
-    Alert.alert('Yetki Hatası', 'Görev silme yetkiniz yok!');
-  }
-};
+  const removeTask = (id) => {
+    if (acType === 'Admin') {
+      const taskRef = ref(db, `/tasks/${id}`);
+      remove(taskRef)
+        .then(() => {
+          setTasks(tasks.filter((task) => task.id !== id));
+        })
+        .catch((error) => console.error('Görev silme hatası:', error));
+    } else {
+      Alert.alert('Yetki Hatası', 'Görev silme yetkiniz yok!');
+    }
+  };
 
-  // Tüm görevleri silme işlemi
   const removeAllTasks = () => {
     if (acType === 'Admin') {
       const tasksRef = ref(db, '/tasks');
       remove(tasksRef);
-      setTasks([]); // Tüm görevler silindikten sonra görev listesini temizle
+      setTasks([]);
     } else {
       Alert.alert('Yetki Hatası', 'Tüm görevleri silme yetkiniz yok!');
     }
   };
 
-  // Görevin rengini ve tamamlanma durumunu değiştirme işlemi
-    const toggleTaskColor = (id, currentColor, currentDone) => {
+  const toggleTaskColor = (id, currentColor, currentDone) => {
     const newColor = currentColor === 'red' ? 'green' : 'red';
     const newDone = !currentDone;
+    const newExpired = !currentDone; // Yeni expired durumu
     const taskRef = ref(db, `/tasks/${id}`);
-    update(taskRef, { color: newColor, done: newDone })
-      .then(() => console.log('Görev rengi ve tamamlanma durumu güncellendi'))
-      .catch(error => console.error('Görev rengi ve tamamlanma durumu güncelleme hatası:', error));
-  };
-  // Görev düzenleme işlemine başlama
+    update(taskRef, { color: newColor, done: newDone, expired: newExpired }) // expired'i güncelle
+      .then(() =>
+        console.log('Görev rengi, tamamlanma durumu ve expired durumu güncellendi')
+      )
+      .catch((error) =>
+        console.error('Görev rengi, tamamlanma durumu ve expired durumu güncelleme hatası:', error)
+      );
+};
+
+
   const startEditingTask = (index) => {
     if (acType === 'Admin') {
       setEditingIndex(index);
-      setTaskText(tasks[index].text); // Düzenlenecek görevin metnini set et
+      setTaskText(tasks[index].text);
     } else {
       Alert.alert('Yetki Hatası', 'Görevleri düzenleme yetkiniz yok!');
     }
   };
 
-  // Görev düzenleme işlemi tamamlama
   const finishEditingTask = (id, newText) => {
     const taskRef = ref(db, `/tasks/${id}`);
     update(taskRef, { text: newText });
-    setEditingIndex(-1); // Düzenleme modunu sonlandır
+    setEditingIndex(-1);
   };
 
   useEffect(() => {
@@ -122,7 +183,17 @@ const removeTask = (id) => {
     getUsers();
   }, []);
 
-  // Kullanıcı seçim modal'ı
+  const renderUserNames = (userIds) => {
+    return userIds.map((id, index) => {
+      const user = users.find((user) => user.id === id);
+      return user ? (
+        <Text key={index} style={styles.userName}>
+          {user.username} ,
+        </Text>
+      ) : null;
+    });
+  };
+
   const renderUserPicker = () => (
     <Modal
       animationType="slide"
@@ -137,17 +208,24 @@ const removeTask = (id) => {
           <Text style={styles.modalText}>Kullanıcı Seç</Text>
           <FlatList
             data={users}
-            keyExtractor={item => item.id}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.userItem}
-                onPress={() => {
-                  setSelectedUserId(item.id);
-                  setModalVisible(false);
-                }}
-              >
+              <View style={styles.userItem}>
+                <CheckBox
+                  style={{ margin: 10 }}
+                  value={selectedUserIds.includes(item.id)}
+                  onValueChange={(newValue) => {
+                    if (newValue) {
+                      setSelectedUserIds((prev) => [...prev, item.id]);
+                    } else {
+                      setSelectedUserIds((prev) =>
+                        prev.filter((id) => id !== item.id)
+                      );
+                    }
+                  }}
+                />
                 <Text>{item.username}</Text>
-              </TouchableOpacity>
+              </View>
             )}
           />
           <TouchableOpacity
@@ -162,148 +240,372 @@ const removeTask = (id) => {
       </View>
     </Modal>
   );
+  const handleCheckBoxPress = () => {
+    // Burada uyarı gösterilecek
+    Alert.alert(
+        "Onay",
+        "Bu işlemi onaylıyor musunuz?",
+        [
+            {
+                text: "Vazgeç",
+                style: "cancel"
+            },
+            {
+                text: "Evet",
+                onPress: () => {
+                    // Checkbox işlemini burada gerçekleştirin
+                    // Örneğin: CheckBox'ı işaretleyin veya işaretini kaldırın
+                }
+            }
+        ]
+    );
+};
+
+
+  const handleDateSelect = (event, selectedDate) => {
+    setShowDatePicker(false); // Bitiş tarih seçim bileşenini kapat
+    if (selectedDate) {
+      if (selectedStartDate && selectedDate < selectedStartDate) {
+        Alert.alert('Hata', 'Bitiş tarihi başlangıç tarihinden önce olamaz.');
+      } else {
+        setSelectedDate(selectedDate); // Seçilen tarihi state'e ata
+        console.log('Seçilen Tarih:', selectedDate); // Konsola seçilen tarihi yazdır
+      }
+    }
+  };
+
+  const renderDatePicker = () => {
+    if (showDatePicker) {
+      return (
+        <DatePicker
+          value={selectedDate}
+          mode="date"
+          display="default"
+          minimumDate={selectedStartDate || new Date()} // minimumDate'i başlangıç tarihine göre ayarla
+          onChange={handleDateSelect}
+        />
+      );
+    }
+    return null;
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TextInput
-        style={styles.input}
-        value={taskText}
-        placeholder="Görev"
-        onChangeText={setTaskText}
-      />
-
-      {/* Kullanıcı seçimi butonu */}
-      <TouchableOpacity style={styles.selectUserButton} onPress={() => setModalVisible(true)}>
-        <Text style={styles.selectUserButtonText}>Kullanıcı Seç</Text>
-      </TouchableOpacity>
-
-      {/* Görev ekleme ve temizleme işlemleri */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-        <TouchableOpacity style={styles.touchableStyle} onPress={addTask}>
-          <Icon name="plus" size={30} color="black" />
+      <View style={styles.topContainer}>
+        <TextInput
+          style={styles.input}
+          value={taskText}
+          placeholder="Görev"
+          onChangeText={setTaskText}
+        />
+        <View style={styles.userSelectionContainer}>
+          <TouchableOpacity style={styles.addButton} onPress={addTask}>
+            <Text style={styles.addButtonText}>Görev Ekle</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.selectUserButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <Text style={styles.selectUserButtonText}>Kullanıcı Seç</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.expiredButton}
+            onPress={()=>{navigation.navigate("Arşiv")}}
+          >
+            <Text style={styles.selectUserButtonText}>Arşiv</Text>
+          </TouchableOpacity>
+          
+        </View>
+        {selectedUserIds.length > 0 && (
+            <View style={styles.selectedUserContainer}>
+              <Text style={styles.selectedUserText}>
+                Seçilen kullanıcılar:{' '}
+                {selectedUserIds
+                  .map(
+                    (id) =>
+                      users.find((user) => user.id === id)?.username
+                  )
+                  .join(', ')}
+              </Text>
+            </View>
+          )}
+        <TouchableOpacity
+          style={styles.dateSelectButton}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <Text style={styles.selectUserButtonText}>Bitiş Tarihi Seç</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.touchableStyle} onPress={removeAllTasks}>
-          <Icon name="remove" size={30} color="black" />
+        <TouchableOpacity
+          style={styles.dateSelectButton}
+          onPress={() => setShowStartDatePicker(true)}
+        >
+          <Text style={styles.selectUserButtonText}>Başlangıç Tarihi Seç</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Görev listesi */}
-      {tasks.length > 0 ? (
-        tasks.map((task, index) => (
-          <View key={task.id} style={styles.taskContainer}>
-            {editingIndex === index ? (
-              <View style={styles.editContainer}>
-                <TextInput
-                  style={styles.editInput}
-                  value={taskText}
-                  onChangeText={setTaskText}
-                  autoFocus
-                />
-                <TouchableOpacity onPress={() => finishEditingTask(task.id, taskText)} style={styles.editButton}>
-                  <Text style={styles.editButtonText}>Onayla</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <>
-                <CheckBox
-                  onValueChange={() => toggleTaskColor(task.id, task.color, task.done)}
-                  value={task.color === 'green'}
-                />
-                <Text style={[styles.taskText, { color: task.color }]}>
-                  {index + 1} - {task.text}
-                </Text>
-                <View style={styles.buttonsContainer}>
-                  <TouchableOpacity onPress={() => startEditingTask(index)} style={styles.taskButton}>
-                    <Icon name="edit" size={20} color="black" />
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => removeTask(task.id)} style={styles.taskButton}>
-                    <Icon name="trash" size={20} color="black" />
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom:20,
+        }}
+      >
+        <View style={{flexDirection:'column'}}>
+          <Text style={{ fontSize: 20, marginRight: 10 }}>
+            Seçilen Başlangıç Tarihi:
+          </Text>
+          <Text style={{ fontSize: 20 }}>
+            {selectedStartDate.toISOString().split('T')[0]}
+          </Text>
+          <Text style={{ fontSize: 20, marginRight: 10 }}>
+            Seçilen Bitiş Tarihi:
+          </Text>
+          <Text style={{ fontSize: 20 }}>
+            {selectedDate.toISOString().split('T')[0]}
+          </Text>
+        </View>
+      </View>
+
+      {renderDatePicker()}
+
+      
+
+      {tasks.map((task, index) => (
+        <View key={index} style={styles.taskContainer}>
+          <View style={styles.taskDetails}>
+            <Text style={[styles.taskText, { color: task.color }]}>
+              {task.text}
+            </Text>
+            <Text style={styles.taskUsers}>
+              Atanan Kullanıcılar: {renderUserNames(task.userIds)}
+            </Text>
+            <Text style={styles.taskDate}>
+              Başlangıç Tarihi: {task.startDate}
+            </Text>
+            <Text style={styles.taskDate}>
+              Bitiş Tarihi: {task.finishDate}
+            </Text>
           </View>
-        ))
-      ) : (
-        <Text>Görev yok</Text>
+          <View style={styles.taskActions}>
+            {!task.done && (
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => startEditingTask(index)}
+              >
+                <Icon name="edit" size={20} color="blue" />
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => removeTask(task.id)}
+            >
+              <Icon name="trash" size={20} color="red" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.colorToggleButton}
+              onPress={() =>
+                toggleTaskColor(task.id, task.color, task.done)
+              }
+            >
+              <Icon
+                name={task.color === 'red' ? 'toggle-off' : 'toggle-on'}
+                size={20}
+                color={task.color === 'red' ? 'gray' : 'green'}
+              />
+            </TouchableOpacity>
+          </View>
+          {index === editingIndex && (
+            <View style={styles.editInputContainer}>
+              <TextInput
+                style={styles.editInput}
+                value={taskText}
+                onChangeText={setTaskText}
+              />
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={() => finishEditingTask(task.id, taskText)}
+              >
+                <Text style={styles.saveButtonText}>Kaydet</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      ))}
+
+      {tasks.length > 0 && (
+        <TouchableOpacity
+          style={styles.deleteAllButton}
+          onPress={removeAllTasks}
+        >
+          <Text style={styles.deleteAllButtonText}>Tüm Görevleri Sil</Text>
+        </TouchableOpacity>
       )}
 
-      {/* Kullanıcı seçim modal'ı */}
       {renderUserPicker()}
+      
+
+{renderStartDatePicker()}
     </ScrollView>
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
+    backgroundColor: '#fff',
+  },
+  topContainer: {
+    marginBottom: 20,
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
     borderWidth: 1,
-    marginBottom: 20,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+  },
+  userSelectionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    justifyContent:'space-around'
+  },
+  selectUserButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    backgroundColor: 'blue',
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  expiredButton: {
+    paddingVertical: 10,
     paddingHorizontal: 10,
-    width: '100%',
+    backgroundColor: 'gray',
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  selectUserButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  selectedUserContainer: {
+    backgroundColor: 'lightskyblue',
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+  },
+  selectedUserText: {
+    fontSize: 14,
+    color:'#fff',
+    borderColor:'black',
+    
+  },
+  dateSelectButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: 'goldenrod',
+    borderRadius: 5,
+    marginTop: 10,
   },
   taskContainer: {
-    width: '100%',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+  },
+  taskDetails: {
+    flex: 1,
   },
   taskText: {
-    fontSize: 18,
-    flex: 1,
+    fontSize: 16,
+    marginBottom: 5,
   },
-  touchableStyle: {
-    width: 80,
-    alignItems: 'center',
+  taskUsers: {
+    fontSize: 14,
+    marginBottom: 5,
   },
-  buttonsContainer: {
+  taskDate: {
+    fontSize: 14,
+  },
+  taskActions: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  taskButton: {
-    marginLeft: 10,
+  editButton: {
+    marginRight: 10,
   },
-  editContainer: {
+  deleteButton: {
+    marginRight: 10,
+  },
+  colorToggleButton: {
+    marginRight: 10,
+  },
+  editInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    flex: 1,
+    marginTop: 10,
   },
   editInput: {
     flex: 1,
-    height: 40,
-    borderColor: 'gray',
     borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 5,
     marginRight: 10,
+  },
+  saveButton: {
+    backgroundColor: 'blue',
+    paddingVertical: 5,
     paddingHorizontal: 10,
+    borderRadius: 5,
   },
-  editButton: {
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  addButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     backgroundColor: 'green',
-    padding: 10,
     borderRadius: 5,
+    marginRight: 10,
+    
   },
-  editButtonText: {
-    color: 'white',
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
-  selectUserButton: {
-    backgroundColor: '#DDDDDD',
-    padding: 10,
+  deleteAllButton: {
+    backgroundColor: 'red',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
-    marginBottom: 20,
+    alignSelf: 'center',
+    marginTop: 20,
   },
-  selectUserButtonText: {
-    fontSize: 18,
+  deleteAllButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  userName: {
+    fontSize: 16,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   centeredView: {
     flex: 1,
@@ -311,41 +613,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 22,
   },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
   modalText: {
     marginBottom: 15,
+    fontSize: 18,
     textAlign: 'center',
-    fontSize: 20,
   },
   userItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   closeButton: {
-    backgroundColor: '#2196F3',
-    borderRadius: 20,
+    backgroundColor: 'red',
     padding: 10,
-    elevation: 2,
+    borderRadius: 5,
+    alignSelf: 'flex-end',
   },
   closeButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
