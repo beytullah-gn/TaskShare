@@ -33,8 +33,8 @@ function MyTasks({ navigation }) {
   const [selectedDate, setSelectedDate] = useState(new Date()); // Seçilen tarih state'i
   const [showDatePicker, setShowDatePicker] = useState(false); // Tarih seçim bileşeni görünürlük state'i
   const [selectedStartDate, setSelectedStartDate] = useState(new Date()); // Seçilen başlangıç tarihi state'i
-const [showStartDatePicker, setShowStartDatePicker] = useState(false); // Başlangıç tarih seçim bileşeni görünürlük state'i
-
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false); // Başlangıç tarih seçim bileşeni görünürlük state'i
+  
 const handleStartDateSelect = (event, selectedDate) => {
   setShowStartDatePicker(false); // Başlangıç tarih seçim bileşenini kapat
   if (selectedDate) {
@@ -90,6 +90,7 @@ const renderStartDatePicker = () => {
           .filter((task) => !task.expired) // Sadece expired: false olanları al
           .sort((a, b) => new Date(a.finishDate) - new Date(b.finishDate)); // Bitiş tarihine göre sırala
         setTasks(tasksArray);
+        //console.log(tasksArray)
       }
     });
   };
@@ -168,6 +169,11 @@ const renderStartDatePicker = () => {
         console.error('Görev rengi, tamamlanma durumu ve expired durumu güncelleme hatası:', error)
       );
 };
+  const navigateToTask = (taskId) => {
+    console.log("secilen id ",taskId)
+    const deneme = 123
+    navigation.navigate('Seçilen Görev', { taskId });
+  };
 
 
   const startEditingTask = (index) => {
@@ -247,26 +253,6 @@ const renderStartDatePicker = () => {
       </View>
     </Modal>
   );
-  const handleCheckBoxPress = () => {
-    // Burada uyarı gösterilecek
-    Alert.alert(
-        "Onay",
-        "Bu işlemi onaylıyor musunuz?",
-        [
-            {
-                text: "Vazgeç",
-                style: "cancel"
-            },
-            {
-                text: "Evet",
-                onPress: () => {
-                    // Checkbox işlemini burada gerçekleştirin
-                    // Örneğin: CheckBox'ı işaretleyin veya işaretini kaldırın
-                }
-            }
-        ]
-    );
-};
 
 
   const handleDateSelect = (event, selectedDate) => {
@@ -380,65 +366,71 @@ const renderStartDatePicker = () => {
       
 
       {tasks.map((task, index) => (
-        <View key={index} style={styles.taskContainer}>
-          <View style={styles.taskDetails}>
-            <Text style={[styles.taskText, { color: task.color }]}>
-              {task.text}
-            </Text>
-            <Text style={styles.taskUsers}>
-              Atanan Kullanıcılar: {renderUserNames(task.userIds)}
-            </Text>
-            <Text style={styles.taskDate}>
-              Başlangıç Tarihi: {task.startDate}
-            </Text>
-            <Text style={styles.taskDate}>
-              Bitiş Tarihi: {task.finishDate}
-            </Text>
-          </View>
-          <View style={styles.taskActions}>
-            {!task.done && (
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => startEditingTask(index)}
-              >
-                <Icon name="edit" size={20} color="blue" />
-              </TouchableOpacity>
+         <TouchableOpacity onPress={()=>{navigateToTask(task.id)}}>
+            <View key={index} style={styles.taskContainer}>
+            <View style={styles.taskDetails}>
+              <Text style={[styles.taskText, { color: task.color }]}>
+                {task.text}
+              </Text>
+              <Text style={styles.taskUsers}>
+                Atanan Kullanıcılar: {renderUserNames(task.userIds)}
+              </Text>
+              <Text style={styles.taskDate}>
+                Başlangıç Tarihi: {task.startDate}
+              </Text>
+              <Text style={styles.taskDate}>
+                Bitiş Tarihi: {task.finishDate}
+              </Text>
+              {index === editingIndex && (
+              <View style={styles.editInputContainer}>
+                <TextInput
+                  style={styles.editInput}
+                  value={taskText}
+                  onChangeText={setTaskText}
+                />
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={() => finishEditingTask(task.id, taskText)}
+                >
+                  <Text style={styles.saveButtonText}>Kaydet</Text>
+                </TouchableOpacity>
+              </View>
+              
             )}
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => removeTask(task.id)}
-            >
-              <Icon name="trash" size={20} color="red" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.colorToggleButton}
-              onPress={() =>
-                toggleTaskColor(task.id, task.color, task.done)
-              }
-            >
-              <Icon
-                name={task.color === 'red' ? 'toggle-off' : 'toggle-on'}
-                size={20}
-                color={task.color === 'red' ? 'gray' : 'green'}
-              />
-            </TouchableOpacity>
-          </View>
-          {index === editingIndex && (
-            <View style={styles.editInputContainer}>
-              <TextInput
-                style={styles.editInput}
-                value={taskText}
-                onChangeText={setTaskText}
-              />
+            </View>
+            <View style={styles.taskActions}>
+              {!task.done && (
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => startEditingTask(index)}
+                >
+                  <Icon name="edit" size={20} color="blue" />
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
-                style={styles.saveButton}
-                onPress={() => finishEditingTask(task.id, taskText)}
+                style={styles.deleteButton}
+                onPress={() => removeTask(task.id)}
               >
-                <Text style={styles.saveButtonText}>Kaydet</Text>
+                <Icon name="trash" size={20} color="red" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.colorToggleButton}
+                onPress={() =>
+                  toggleTaskColor(task.id, task.color, task.done)
+                }
+              >
+                <Icon
+                  name={task.color === 'red' ? 'toggle-off' : 'toggle-on'}
+                  size={20}
+                  color={task.color === 'red' ? 'gray' : 'green'}
+                />
               </TouchableOpacity>
             </View>
-          )}
-        </View>
+          
+          </View>
+         </TouchableOpacity>
+        
+        
       ))}
 
       {tasks.length > 0 && (
@@ -524,6 +516,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
+    
   },
   taskDetails: {
     flex: 1,
@@ -557,8 +550,9 @@ const styles = StyleSheet.create({
   editInputContainer: {
     
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     marginTop: 10,
+    
     
   },
   editInput: {

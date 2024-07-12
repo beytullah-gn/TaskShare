@@ -4,6 +4,7 @@ import { Calendar } from 'react-native-calendars';
 import { ref, onValue, off } from 'firebase/database';
 import { db } from '../firebase-config';
 import { acType, acId } from '../loginScreen';
+import ColorInformation from './colorInformation';
 
 const CalendarComponent = () => {
   const [selected, setSelected] = useState('');
@@ -152,6 +153,7 @@ const CalendarComponent = () => {
         <Text style={styles.buttonText}>Kullanıcı Seç</Text>
       </TouchableOpacity>
 
+      <ColorInformation/>
       <Text style={styles.selectedText}>
         {selectedUser ? `Seçilen kullanıcı: ${selectedUser.username}` : 'Lütfen bir kullanıcı seçin'}
       </Text>

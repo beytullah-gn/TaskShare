@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Image } from 'react-native';
-import { ref, onChildAdded, push, remove, query, orderByChild } from 'firebase/database';
+import { ref, onChildAdded, push, remove, query, orderByChild, update } from 'firebase/database';
 import { db, storage } from './firebase-config';
 import { acId } from './loginScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -8,7 +8,7 @@ import { ref as refStorage, getDownloadURL } from 'firebase/storage';
 
 function ChatScreen({ route }) {
   const { userId, username } = route.params; // Alıcı ID'sini ve kullanıcı adını al
-  
+
   const [messages, setMessages] = useState([]); // Mesaj listesi
   const [messageText, setMessageText] = useState(''); // Mesaj metni
   const [recipientImage, setRecipientImage] = useState(null); // Alıcı profil fotoğrafı
@@ -19,6 +19,15 @@ function ChatScreen({ route }) {
       const message = snapshot.val();
       if ((message.senderId === acId && message.recipientId === userId) || (message.senderId === userId && message.recipientId === acId)) {
         setMessages(prevMessages => [...prevMessages, { id: snapshot.key, ...message }]);
+
+        // Karşı tarafın mesajlarını okundu olarak işaretle
+        if (message.senderId === userId && message.recipientId === acId && !message.seen) {
+          update(ref(db, `/messages/${snapshot.key}`), { seen: true })
+            .then(() => {
+              console.log('Mesaj okundu olarak işaretlendi:', snapshot.key);
+            })
+            .catch(error => console.error('Mesaj okundu işaretleme hatası:', error));
+        }
       }
     });
 
@@ -28,7 +37,7 @@ function ChatScreen({ route }) {
   useEffect(() => {
     const fetchRecipientImage = async () => {
       try {
-        const imageUrl = await getDownloadURL(refStorage(storage,`images/${userId}/profilepicture.jpg`));
+        const imageUrl = await getDownloadURL(refStorage(storage, `images/${userId}/profilepicture.jpg`));
         setRecipientImage(imageUrl);
       } catch (error) {
         console.error('Profil fotoğrafı getirme hatası:', error);
@@ -46,6 +55,7 @@ function ChatScreen({ route }) {
       senderId: acId,
       recipientId: userId,
       timestamp: new Date().toISOString(),
+      seen: false // Yeni özellik eklendi
     };
     push(ref(db, '/messages'), newMessage)
       .then(() => {
@@ -88,11 +98,19 @@ function ChatScreen({ route }) {
           ]}>
             <Text style={styles.messageText}>{item.message}</Text>
             {item.senderId === acId && (
-              <TouchableOpacity onPress={() => deleteMessage(item.id)} style={styles.deleteButton}>
-                <Text>
-                  <Icon name="trash" size={20} color="red" />
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.messageFooter}>
+                <TouchableOpacity onPress={() => deleteMessage(item.id)} style={styles.deleteButton}>
+                  <Text>
+                    <Icon name="trash" size={20} color="red" />
+                  </Text>
+                </TouchableOpacity>
+                <Icon 
+                  name="check" 
+                  size={15} 
+                  color={item.seen ? 'blue' : 'gray'} 
+                  style={styles.seenIcon}
+                />
+              </View>
             )}
           </View>
         )}
@@ -159,10 +177,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginRight: 40, // Silme düğmesi ile metin arasında mesafe
   },
+  messageFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginTop: 5,
+  },
   deleteButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
+    marginRight: 10,
+  },
+  seenIcon: {
+    marginLeft: 5,
   },
   inputContainer: {
     flexDirection: 'row',

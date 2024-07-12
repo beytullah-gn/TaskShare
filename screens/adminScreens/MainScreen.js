@@ -47,8 +47,9 @@ function MainScreen({ navigation }) {
           <TouchableOpacity style={style.touchableStyle}>
             <Text>5</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={style.touchableStyle} onPress={() => console.log(acType,acId)}>
-            <Text>6</Text>
+          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Performans Analizi')}>
+            <Icon name="bar-chart" size={90} color="black" />
+            <Text style={{ fontSize: 17, color: 'black' }}>Performans Analizi</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -23,6 +23,8 @@ import ChatScreen from "./screens/chatScreen";
 import PasswordRequest from "./screens/adminScreens/passwordRequests";
 import CalendarScreen from "./screens/calendarScreen";
 import ExpiredScreen from "./screens/adminScreens/expiredScreen";
+import GraphicsScreen from "./screens/graphicsScreen";
+import SelectedTask from "./screens/adminScreens/selectedTaskScreen";
 
 
 
@@ -71,6 +73,8 @@ function App() {
             <Stack.Screen name="Şifre Talepleri" component={PasswordRequest} />
             <Stack.Screen name="Takvim" component={CalendarScreen} />
             <Stack.Screen name="Arşiv" component={ExpiredScreen} />
+            <Stack.Screen name="Performans Analizi" component={GraphicsScreen} />
+            <Stack.Screen name="Seçilen Görev" component={SelectedTask} />
                           
             
          </Stack.Navigator>

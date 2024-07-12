@@ -12,6 +12,7 @@ function MyMessagesWorker({ navigation }) {
   const [users, setUsers] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [images, setImages] = useState({});
+  const [lastMessages, setLastMessages] = useState({}); // State to hold last messages for each user
 
   useEffect(() => {
     const fetchUsers = () => {
@@ -42,20 +43,35 @@ function MyMessagesWorker({ navigation }) {
       onValue(messagesRef, snapshot => {
         const data = snapshot.val();
         if (data) {
-          const conversationUsers = new Set();
+          const lastMessagesData = {};
+
           Object.values(data).forEach(message => {
-            if (message.senderId === acId) {
-              conversationUsers.add(message.recipientId);
-            } else if (message.recipientId === acId) {
-              conversationUsers.add(message.senderId);
+            const { senderId, recipientId, timestamp, text, seen } = message;
+
+            // Only include messages where current user is either sender or recipient
+            if (senderId === acId || recipientId === acId) {
+              const otherUserId = senderId === acId ? recipientId : senderId;
+
+              if (!lastMessagesData[otherUserId] || timestamp > lastMessagesData[otherUserId].timestamp) {
+                lastMessagesData[otherUserId] = { message, timestamp, seen };
+              }
             }
           });
-          const conversationUsersArray = Array.from(conversationUsers).map(userId => users.find(user => user.id === userId)).filter(Boolean);
-          setConversations(conversationUsersArray);
+
+          const lastMessagesArray = Object.keys(lastMessagesData).map(userId => ({
+            id: userId,
+            ...lastMessagesData[userId],
+          }));
+
+          setConversations(lastMessagesArray.map(message => ({
+            id: message.id,
+            username: users.find(user => user.id === message.id)?.username || 'Unknown User',
+          })));
+          setLastMessages(lastMessagesData);
         }
       });
     };
-
+    
     fetchConversations();
 
     return () => {
@@ -86,6 +102,13 @@ function MyMessagesWorker({ navigation }) {
   const openModal = () => {
     setModalVisible(true);
   };
+  const textLenght = (text) => {
+    if (text.length > 100) {
+        return text.substring(0, 100) + '...';
+    } else {
+        return text;
+    }
+};
 
   const closeModal = () => {
     setModalVisible(false);
@@ -98,19 +121,55 @@ function MyMessagesWorker({ navigation }) {
 
   const isAdmin = acType === 'Admin';
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.userItem} onPress={() => navigateToChat(item.id, item.username)}>
-      {images[item.id] ? (
-        <Image source={{ uri: images[item.id] }} style={styles.profileImage} />
-      ) : (
-        <Icon name="user" size={40} color="black" />
-      )}
-      <View style={styles.userTextContainer}>
-        <Text style={styles.userName}>{item.username.toUpperCase()}</Text>
-        
-      </View>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    const user = users.find(user => user.id === item.id);
+    if (!user || !lastMessages[item.id]) {
+      return null;
+    }
+
+    const isCurrentUserSender = lastMessages[item.id].message.senderId === acId;
+    const isRecipientCurrentUser = lastMessages[item.id].message.recipientId === acId;
+
+    // Check if the current user has sent or received messages with this user
+    if (!isCurrentUserSender && !isRecipientCurrentUser) {
+      return null;
+    }
+
+    return (
+      <TouchableOpacity style={styles.userItem} onPress={() => navigateToChat(item.id, user.username)}>
+        {images[item.id] ? (
+          <Image source={{ uri: images[item.id] }} style={styles.profileImage} />
+        ) : (
+          <Icon name="user" size={40} color="black" />
+        )}
+        <View style={styles.userTextContainer}>
+          
+          
+          
+            <View style={{flexDirection:'column'}}>
+              <Text style={styles.userName}>{user.username.toUpperCase()}</Text>
+              <Text style={{paddingTop:5}}>{textLenght(lastMessages[item.id].message.message)}</Text>
+              <Text style={styles.lastMessage}>{lastMessages[item.id].message.text}</Text>
+            
+            
+            
+            {/* Check if the recipient is the current user and the message is unseen */}
+              {isRecipientCurrentUser && !lastMessages[item.id].message.seen && (
+                <View style={{ position: 'absolute', top: 0, right: 0 }}>
+                  <Icon name="exclamation-circle" size={20} color="red" />
+                </View>
+              )}
+
+              {isCurrentUserSender && (
+                <Text style={lastMessages[item.id].message.seen ? styles.seenText : styles.unseenText}>
+                  {lastMessages[item.id].message.seen ? 'Seen' : 'Unseen'}
+                </Text>
+              )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const handleAdminAction = () => {
     console.log('Admin butonu tıklandı');
@@ -151,7 +210,7 @@ function MyMessagesWorker({ navigation }) {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.userItem}
-                  onPress={() => navigateToChat(item.id)}
+                  onPress={() => navigateToChat(item.id,item.username)}
                 >
                   <View style={styles.userTextContainer}>
                     {images[item.id] ? (
@@ -160,7 +219,12 @@ function MyMessagesWorker({ navigation }) {
                       <Icon name="user" size={40} color="black" />
                     )}
                     <Text style={styles.modalUserName}>{item.username.toUpperCase()}</Text>
-                    
+                    {lastMessages[item.id] && (
+                      <>
+                        <Text style={styles.lastMessage}>{lastMessages[item.id].message.text}</Text>
+                        
+                      </>
+                    )}
                   </View>
                 </TouchableOpacity>
               )}
@@ -178,6 +242,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f0f0f0',
   },
   addButton: {
     position: 'absolute',
@@ -204,16 +269,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 8,
   },
-  adminButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    
   },
   modalView: {
     margin: 20,
@@ -221,33 +283,22 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 35,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
     elevation: 5,
+    
   },
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
-    fontSize: 20,
-  },
-  modalUserName: {
-    fontSize: 18,
-    paddingHorizontal: 20,
     fontWeight: 'bold',
-    textAlign: 'left',
+    fontSize: 18,
+    
   },
   userItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'gray',
+    borderBottomColor: '#ccc',
   },
   userTextContainer: {
     alignItems:'center',
@@ -256,17 +307,22 @@ const styles = StyleSheet.create({
     flexDirection:'row',
   },
   userName: {
-    fontSize: 18,
-    paddingHorizontal: 20,
     fontWeight: 'bold',
-    textAlign: 'left',
+    fontSize: 16,
+    
   },
-  userId: {
-    fontSize: 12,
-    color: 'gray',
+  lastMessage: {
+    color: '#666',
+    
+    
   },
-  flatListContainer: {
-    flexGrow: 1,
+  seenText: {
+    color: 'green',
+    marginLeft: 5, // Adjust as needed
+  },
+  unseenText: {
+    color: 'red',
+    marginLeft: 5, // Adjust as needed
   },
   profileImage: {
     width: 80,
@@ -275,7 +331,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'gray',
   },
-  
+  modalUserName: {
+    fontSize: 16,
+    marginLeft: 10,
+  },
+  flatListContainer: {
+    flexGrow: 1,
+  },
 });
 
 export default MyMessagesWorker;
