@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect,useState } from "react";
 import Login from "./screens/loginScreen";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
@@ -25,7 +25,8 @@ import CalendarScreen from "./screens/calendarScreen";
 import ExpiredScreen from "./screens/adminScreens/expiredScreen";
 import GraphicsScreen from "./screens/graphicsScreen";
 import SelectedTask from "./screens/adminScreens/selectedTaskScreen";
-
+import moment from "moment";
+import SelectedScreenWorker from "./screens/workerScreens/selectedTaskWorkerScreen";
 
 
 
@@ -35,23 +36,51 @@ function App() {
    /*addusers(() => {
       
     }, []); */
-
+    const [tasks, setTasks] = useState([]);
+   
+    const getTasks = () => {
+      const tasksRef = ref(db, '/tasks');
+      onValue(tasksRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const tasksArray = Object.keys(data)
+            .map((key) => ({
+              id: key,
+              ...data[key],
+            }))
+            .filter((task) => !task.expired) // Sadece expired: false olanları al
+            .sort((a, b) => new Date(a.finishDate) - new Date(b.finishDate)); // Bitiş tarihine göre sırala
+          setTasks(tasksArray);
+         if (tasksArray.length > 0){
+            const today = moment.utc().endOf('day');
+          
+          tasksArray.forEach(task => {
+            const finishDate = new Date(task.finishDate);
+            finishDate.setDate(finishDate.getDate()+1)
+            
+            if(finishDate<today)
+            {
+               const expiredRef = ref(db, `/tasks/${task.id}`);
+               update(expiredRef, { expired: true }) // expired'i güncelle
+               .then(() =>
+                  console.log("Today date ---->",today,"FİNİSH DATE ----->",finishDate,"Task id --->",task.id)
+               )
+               .catch((error) =>
+                 console.error('Süresi geçmiş görevler güncellenirken hata : ', error)
+               );
+            }
+          })
+         }
+          
+          //console.log(tasksArray)
+        }
+      });
+    };
     
     
     useEffect(() => {
       
-      return onValue(ref(db, '/users'), querySnapShot => {
-         let data = querySnapShot.val() || {};
-         let todoItems = {...data};
-         let usernames = Object.values(todoItems).map(item => item.username);
-         //console.log(usernames);
-         for (let key in todoItems) {
-            if (todoItems[key].username === 'admin') {
-              //console.log('Password for admin:', todoItems[key].password);
-              break; // admin bulundu, döngüden çık
-            }
-          }
-      });
+      getTasks();
     }, []);
   
 
@@ -75,6 +104,7 @@ function App() {
             <Stack.Screen name="Arşiv" component={ExpiredScreen} />
             <Stack.Screen name="Performans Analizi" component={GraphicsScreen} />
             <Stack.Screen name="Seçilen Görev" component={SelectedTask} />
+            <Stack.Screen name="Seçili Görev" component={SelectedScreenWorker} />
                           
             
          </Stack.Navigator>

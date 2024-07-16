@@ -5,7 +5,7 @@ import {
     ref,
     onValue,
     update,
-    remove // Firebase'den silme işlemi için gerekli olan fonksiyon
+    remove 
 } from 'firebase/database';
 
 function ExpiredScreen() {
@@ -50,7 +50,7 @@ function ExpiredScreen() {
 
     const toggleExpired = async (taskId, currentExpired, finishDate, currentDone) => {
         if (new Date(finishDate) < new Date()) {
-            Alert.alert("Hata", "Bitiş tarihi bugünden önce olduğu için görevin süresi dolmuş olarak işaretlenemez.");
+            Alert.alert("Hata", "Bitiş tarihi bugünden önce olduğu için, görev aktif olarak işaretlenemez.");
             return;
         }
 

@@ -34,7 +34,8 @@ function MyTasks({ navigation }) {
   const [showDatePicker, setShowDatePicker] = useState(false); // Tarih seçim bileşeni görünürlük state'i
   const [selectedStartDate, setSelectedStartDate] = useState(new Date()); // Seçilen başlangıç tarihi state'i
   const [showStartDatePicker, setShowStartDatePicker] = useState(false); // Başlangıç tarih seçim bileşeni görünürlük state'i
-  
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
 const handleStartDateSelect = (event, selectedDate) => {
   setShowStartDatePicker(false); // Başlangıç tarih seçim bileşenini kapat
   if (selectedDate) {
@@ -58,9 +59,10 @@ const renderStartDatePicker = () => {
   return null;
 };
 
-
-
-
+const openEditModal = (taskId) => {
+  setSelectedTaskId(taskId);
+  setEditModalVisible(true);
+};
 
 
   const getUsers = async () => {
@@ -108,6 +110,9 @@ const renderStartDatePicker = () => {
           startDate: selectedStartDate.toISOString().split('T')[0], // Başlangıç tarihini ekledik
           finishDate: selectedDate.toISOString().split('T')[0],
           expired: false,
+          priority:false,
+          completionTime:"null",
+
         };
         push(ref(db, '/tasks'), newTask)
           .then(() => {
@@ -171,7 +176,7 @@ const renderStartDatePicker = () => {
 };
   const navigateToTask = (taskId) => {
     console.log("secilen id ",taskId)
-    const deneme = 123
+   
     navigation.navigate('Seçilen Görev', { taskId });
   };
 
@@ -200,12 +205,69 @@ const renderStartDatePicker = () => {
     return userIds.map((id, index) => {
       const user = users.find((user) => user.id === id);
       return user ? (
-        <Text key={index} style={styles.userName}>
+        <Text key={id} style={styles.userName}>
           {user.username} ,
         </Text>
       ) : null;
     });
   };
+
+  const renderEditModal = () => (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={editModalVisible}
+      onRequestClose={() => setEditModalVisible(false)}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <Text style={styles.modalText}>Atanan Kullanıcıları Düzenle</Text>
+          <FlatList
+            data={users}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.userItem}>
+                <CheckBox
+                  style={{ margin: 10 }}
+                  value={tasks.find((task) => task.id === selectedTaskId)?.userIds.includes(item.id)}
+                  onValueChange={(newValue) => {
+                    const taskIndex = tasks.findIndex((task) => task.id === selectedTaskId);
+                    if (newValue) {
+                      const updatedUserIds = [...tasks[taskIndex].userIds, item.id];
+                      updateAssignedUsers(selectedTaskId, updatedUserIds);
+                    } else {
+                      const updatedUserIds = tasks[taskIndex].userIds.filter((id) => id !== item.id);
+                      updateAssignedUsers(selectedTaskId, updatedUserIds);
+                    }
+                  }}
+                />
+                <Text>{item.username}</Text>
+              </View>
+            )}
+          />
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setEditModalVisible(false)}
+          >
+            <Text style={styles.closeButtonText}>Kapat</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  const updateAssignedUsers = (taskId, updatedUserIds) => {
+    if (updatedUserIds.length === 0) {
+      Alert.alert('Hata', 'En az bir kullanıcı seçilmelidir.');
+      return;
+    }
+  
+    const taskRef = ref(db, `/tasks/${taskId}`);
+    update(taskRef, { userIds: updatedUserIds })
+      .then(() => console.log('Atanan kullanıcılar güncellendi'))
+      .catch((error) => console.error('Atanan kullanıcıları güncelleme hatası:', error));
+  };
+  
 
   const renderUserPicker = () => (
     <Modal
@@ -221,7 +283,7 @@ const renderStartDatePicker = () => {
           <Text style={styles.modalText}>Kullanıcı Seç</Text>
           <FlatList
             data={users}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id} // Benzersiz key olarak item.id kullanılıyor
             renderItem={({ item }) => (
               <View style={styles.userItem}>
                 <CheckBox
@@ -265,6 +327,16 @@ const renderStartDatePicker = () => {
         console.log('Seçilen Tarih:', selectedDate); // Konsola seçilen tarihi yazdır
       }
     }
+  };
+
+  const setCompletionTime = (id) => {
+    const today = new Date();
+    const completionTime = today.toISOString().split('T')[0]; // YYYY-MM-DD formatında bugünün tarihi
+  
+    const taskRef = ref(db, `/tasks/${id}`);
+    update(taskRef, { completionTime })
+      .then(() => console.log('Görevin tamamlanma zamanı güncellendi:', completionTime))
+      .catch((error) => console.error('Görevin tamamlanma zamanını güncelleme hatası:', error));
   };
 
   const renderDatePicker = () => {
@@ -366,8 +438,8 @@ const renderStartDatePicker = () => {
       
 
       {tasks.map((task, index) => (
-         <TouchableOpacity onPress={()=>{navigateToTask(task.id)}}>
-            <View key={index} style={styles.taskContainer}>
+        <TouchableOpacity key={task.id} onPress={() => navigateToTask(task.id)}>
+          <View style={styles.taskContainer}>
             <View style={styles.taskDetails}>
               <Text style={[styles.taskText, { color: task.color }]}>
                 {task.text}
@@ -381,22 +453,27 @@ const renderStartDatePicker = () => {
               <Text style={styles.taskDate}>
                 Bitiş Tarihi: {task.finishDate}
               </Text>
+              <TouchableOpacity
+                style={{ backgroundColor: 'gold', borderRadius: 15, height: 30, justifyContent: 'center', alignItems: 'center', marginVertical: 7 }}
+                onPress={() => openEditModal(task.id)}
+              >
+                <Text>Atanan Kullanıcıları Düzenle</Text>
+              </TouchableOpacity>
               {index === editingIndex && (
-              <View style={styles.editInputContainer}>
-                <TextInput
-                  style={styles.editInput}
-                  value={taskText}
-                  onChangeText={setTaskText}
-                />
-                <TouchableOpacity
-                  style={styles.saveButton}
-                  onPress={() => finishEditingTask(task.id, taskText)}
-                >
-                  <Text style={styles.saveButtonText}>Kaydet</Text>
-                </TouchableOpacity>
-              </View>
-              
-            )}
+                <View style={styles.editInputContainer}>
+                  <TextInput
+                    style={styles.editInput}
+                    value={taskText}
+                    onChangeText={setTaskText}
+                  />
+                  <TouchableOpacity
+                    style={styles.saveButton}
+                    onPress={() => finishEditingTask(task.id, taskText)}
+                  >
+                    <Text style={styles.saveButtonText}>Kaydet</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
             <View style={styles.taskActions}>
               {!task.done && (
@@ -415,9 +492,10 @@ const renderStartDatePicker = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.colorToggleButton}
-                onPress={() =>
-                  toggleTaskColor(task.id, task.color, task.done)
-                }
+                onPress={() => {
+                  toggleTaskColor(task.id, task.color, task.done);
+                  setCompletionTime(task.id); // Burada tamamlanma zamanını güncelle
+                }}
               >
                 <Icon
                   name={task.color === 'red' ? 'toggle-off' : 'toggle-on'}
@@ -426,12 +504,10 @@ const renderStartDatePicker = () => {
                 />
               </TouchableOpacity>
             </View>
-          
           </View>
-         </TouchableOpacity>
-        
-        
+        </TouchableOpacity>
       ))}
+
 
       {tasks.length > 0 && (
         <TouchableOpacity
@@ -443,6 +519,7 @@ const renderStartDatePicker = () => {
       )}
 
       {renderUserPicker()}
+      {renderEditModal()}
       
 
 {renderStartDatePicker()}

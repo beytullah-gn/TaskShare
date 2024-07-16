@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { ref, onValue, update } from 'firebase/database';
 import { db } from '../firebase-config';
 import { acId } from '../loginScreen';
 import CheckBox from 'expo-checkbox';
 
-function UserTasks({ userId = acId }) {
+function UserTasks({ userId = acId , navigation }) {
   const [tasks, setTasks] = useState([]); // Görevlerin tutulduğu liste
 
   // Görevleri getirme işlemi
@@ -37,27 +37,37 @@ function UserTasks({ userId = acId }) {
       .catch(error => console.error('Görev durumu güncelleme hatası:', error));
   };
 
+  const navigateToTask = (taskId) => {
+    console.log("secilen id ",taskId)
+   
+    navigation.navigate('Seçili Görev', { taskId });
+  };
+
+
   const renderTasks = () => {
     // Expired özelliği true olan görevleri filtrele
     const activeTasks = tasks.filter(task => !task.expired);
   
     return activeTasks.length > 0 ? (
       activeTasks.map((task, index) => (
-        <View key={task.id} style={styles.taskContainer}>
-          <CheckBox
-            value={task.done}
-            onValueChange={() => toggleTaskDone(task.id, task.done)}
-            style={styles.checkbox}
-          />
-          <View style={styles.taskTextContainer}>
-            <Text style={[styles.taskText, { color: task.done ? 'green' : 'red' }]}>
-              {index + 1} - {task.text}
-            </Text>
-            <Text style={styles.taskDate}>
-              Başlangıç Tarihi: {task.startDate} - Bitiş Tarihi: {task.finishDate}
-            </Text>
+        <TouchableOpacity key={task.id} onPress={() => navigateToTask(task.id)}>
+          <View  style={styles.taskContainer}>
+            <CheckBox
+              value={task.done}
+              onValueChange={() => toggleTaskDone(task.id, task.done)}
+              style={styles.checkbox}
+            />
+            <View style={styles.taskTextContainer}>
+              <Text style={[styles.taskText, { color: task.done ? 'green' : 'red' }]}>
+                {index + 1} - {task.text}
+              </Text>
+              <Text style={styles.taskDate}>
+                Başlangıç Tarihi: {task.startDate} - Bitiş Tarihi: {task.finishDate}
+              </Text>
+            </View>
           </View>
-        </View>
+        </TouchableOpacity>
+        
       ))
     ) : (
       <Text style={styles.noTasksText}>Henüz size atanmış görev bulunmamaktadır.</Text>
