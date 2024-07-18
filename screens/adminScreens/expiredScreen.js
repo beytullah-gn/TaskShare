@@ -59,6 +59,7 @@ function ExpiredScreen() {
             expired: !currentExpired,
             color: 'red',
             done: false,
+            completionTime:'null',
         });
 
         // Güncellenen görevleri yeniden yükle

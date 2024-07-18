@@ -1,0 +1,117 @@
+{
+    "Users": {
+        "UserId1": {
+            "Name": "John",
+            "Surname": "Doe",
+            "EMail": "JohnDoe@hotmail.com",
+            "Password": "123456",
+            "Departmant": {
+                "id":"Department_ID"                
+            },
+            "Role": "CEO",
+            "JobDescription": "Description",
+            "CreatedBy": "user_id",
+            "CreatedTime": "00-00-0000"    
+        },
+        "UserId2": {
+            "Name": "John",
+            "Surname": "Doe",
+            "EMail": "JohnDoe@hotmail.com",
+            "Password": "123456",
+            "DepartmentId": "DepartmentID_2",
+            "CreatedBy": "user_id",
+            "CreatedTime": "00-00-0000",
+            "Role": "Human Resources",
+            "JobDescription": "Description",
+            "Permissions": {
+                "AdminAccess": false,
+                "CreateDepartment": false,
+                "ManageUsers": true,
+                "ManageTasks": true,
+                "ViewTasks": true,
+                "ViewAllTasks": false,
+                "ManageAllUsers": true,
+                "ManageAllTasks": false
+            }
+        }
+    },
+    "Departments": {
+        "DepartmentID": {
+            "DepartmentDescription": "....",
+            "DepartmentName": "Yönetim Kurulu",
+            "ParentDepartment": null,
+            "Permissions": {
+                "AdminAccess": true,
+                "CreateDepartment": true,
+                "ManageUsers": true,
+                "ManageTasks": true,
+                "ViewTasks": true,
+                "ViewAllTasks": true,
+                "ManageAllUsers": true,
+                "ManageAllTasks": true
+            }
+        },
+        "DepartmentID2": {
+            "DepartmentDescription": "....",
+            "DepartmentName": "Yönetim Kurulu Alt Departman",
+            "ParentDepartment": "DepartmentID",
+            "Permissions": {
+                "AdminAccess": true,
+                "CreateDepartment": true,
+                "ManageUsers": true,
+                "ManageTasks": true,
+                "ViewTasks": true,
+                "ViewAllTasks": true,
+                "ManageAllUsers": true,
+                "ManageAllTasks": true
+            }
+        }
+    },
+    "Tasks": {
+        "TaskName": "Taskname",
+        "TaskDescription": "Task1",
+        "TaskId": "task_id",
+        "Priority": "Low,Medium,High",
+        "CreatedTime": "00-00-0000",
+        "StartTime": "00-00-0000",
+        "DueTime": "00-00-0000",
+        "CompletedTime": "00-00-0000",
+        "CreatedBy": "user_id",
+        "AssignedDepartment": "Department_ID",
+        "Done": false,
+        "DoneConfirmed": false,
+        "Expired": false,
+        "AssignedTo": ["userid1", "userid2"],
+        "Comments": {
+            "CommentId": {
+                "SenderId": "user_id",
+                "Message": "message",
+                "SendTime": "00:00 00-00-0000"
+            }
+        },
+        "Subtasks": {
+            "TaskName": "Taskname",
+            "TaskDescription": "Task2",
+            "TaskId": "task_id",
+            "Priority": "Low,Medium,High",
+            "CreatedTime": "00-00-0000",
+            "StartTime": "00-00-0000",
+            "DueTime": "00-00-0000",
+            "CompletedTime": "00-00-0000",
+            "CreatedBy": "user_id",
+            "Done": false,
+            "DoneConfirmed": false,
+            "Expired": false,
+            "AssignedTo": ["userid1", "userid2"],
+            "Comments": {
+                "CommentId": {
+                    "SenderId": "user_id",
+                    "Message": "message",
+                    "SendTime": "00:00 00-00-0000"
+                }
+            },
+            "SubTasks": {}
+        }
+    }
+    
+}

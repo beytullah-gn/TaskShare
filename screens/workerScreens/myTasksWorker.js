@@ -32,7 +32,9 @@ function UserTasks({ userId = acId , navigation }) {
   // Checkbox durumu değiştirme işlemi
   const toggleTaskDone = (taskId, currentDoneStatus) => {
     const taskRef = ref(db, `/tasks/${taskId}`);
-    update(taskRef, { done: !currentDoneStatus, color: !currentDoneStatus ? 'green' : 'red' })
+    const today = new Date();
+    const completionTime = today.toISOString().split('T')[0];
+    update(taskRef, { done: !currentDoneStatus, color: !currentDoneStatus ? 'green' : 'red', completionTime: !currentDoneStatus ? completionTime : 'null'  })
       .then(() => console.log('Görev durumu güncellendi'))
       .catch(error => console.error('Görev durumu güncelleme hatası:', error));
   };

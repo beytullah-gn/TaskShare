@@ -13,10 +13,8 @@ import MyMessagesWorker from "./screens/workerScreens/myMessagesWorker";
 import {
    ref,
    onValue,
-   push,
    update,
-   remove,
-   database,
+ 
  } from 'firebase/database';
  import { db } from "./screens/firebase-config";
 import ChatScreen from "./screens/chatScreen";
@@ -27,6 +25,8 @@ import GraphicsScreen from "./screens/graphicsScreen";
 import SelectedTask from "./screens/adminScreens/selectedTaskScreen";
 import moment from "moment";
 import SelectedScreenWorker from "./screens/workerScreens/selectedTaskWorkerScreen";
+import AddNewUserScreen from "./screens/src/addNewUserScreen";
+
 
 
 
@@ -90,6 +90,7 @@ function App() {
     
     <NavigationContainer>
          <Stack.Navigator >
+            <Stack.Screen name="Yeni Kullanici Ekle" component={AddNewUserScreen} />
             <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
             <Stack.Screen name="MainScreen" component={MainScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Görev Ata" component={MyTasks} />
@@ -105,6 +106,8 @@ function App() {
             <Stack.Screen name="Performans Analizi" component={GraphicsScreen} />
             <Stack.Screen name="Seçilen Görev" component={SelectedTask} />
             <Stack.Screen name="Seçili Görev" component={SelectedScreenWorker} />
+            
+   
                           
             
          </Stack.Navigator>

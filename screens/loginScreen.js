@@ -26,6 +26,7 @@ function Login({ navigation }) {
         });
     }, []);
 
+   
     function Auth() {
         const user = users.find(u => u.username === text && u.password === password);
 
@@ -76,8 +77,10 @@ function Login({ navigation }) {
     
     return (
         <SafeAreaView style={styles.container}>
+            
             <View style={styles.firstView} />
             <View style={styles.Viewstyle}>
+
                 <Text>GİRİŞ YAP</Text>
                 <TextInput 
                     style={styles.InputStyle}

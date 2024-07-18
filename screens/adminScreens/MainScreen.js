@@ -44,7 +44,7 @@ function MainScreen({ navigation }) {
           </TouchableOpacity>
         </View>
         <View style={style.insideView}>
-          <TouchableOpacity style={style.touchableStyle}>
+          <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Yeni Kullanici Ekle')}>
             <Text>5</Text>
           </TouchableOpacity>
           <TouchableOpacity style={style.touchableStyle} onPress={() => navigation.navigate('Performans Analizi')}>

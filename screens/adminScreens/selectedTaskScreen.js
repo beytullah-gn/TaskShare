@@ -222,6 +222,74 @@ const toggleUserSelection = (userId) => {
       }
     }
   };
+
+  const confirmTaskFinished=(id)=>{
+    const taskRef = ref(db, `/tasks/${taskId}/subtasks/${id}`);
+    onValue(taskRef, (snapshot) => {
+      const taskData = snapshot.val();
+      if (taskData && !taskData.expired && taskData.done ) {
+        Alert.alert('Görevin tamamlanmamış ', 'Görevin tamamlandığını onaylamak istiyor musunuz?', [
+          {
+            text: 'Hayır',
+            onPress: () => console.log('Görev onay işlemi iptal edildi'),
+            style: 'cancel',
+          },
+          {text: 'Evet', onPress: () => {okPressed(id)}},
+        ]);
+      } 
+        else if(taskData && taskData.expired && taskData.done) {
+          Alert.alert('Görevin tamamlanmış ', 'Görevi tamamlanmamış olarak işaretlemek  istiyor musunuz?', [
+            {
+              text: 'Hayır',
+              onPress: () => console.log('Görev onay işlemi iptal edildi'),
+              style: 'cancel',
+            },
+            {text: 'Evet', onPress: () => {okPressed(id)}},
+          ]);
+        }
+        else{
+          console.log('Görev tamamlanmamış.');
+          Alert.alert("Görev tamamlanmadan onaylayamazsınız");
+        }
+    }, {
+      onlyOnce: true
+    })
+    
+  };
+
+  const okPressed = (id) => {
+    const taskRef = ref(db, `/tasks/${taskId}/subtasks/${id}`);
+    
+    onValue(taskRef, (snapshot) => {
+      const taskData = snapshot.val();
+      if (taskData && taskData.done) {
+        const newExpiredValue = taskData.expired ? false : true; // expired değerini tersine çevir
+        update(taskRef, { expired: newExpiredValue })
+          .then(() =>
+            console.log('Görev expired durumu güncellendi')
+          )
+          .catch((error) =>
+            console.error('Görev expired durumu güncelleme hatası:', error)
+          );
+      } else {
+        console.log('Görev tamamlanmamış.');
+      }
+    }, {
+      onlyOnce: true
+    });
+  };
+
+
+  const setCompletionTime = (id,currentdone) => {
+    const newDone = !currentdone;
+    const today = new Date();
+    const completionTime = newDone ? today.toISOString().split('T')[0] : 'null' ; // YYYY-MM-DD formatında bugünün tarihi
+  
+    const taskRef = ref(db, `/tasks/${taskId}/subtasks/${id}`);
+    update(taskRef, { completionTime })
+      .then(() => console.log('Görevin tamamlanma zamanı güncellendi:', completionTime))
+      .catch((error) => console.error('Görevin tamamlanma zamanını güncelleme hatası:', error));
+  };
   
   const renderSelectedDates = () => {
     return (
@@ -242,7 +310,10 @@ const renderSubtasks = () => {
       <TouchableOpacity onPress={() => toggleSubtaskDone(subtask.id, subtask.done)} style={{flex:1}}>
         <CheckBox
           value={subtask.done}
-          onValueChange={() => toggleSubtaskDone(subtask.id, subtask.done)}
+          onValueChange={() =>{
+             toggleSubtaskDone(subtask.id, subtask.done)
+              setCompletionTime(subtask.id,subtask.done)
+             }}
           color={subtask.done ? 'green' : undefined} // Checkbox işaretli ise yeşil olur
         />
       </TouchableOpacity>
@@ -269,7 +340,7 @@ const renderSubtasks = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={{backgroundColor:'gold',marginHorizontal:12,borderRadius:5,height:30,justifyContent:'center',alignItems:'center',marginVertical:7,}}
-              onPress={() => openUserEditModal(subtask)}
+              onPress={() => confirmTaskFinished(subtask.id)}
             >
               <Text style={{color:'blue'}}>Onayla</Text>
             </TouchableOpacity>

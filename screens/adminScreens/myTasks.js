@@ -36,32 +36,183 @@ function MyTasks({ navigation }) {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false); // Başlangıç tarih seçim bileşeni görünürlük state'i
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
-const handleStartDateSelect = (event, selectedDate) => {
-  setShowStartDatePicker(false); // Başlangıç tarih seçim bileşenini kapat
-  if (selectedDate) {
-    setSelectedStartDate(selectedDate); // Seçilen başlangıç tarihini state'e ata
-    console.log('Seçilen Başlangıç Tarihi:', selectedDate); // Konsola seçilen tarihi yazdır
-  }
-};
+  const [selectedEditStartDate,setSelectedEditStartDate] = useState(new Date());//seçilen düzenlenmiş başlangıç tarihi
+  const [showEditStartDatePicker,setShowEditStartDatePicker] =useState(false); // BAŞLANGIÇ TARİHİ DÜZENLEME GÖRÜNÜRLÜK
+  const [selectedEditFinishDate,setSelectedEditFinishDate]=useState(new Date());
+  const [selectedDateID,setSelectedDateID]=useState([]);
+  const [showEditFinishDatePicker, setShowEditFinishDatePicker] = useState(false); // Bitiş tarihi düzenleme görünürlük
 
-const renderStartDatePicker = () => {
-  if (showStartDatePicker) {
-    return (
-      <DatePicker
-        value={selectedStartDate}
-        mode="date"
-        display="default"
-        minimumDate={new Date()} // minimumDate'i tekrar ekledik
-        onChange={handleStartDateSelect}
-      />
-    );
-  }
-  return null;
-};
+  
+  const renderEditFinishDatePicker = () => {
+    if (showEditFinishDatePicker) {
+      return (
+        <DatePicker
+          value={selectedEditFinishDate}
+          mode="date"
+          display="default"
+          minimumDate={selectedEditStartDate}
+          onChange={handleEditFinishDateSelect}
+        />
+      );
+    }
+    return null;
+  };
+
+  const handleEditFinishDateSelect = (event, selectedDate) => {
+    setShowEditFinishDatePicker(false); // Bitiş tarih seçim bileşenini kapat
+  
+    if (event.type === 'set' && selectedDate) {
+      if (selectedDate < selectedEditStartDate) {
+        Alert.alert('Hata', 'Bitiş tarihi başlangıç tarihinden önce olamaz.');
+      } else {
+        setSelectedEditFinishDate(selectedDate); // Seçilen bitiş tarihini state'e ata
+        console.log('Seçilen Bitiş Tarihi:', selectedDate); // Konsola seçilen tarihi yazdır
+        updateFinishDate(selectedDateID, selectedDate); // Bitiş tarihini güncelle
+      }
+    }
+  };
+    
+  const updateFinishDate = (taskId, Date) => {
+    const taskRef = ref(db, `/tasks/${taskId}`);
+    const finishDate = Date.toISOString().split('T')[0];
+    update(taskRef, { finishDate })
+      .then(() => console.log('Görevin bitiş zamanı güncellendi:', finishDate))
+      .catch((error) => console.error('Görevin bitiş zamanını güncelleme hatası:', error));
+  };
+
+  const changeFinishTime = (taskFinishTime, selectedID, taskStartTime) => {
+    setSelectedEditFinishDate(new Date(taskFinishTime));
+    setSelectedEditStartDate(new Date(taskStartTime));
+    setSelectedDateID(selectedID);
+    setShowEditFinishDatePicker(true);
+  };
+    
+
+  const handleStartDateSelect = (event, selectedDate) => {
+    setShowStartDatePicker(false); // Başlangıç tarih seçim bileşenini kapat
+    
+    if (event.type === 'set' && selectedDate) {
+      const today = new Date();
+      if (selectedDate < today) {
+        Alert.alert('Başlangıç Tarihi', 'Başlangıç tarihini bugünün tarihi ya da öncesi için seçmek istiyor musunuz?', [
+          {
+            text: 'Hayır',
+            onPress: () => console.log('Başlangıç tarihi seçme iptal edildi'),
+            style: 'cancel',
+          },
+          {text: 'Evet', onPress: () => {
+            setSelectedStartDate(selectedDate); // Seçilen başlangıç tarihini state'e ata
+            console.log('Seçilen Başlangıç Tarihi:', selectedDate); // Konsola seçilen tarihi yazdır
+          }},
+        ]);
+      } else {
+        setSelectedStartDate(selectedDate); // Seçilen başlangıç tarihini state'e ata
+        console.log('Seçilen Başlangıç Tarihi:', selectedDate); // Konsola seçilen tarihi yazdır
+      }
+    }
+  };
+  
+  const renderStartDatePicker = () => {
+    if (showStartDatePicker) {
+      return (
+        <DatePicker
+          value={selectedStartDate}
+          mode="date"
+          display="default"
+          maximumDate={selectedDate}
+          onChange={handleStartDateSelect}
+        />
+      );
+    }
+    return null;
+  };
+
+
+  const renderEditStartDatePicker = () => {
+    if (showEditStartDatePicker) {
+      return (
+        <DatePicker
+          value={selectedEditStartDate}
+          mode="date"
+          display="default"
+          maximumDate={selectedEditFinishDate}
+          onChange={handleEditStartDateSelect}
+        />
+      );
+    }
+    return null;
+  };
+
+  const handleEditStartDateSelect = (event, selectedDate) => {
+    setShowEditStartDatePicker(false); // Başlangıç tarih seçim bileşenini kapat
+    
+    if (event.type === 'set' && selectedDate) {
+      const today = new Date();
+      if (selectedDate < today) {
+        Alert.alert(
+          'Başlangıç Tarihi',
+          'Başlangıç tarihini bugünün tarihi ya da öncesi için seçmek istiyor musunuz?',
+          [
+            {
+              text: 'Hayır',
+              onPress: () => console.log('Başlangıç tarihi seçme iptal edildi'),
+              style: 'cancel',
+            },
+            {
+              text: 'Evet',
+              onPress: () => {
+                setSelectedEditStartDate(selectedDate); // Seçilen başlangıç tarihini state'e ata
+                console.log('Seçilen Başlangıç Tarihi:', selectedDate); // Konsola seçilen tarihi yazdır
+                updateStartDate(selectedDateID, selectedDate); // Update the start date
+              },
+            },
+          ]
+        );
+      } else {
+        setSelectedEditStartDate(selectedDate); // Seçilen başlangıç tarihini state'e ata
+        console.log('Seçilen Başlangıç Tarihi:', selectedDate); // Konsola seçilen tarihi yazdır
+        updateStartDate(selectedDateID, selectedDate); // Update the start date
+      }
+    }
+  };
+  
+
 
 const openEditModal = (taskId) => {
   setSelectedTaskId(taskId);
   setEditModalVisible(true);
+};
+
+const confirmTaskFinished=(taskId)=>{
+  Alert.alert('Görevin tamamlandığını onayla', 'Görevin tamamlandığını onaylamak istiyor musunuz?', [
+    {
+      text: 'Hayır',
+      onPress: () => console.log('Görev onay işlemi iptal edildi'),
+      style: 'cancel',
+    },
+    {text: 'Evet', onPress: () => {okPressed(taskId)}},
+  ]);
+};
+
+const okPressed = (id) => {
+  const taskRef = ref(db, `/tasks/${id}`);
+
+  onValue(taskRef, (snapshot) => {
+    const taskData = snapshot.val();
+    if (taskData && taskData.done) {
+      update(taskRef, { expired: true }) // expired'i güncelle
+        .then(() =>
+          console.log('Görev expired durumu güncellendi')
+        )
+        .catch((error) =>
+          console.error('Görev expired durumu güncelleme hatası:', error)
+        );
+    } else {
+      console.log('Görev tamamlanmamış.');
+    }
+  }, {
+    onlyOnce: true
+  });
 };
 
 
@@ -164,16 +315,16 @@ const openEditModal = (taskId) => {
   const toggleTaskColor = (id, currentColor, currentDone) => {
     const newColor = currentColor === 'red' ? 'green' : 'red';
     const newDone = !currentDone;
-    const newExpired = !currentDone; // Yeni expired durumu
+  
     const taskRef = ref(db, `/tasks/${id}`);
-    update(taskRef, { color: newColor, done: newDone, expired: newExpired }) // expired'i güncelle
+    update(taskRef, { color: newColor, done: newDone,}) 
       .then(() =>
         console.log('Görev rengi, tamamlanma durumu ve expired durumu güncellendi')
       )
       .catch((error) =>
         console.error('Görev rengi, tamamlanma durumu ve expired durumu güncelleme hatası:', error)
       );
-};
+  };
   const navigateToTask = (taskId) => {
     console.log("secilen id ",taskId)
    
@@ -202,14 +353,16 @@ const openEditModal = (taskId) => {
   }, []);
 
   const renderUserNames = (userIds) => {
-    return userIds.map((id, index) => {
+    const userNames = userIds.map((id) => {
       const user = users.find((user) => user.id === id);
-      return user ? (
-        <Text key={id} style={styles.userName}>
-          {user.username} ,
-        </Text>
-      ) : null;
-    });
+      return user ? user.username : null;
+    }).filter((username) => username !== null);
+  
+    return (
+      <Text style={styles.userName}>
+        {userNames.join(', ')}
+      </Text>
+    );
   };
 
   const renderEditModal = () => (
@@ -255,6 +408,14 @@ const openEditModal = (taskId) => {
       </View>
     </Modal>
   );
+
+  const updateStartDate = (taskId, Date) => {
+    const taskRef = ref(db, `/tasks/${taskId}`);
+    startDate = Date.toISOString().split('T')[0];
+    update(taskRef, { startDate })
+      .then(() => console.log('Görevin başlangıç zamanı güncellendi:', startDate))
+      .catch((error) => console.error('Görevin başlangıç zamanını güncelleme hatası:', error));
+  };
 
   const updateAssignedUsers = (taskId, updatedUserIds) => {
     if (updatedUserIds.length === 0) {
@@ -329,9 +490,10 @@ const openEditModal = (taskId) => {
     }
   };
 
-  const setCompletionTime = (id) => {
+  const setCompletionTime = (id,currentdone) => {
+    const newDone = !currentdone;
     const today = new Date();
-    const completionTime = today.toISOString().split('T')[0]; // YYYY-MM-DD formatında bugünün tarihi
+    const completionTime = newDone ? today.toISOString().split('T')[0] : 'null' ; // YYYY-MM-DD formatında bugünün tarihi
   
     const taskRef = ref(db, `/tasks/${id}`);
     update(taskRef, { completionTime })
@@ -352,6 +514,13 @@ const openEditModal = (taskId) => {
       );
     }
     return null;
+  };
+
+  const changeStartTime = (taskStartTime, selectedID, taskFinishTime) => {
+    setSelectedEditStartDate(new Date(taskStartTime));
+    setSelectedEditFinishDate(new Date(taskFinishTime));
+    setSelectedDateID(selectedID);
+    setShowEditStartDatePicker(true);
   };
 
   return (
@@ -440,18 +609,19 @@ const openEditModal = (taskId) => {
       {tasks.map((task, index) => (
         <TouchableOpacity key={task.id} onPress={() => navigateToTask(task.id)}>
           <View style={styles.taskContainer}>
+            <View style={{flexDirection:'row'}}>
             <View style={styles.taskDetails}>
               <Text style={[styles.taskText, { color: task.color }]}>
                 {task.text}
               </Text>
               <Text style={styles.taskUsers}>
-                Atanan Kullanıcılar: {renderUserNames(task.userIds)}
+                Atanan Kullanıcılar: <Text style={{color:'gray',fontWeight:'normal'}}>{renderUserNames(task.userIds)}</Text>
               </Text>
               <Text style={styles.taskDate}>
-                Başlangıç Tarihi: {task.startDate}
+                Başlangıç Tarihi: <Text style={{color:'gray',fontWeight:'normal'}}>{task.startDate}</Text>
               </Text>
               <Text style={styles.taskDate}>
-                Bitiş Tarihi: {task.finishDate}
+                Bitiş Tarihi: <Text style={{color:'gray',fontWeight:'normal'}}>{task.finishDate}</Text>
               </Text>
               <TouchableOpacity
                 style={{ backgroundColor: 'gold', borderRadius: 15, height: 30, justifyContent: 'center', alignItems: 'center', marginVertical: 7 }}
@@ -459,6 +629,13 @@ const openEditModal = (taskId) => {
               >
                 <Text>Atanan Kullanıcıları Düzenle</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={{ backgroundColor: 'gold', borderRadius: 15, height: 30, justifyContent: 'center', alignItems: 'center', marginVertical: 7 }}
+                onPress={() => confirmTaskFinished(task.id)}
+              >
+                <Text>Görevin Bittiğini Onayla</Text>
+              </TouchableOpacity>
+              
               {index === editingIndex && (
                 <View style={styles.editInputContainer}>
                   <TextInput
@@ -475,35 +652,61 @@ const openEditModal = (taskId) => {
                 </View>
               )}
             </View>
-            <View style={styles.taskActions}>
-              {!task.done && (
+            <View style={{flex:2,justifyContent:'space-around',alignItems:'center'}}>{/*Düzenle,sil,chekbox ana viewi */}
+              <View style={{width:'90%'}}>
                 <TouchableOpacity
-                  style={styles.editButton}
-                  onPress={() => startEditingTask(index)}
+                 style={{backgroundColor:'darkturquoise',padding:5,borderRadius:3}} 
+                 onPress={()=>changeStartTime(task.startDate,task.id,task.finishDate)}
+                 >
+                  <Text style={{color:'#fff',fontWeight:'bold',}}>Başlangıç Tarihi Değiştir </Text>
+                </TouchableOpacity>               
+              </View>
+              <View style={styles.taskActions}>
+                
+                {!task.done && (
+                  
+                  <TouchableOpacity
+                    style={styles.editButton}
+                    onPress={() => startEditingTask(index)}
+                  >
+                    <Icon name="edit" size={20} color="blue" />
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => removeTask(task.id)}
                 >
-                  <Icon name="edit" size={20} color="blue" />
+                  <Icon name="trash" size={20} color="red" />
                 </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => removeTask(task.id)}
-              >
-                <Icon name="trash" size={20} color="red" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.colorToggleButton}
-                onPress={() => {
-                  toggleTaskColor(task.id, task.color, task.done);
-                  setCompletionTime(task.id); // Burada tamamlanma zamanını güncelle
-                }}
-              >
-                <Icon
-                  name={task.color === 'red' ? 'toggle-off' : 'toggle-on'}
-                  size={20}
-                  color={task.color === 'red' ? 'gray' : 'green'}
-                />
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.colorToggleButton}
+                  onPress={() => {
+                    toggleTaskColor(task.id, task.color, task.done);
+                    setCompletionTime(task.id,task.done); // Burada tamamlanma zamanını güncelle
+                  }}
+                >
+                  <Icon
+                    name={task.color === 'red' ? 'toggle-off' : 'toggle-on'}
+                    size={20}
+                    color={task.color === 'red' ? 'gray' : 'green'}
+                  />
+                </TouchableOpacity>
+                
+              </View>
+              <View style={{width:'90%'}}>             
+                <TouchableOpacity
+                  style={{ backgroundColor: 'darkturquoise', padding: 5, borderRadius: 3 }}
+                  onPress={() => changeFinishTime(task.finishDate, task.id, task.startDate)}
+                >
+                  <Text style={{color:'#fff',fontWeight:'bold',}}>Bitiş Tarihini Düzenle</Text>
+                </TouchableOpacity>
+                            
+              </View>
             </View>
+            </View>
+            
+            
+            
           </View>
         </TouchableOpacity>
       ))}
@@ -520,9 +723,9 @@ const openEditModal = (taskId) => {
 
       {renderUserPicker()}
       {renderEditModal()}
-      
-
-{renderStartDatePicker()}
+      {renderEditFinishDatePicker()}
+      {renderEditStartDatePicker()}
+      {renderStartDatePicker()}
     </ScrollView>
   );
 }
@@ -531,7 +734,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff5ee',
   },
   topContainer: {
     marginBottom: 20,
@@ -596,18 +799,21 @@ const styles = StyleSheet.create({
     
   },
   taskDetails: {
-    flex: 1,
+    flex: 4,
   },
   taskText: {
     fontSize: 16,
     marginBottom: 5,
+    fontWeight:'bold'
   },
   taskUsers: {
     fontSize: 14,
     marginBottom: 5,
+    fontWeight:'bold'
   },
   taskDate: {
     fontSize: 14,
+    fontWeight:'bold'
   },
   taskActions: {
     flexDirection: 'row',
@@ -625,15 +831,16 @@ const styles = StyleSheet.create({
     
   },
   editInputContainer: {
-    
+    flex:1,
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
+    justifyContent:'center',
     marginTop: 10,
     
     
   },
   editInput: {
-    
+    flex:2,
     
     borderWidth: 1,
     borderColor: '#ccc',
@@ -641,6 +848,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   saveButton: {
+    flex:1,
     backgroundColor: 'blue',
     paddingVertical: 5,
     paddingHorizontal: 10,
