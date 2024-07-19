@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   bottomButton:{
     width:"80%",
-    backgroundColor:'red',
+    backgroundColor:'blue',
     alignItems:'center',
     justifyContent:'center',
     padding:10,
