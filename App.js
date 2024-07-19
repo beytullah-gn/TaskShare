@@ -25,7 +25,10 @@ import GraphicsScreen from "./screens/graphicsScreen";
 import SelectedTask from "./screens/adminScreens/selectedTaskScreen";
 import moment from "moment";
 import SelectedScreenWorker from "./screens/workerScreens/selectedTaskWorkerScreen";
-import AddNewUserScreen from "./screens/src/addNewUserScreen";
+import DepartmentScreen from "./src/screens/departmentsScreen";
+import LoginScreen from "./src/screens/LoginScreen";
+import HomeScreen from "./src/screens/HomeScreen";
+import AddNewDepartment from "./src/screens/AddNewDepartmentScreen";
 
 
 
@@ -90,7 +93,10 @@ function App() {
     
     <NavigationContainer>
          <Stack.Navigator >
-            <Stack.Screen name="Yeni Kullanici Ekle" component={AddNewUserScreen} />
+            <Stack.Screen name="LoginScreen" component={LoginScreen} options={{headerShown:false}} />
+            <Stack.Screen name="HomeScreen" component={HomeScreen} />
+            <Stack.Screen name="Yeni Kullanici Ekle" component={DepartmentScreen} />
+            <Stack.Screen name="Yeni Departman Ekle" component={AddNewDepartment} />
             <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
             <Stack.Screen name="MainScreen" component={MainScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Görev Ata" component={MyTasks} />

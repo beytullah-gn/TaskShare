@@ -1,0 +1,24 @@
+// services/AuthService.js
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getDatabase, ref, set,update,push } from 'firebase/database';
+import { saveToken } from './tokenStorage';
+
+
+const auth = getAuth();
+const db = getDatabase();
+
+export const login = async (email, password) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    const token = await user.getIdToken(); // Token'ı al
+    saveToken(token);
+    // Token'ı Realtime Database'de sakla
+    const userRef = ref(db, `Users/${user.uid}/AuthToken`);
+    await set(userRef, { token });
+
+        return { user, token };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};

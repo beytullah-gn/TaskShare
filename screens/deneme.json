@@ -1,117 +1,182 @@
 {
     "Users": {
-        "UserId1": {
+        "-O12GATs2dWf6fMQ2Y6V": {
             "Name": "John",
             "Surname": "Doe",
             "EMail": "JohnDoe@hotmail.com",
-            "Password": "123456",
+            "Password": "johndoe123",
             "Departmant": {
-                "id":"Department_ID"                
+                "id":"-O1LqPAVZhrZRkv1JsP4"                
             },
             "Role": "CEO",
             "JobDescription": "Description",
-            "CreatedBy": "user_id",
-            "CreatedTime": "00-00-0000"    
-        },
-        "UserId2": {
-            "Name": "John",
-            "Surname": "Doe",
-            "EMail": "JohnDoe@hotmail.com",
-            "Password": "123456",
-            "DepartmentId": "DepartmentID_2",
-            "CreatedBy": "user_id",
-            "CreatedTime": "00-00-0000",
-            "Role": "Human Resources",
-            "JobDescription": "Description",
-            "Permissions": {
-                "AdminAccess": false,
-                "CreateDepartment": false,
-                "ManageUsers": true,
-                "ManageTasks": true,
-                "ViewTasks": true,
-                "ViewAllTasks": false,
-                "ManageAllUsers": true,
-                "ManageAllTasks": false
-            }
+            "CreatedBy": "null",
+            "CreatedTime": "9:54-19.07.2024"    
         }
     },
     "Departments": {
-        "DepartmentID": {
-            "DepartmentDescription": "....",
-            "DepartmentName": "Yönetim Kurulu",
-            "ParentDepartment": null,
-            "Permissions": {
-                "AdminAccess": true,
-                "CreateDepartment": true,
-                "ManageUsers": true,
-                "ManageTasks": true,
-                "ViewTasks": true,
-                "ViewAllTasks": true,
-                "ManageAllUsers": true,
-                "ManageAllTasks": true
-            }
-        },
-        "DepartmentID2": {
-            "DepartmentDescription": "....",
-            "DepartmentName": "Yönetim Kurulu Alt Departman",
-            "ParentDepartment": "DepartmentID",
-            "Permissions": {
-                "AdminAccess": true,
-                "CreateDepartment": true,
-                "ManageUsers": true,
-                "ManageTasks": true,
-                "ViewTasks": true,
-                "ViewAllTasks": true,
-                "ManageAllUsers": true,
-                "ManageAllTasks": true
-            }
-        }
+        "-O1LqPAVZhrZRkv1JsP4": {
+      "DepartmentDescription": "En yetkili departman",
+      "DepartmentName": "Yönetim Kurulu",
+      "CreatedBy": "-O12GATs2dWf6fMQ2Y6V",
+      "ParentDepartment": null,
+      "Permissions": {
+        "AdminAccess": true,
+        "CreateDepartment": true,
+        "ManageUsers": true,
+        "ManageTasks": true,
+        "ViewTasks": true,
+        "ViewAllTasks": true,
+        "ManageAllUsers": true,
+        "ManageAllTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-A": {
+      "DepartmentDescription": "İkinci yetkili departman",
+      "DepartmentName": "Yönetim Departmanı A",
+      "CreatedBy": "-O12GATs2dWf6fMQ2Y6V",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4",
+      "Permissions": {
+        "AdminAccess": false,
+        "CreateDepartment": true,
+        "ManageUsers": true,
+        "ManageTasks": true,
+        "ViewTasks": true,
+        "ViewAllTasks": true,
+        "ManageAllUsers": false,
+        "ManageAllTasks": false
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-B": {
+      "DepartmentDescription": "İkinci yetkili departman",
+      "DepartmentName": "Yönetim Departmanı B",
+      "CreatedBy": "-O12GATs2dWf6fMQ2Y6V",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4",
+      "Permissions": {
+        "AdminAccess": false,
+        "CreateDepartment": true,
+        "ManageUsers": true,
+        "ManageTasks": true,
+        "ViewTasks": true,
+        "ViewAllTasks": true,
+        "ManageAllUsers": false,
+        "ManageAllTasks": false
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-A-1": {
+      "DepartmentDescription": "Üçüncü yetkili departman",
+      "DepartmentName": "Alt Departman A1",
+      "CreatedBy": "-O12GATs2dWf6fMQ2Y6V",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4-A",
+      "Permissions": {
+        "AdminAccess": false,
+        "CreateDepartment": false,
+        "ManageUsers": false,
+        "ManageTasks": false,
+        "ViewTasks": true,
+        "ViewAllTasks": false,
+        "ManageAllUsers": false,
+        "ManageAllTasks": false
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-A-2": {
+      "DepartmentDescription": "Üçüncü yetkili departman",
+      "DepartmentName": "Alt Departman A2",
+      "CreatedBy": "-O12GATs2dWf6fMQ2Y6V",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4-A",
+      "Permissions": {
+        "AdminAccess": false,
+        "CreateDepartment": false,
+        "ManageUsers": false,
+        "ManageTasks": false,
+        "ViewTasks": true,
+        "ViewAllTasks": false,
+        "ManageAllUsers": false,
+        "ManageAllTasks": false
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-B-1": {
+      "DepartmentDescription": "Üçüncü yetkili departman",
+      "DepartmentName": "Alt Departman B1",
+      "CreatedBy": "-O12GATs2dWf6fMQ2Y6V",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4-B",
+      "Permissions": {
+        "AdminAccess": false,
+        "CreateDepartment": false,
+        "ManageUsers": false,
+        "ManageTasks": false,
+        "ViewTasks": true,
+        "ViewAllTasks": false,
+        "ManageAllUsers": false,
+        "ManageAllTasks": false
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-B-2": {
+      "DepartmentDescription": "Üçüncü yetkili departman",
+      "DepartmentName": "Alt Departman B2",
+      "CreatedBy": "-O12GATs2dWf6fMQ2Y6V",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4-B",
+      "Permissions": {
+        "AdminAccess": false,
+        "CreateDepartment": false,
+        "ManageUsers": false,
+        "ManageTasks": false,
+        "ViewTasks": true,
+        "ViewAllTasks": false,
+        "ManageAllUsers": false,
+        "ManageAllTasks": false
+      }
+    }
     },
     "Tasks": {
-        "TaskName": "Taskname",
-        "TaskDescription": "Task1",
-        "TaskId": "task_id",
-        "Priority": "Low,Medium,High",
-        "CreatedTime": "00-00-0000",
-        "StartTime": "00-00-0000",
-        "DueTime": "00-00-0000",
-        "CompletedTime": "00-00-0000",
-        "CreatedBy": "user_id",
-        "AssignedDepartment": "Department_ID",
-        "Done": false,
-        "DoneConfirmed": false,
-        "Expired": false,
-        "AssignedTo": ["userid1", "userid2"],
-        "Comments": {
-            "CommentId": {
-                "SenderId": "user_id",
-                "Message": "message",
-                "SendTime": "00:00 00-00-0000"
-            }
-        },
-        "Subtasks": {
+        "-O1zFPh_zRNZNoPL3On5":{
             "TaskName": "Taskname",
-            "TaskDescription": "Task2",
-            "TaskId": "task_id",
+            "TaskDescription": "Task1",
             "Priority": "Low,Medium,High",
-            "CreatedTime": "00-00-0000",
-            "StartTime": "00-00-0000",
-            "DueTime": "00-00-0000",
-            "CompletedTime": "00-00-0000",
-            "CreatedBy": "user_id",
+            "CreatedTime": "10:00-19.07.2024",
+            "StartTime": "10:00-19.07.2024",
+            "DueTime": "10:00-25.07.2024",
+            "CompletedTime": "null",
+            "CreatedBy": "-O12GATs2dWf6fMQ2Y6V",
+            "AssignedDepartment": "-O12GATs2dWf6fMQ2Y6V",
             "Done": false,
             "DoneConfirmed": false,
             "Expired": false,
-            "AssignedTo": ["userid1", "userid2"],
+            "AssignedTo": ["-O12GATs2dWf6fMQ2Y6V"],
             "Comments": {
                 "CommentId": {
-                    "SenderId": "user_id",
+                    "SenderId": "-O12GATs2dWf6fMQ2Y6V",
                     "Message": "message",
-                    "SendTime": "00:00 00-00-0000"
+                    "SendTime": "10:00-19.07.2024"
                 }
             },
-            "SubTasks": {}
-        }
+            "Subtasks": {
+                "-O2-HltI4T6OfO0A56ev":{
+                    "TaskName": "Taskname",
+                    "TaskDescription": "Task2",
+                    "TaskId": "task_id",
+                    "Priority": "Low",
+                    "CreatedTime": "00-00-0000",
+                    "StartTime": "00-00-0000",
+                    "DueTime": "00-00-0000",
+                    "CompletedTime": "00-00-0000",
+                    "CreatedBy": "user_id",
+                    "Done": false,
+                    "DoneConfirmed": false,
+                    "Expired": false,
+                    "AssignedTo": ["userid1", "userid2"],
+                    "Comments": {
+                        "CommentId": {
+                            "SenderId": "user_id",
+                            "Message": "message",
+                            "SendTime": "00:00 00-00-0000"
+                            }
+                }
+                }
+            
+            }
+            }
+        
     }
     
 }
