@@ -23,3 +23,4 @@ const FetchDepartments = ({ setDepartments }) => {
 };
 
 export default FetchDepartments;
+

@@ -49,4 +49,8 @@ export const buildHierarchy = (departments) => {
     findAllExpandedItemsRecursively(targetId);
     return [...expandedItems];
   };
+
+  export const findChildren = (departments, parentId) => {
+    return departments.filter(department => department.ParentDepartment === parentId);
+};
   

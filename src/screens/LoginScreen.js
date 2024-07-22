@@ -13,6 +13,7 @@ const LoginScreen = ({ navigation }) => {
       setPassword('');
       setEmail('');
       // Kullanıcıyı ana sayfaya yönlendir ve token'ı geç
+      
       navigation.navigate('HomeScreen', { token });
     } catch (error) {
       Alert.alert('Giriş Hatası', error.message);

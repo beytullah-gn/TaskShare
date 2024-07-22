@@ -13,7 +13,11 @@ export const fetchUserData = async () => {
     const userRef = ref(db, 'Users/' + user.uid);
     const snapshot = await get(userRef);
     if (snapshot.exists()) {
-      return snapshot.val();
+      const userData = snapshot.val();
+      return {
+        ...userData,
+        id: user.uid, // Kullanıcının eşsiz ID'sini ekleyin
+      };
     }
   }
 

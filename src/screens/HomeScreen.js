@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { fetchUserData } from '../Components/fetchUserData';
+import { getToken } from '../Components/tokenStorage';
 
 const HomeScreen = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState({});
@@ -23,6 +24,10 @@ const HomeScreen = ({ navigation }) => {
         <View>
           <Text>Welcome, {userInfo.Name + ' ' + userInfo.Surname}!</Text>
           <TouchableOpacity onPress={()=>navigation.navigate("Yeni Kullanici Ekle")}>
+            <Text>Click mee</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={getToken}>
             <Text>Click mee</Text>
           </TouchableOpacity>
         </View>
