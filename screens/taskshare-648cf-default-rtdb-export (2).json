@@ -1,0 +1,106 @@
+{
+  "DepartmentEmployees":{
+      "DepEmployee1":
+      {
+        "Active": false,
+        "DepartmentId": "-O1LqPAVZhrZRkv1JsP4",
+        "EmployeeId": "1",
+        "EndDate": "null",
+        "StartingDate": "null"
+      },
+      "DepEmployee2":
+      {
+        "Active": true,
+        "DepartmentId": "-O1LqPAVZhrZRkv1JsP4-A",
+        "EmployeeId": "1",
+        "EndDate": "null",
+        "StartingDate": "null"
+      },
+      "DepEmployee3":
+      {
+        "Active": false,
+        "DepartmentId": "-O1LqPAVZhrZRkv1JsP4-B",
+        "EmployeeId": "1",
+        "EndDate": "null",
+        "StartingDate": "null"
+      }
+    },
+  
+  "Departments": {
+    "-O1LqPAVZhrZRkv1JsP4": {
+      "DepartmentDescription": "açıklama",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4",
+      "DepartmentName": "1.Birim",
+      "PMS":"null",
+      "Permissions": {
+        "ManageDepartments": true,
+        "ManageEmployees": true,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-A": {
+      "DepartmentDescription": "açıklama",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4-A",
+      "DepartmentName": "2.Birim",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4",
+      "PMS":"null",
+      "Permissions": {
+        "ManageDepartments": true,
+        "ManageEmployees": true,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-B": {
+      "DepartmentDescription": "açıklama",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4-B",
+      "DepartmentName": "3.Birim",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4",
+      "PMS":"null",
+      "Permissions": {
+        "ManageDepartments": true,
+        "ManageEmployees": true,
+        "ManageTasks": true
+      }
+    }
+  },
+  "Employees":{
+    "Employee1":
+    {
+      "Adress": "Adres",
+      "BirthPlace": "DoğumYeri",
+      "Birthday": "DoğumTarihi",
+      "EmployeeId": "1",
+      "Name": "John",
+      "PhoneNumber": "TelefonNumarası",
+      "Surname": "Doe",
+      "TcNumber": "TcNo"
+    }
+  },
+  "Users": {
+    "ORCo6Dt18LZ0MdPHv6PHVZgPvob2": {
+      "AuthToken": {
+        "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImMxNTQwYWM3MWJiOTJhYTA2OTNjODI3MTkwYWNhYmU1YjA1NWNiZWMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGFza3NoYXJlLTY0OGNmIiwiYXVkIjoidGFza3NoYXJlLTY0OGNmIiwiYXV0aF90aW1lIjoxNzIxNzM5NjY4LCJ1c2VyX2lkIjoiT1JDbzZEdDE4TFowTWRQSHY2UEhWWmdQdm9iMiIsInN1YiI6Ik9SQ282RHQxOExaME1kUEh2NlBIVlpnUHZvYjIiLCJpYXQiOjE3MjE3Mzk2NjgsImV4cCI6MTcyMTc0MzI2OCwiZW1haWwiOiJqb2huZG9lQGhvdG1haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImpvaG5kb2VAaG90bWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.LSSpsLOokgPV5Gxrs7353yoVBY6HvoZUTwlSVSl-udvbCafIzhYEwvWPG9sCiA1hkxa7uhhqiNBTqdp8LoP79a8fFPsxvHHDLTtIKA_H_AH7DsCUg19ukRWGLJLFpxZ83qeahuRj9aiPTdkdtRebePnC6C3wqD2xH4-sg5Gi5r08Wi_aFKznJDZ3v9vp0f2yKA_6d8ArtnBzTyPJm2iulOmeZIa7ac3hXVQVI-aDBwng7APT8GnpO2dKeSAaZbTmqJxYw3b53sbv31OH8Z2l5f613ZqpYJkBudPyybQL7VESD-_t0aQHKpYlXn5ttq5ohrSIDbBEwYBxGqPR22DH9g"
+      },
+      "EMail": "johndoe@hotmail.com",
+      "EmployeeId": "1",
+      "Password": "123456",
+      "UserId": "ORCo6Dt18LZ0MdPHv6PHVZgPvob2"
+    }
+  },
+  "Tasks":{
+    "uniqueTaskID":{
+      "TaskId":"100",
+      "DepartmentId":"-O1LqPAVZhrZRkv1JsP4-A",
+      "GörevÖzellikleri":{
+        "TaskTitle":"Görev1"
+      }
+
+    }
+  },
+  "EmployeeTasks":{
+    "uniqueId":{
+      "ParentTask":"100",
+      "EmployeeId":"1"
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "DepartmentEmployees":  {
+    "2":
+    {
+      "Active": false,
+      "StartingDate": "null",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4",
+      "EndDate": "null",
+      "EmployeeId": "1"
+    },
+    "3":
+    {
+      "Active": false,
+      "StartingDate": "null",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4",
+      "EndDate": "null",
+      "EmployeeId": "1"
+    },
+    "4":
+    {
+      "Active": true,
+      "StartingDate": "null",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4",
+      "EndDate": "null",
+      "EmployeeId": "1"
+    }
+},
+  "Departments": {
+    "-O1LqPAVZhrZRkv1JsP4": {
+      "DepartmentName": "1.Birim",
+      "DepartmentDescription": "açıklama",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4",
+      "ParentDepartment": null,
+      "Permissions": {
+        "ManageDepartments": true,
+        "ManageTasks": true,
+        "ManageEmployees": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-A": {
+      "DepartmentName": "2.Birim",
+      "DepartmentDescription": "açıklama",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4-A",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4",
+      "Permissions": {
+        "ManageDepartments": true,
+        "ManageTasks": true,
+        "ManageEmployees": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-B": {
+      "DepartmentName": "3.Birim",
+      "DepartmentDescription": "açıklama",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4-B",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4",
+      "Permissions": {
+        "ManageDepartments": true,
+        "ManageTasks": true,
+        "ManageEmployees": true
+      }
+    }
+  },
+  "Users": {
+    "ORCo6Dt18LZ0MdPHv6PHVZgPvob2": {
+      "AuthToken": {
+        "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjBjYjQyNzQyYWU1OGY0ZGE0NjdiY2RhZWE0Yjk1YTI5ZmJhMGM1ZjkiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGFza3NoYXJlLTY0OGNmIiwiYXVkIjoidGFza3NoYXJlLTY0OGNmIiwiYXV0aF90aW1lIjoxNzIxNzI3MTQ5LCJ1c2VyX2lkIjoiT1JDbzZEdDE4TFowTWRQSHY2UEhWWmdQdm9iMiIsInN1YiI6Ik9SQ282RHQxOExaME1kUEh2NlBIVlpnUHZvYjIiLCJpYXQiOjE3MjE3MjcxNDksImV4cCI6MTcyMTczMDc0OSwiZW1haWwiOiJqb2huZG9lQGhvdG1haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImpvaG5kb2VAaG90bWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.YTj-_86cM-pePjcdJeYRKrb6R6yP9h_4CJBNfvcAkQrSXgqyY-vLslXElM-EgaHM2RfP9AA2_xjx6cakhH7GGVMka3BWjtlf8dqYrO_njMkFU4cbqsHGbBKj89RpMGWaGWTklZq4OQNdE17jakApLNs9kGVrCoo2Z0XmV_1ljStCbEi2rk-hx1yp64eG2AdDWfEYssk0tDBcT5OCxUsavM9fOHIGe0DxxBQP3yvm3gg50ff6tPq6u6HR9LulXnnEZXZlJHLoeevb9FVZNCOq-Xs0hcaUTSx3_xwn2GAQqbJ7Gb1wlSp11T-0gFMGKLR9Bmnpv04jDec8G9AM4I87Mw"
+      },
+      "EMail": "johndoe@hotmail.com",
+      "UserId": "ORCo6Dt18LZ0MdPHv6PHVZgPvob2",
+      "EmployeeId": "1",
+      "Password": "123456"
+    }
+  },
+  "Employees": {
+    "1":
+      {
+        "Name": "John",
+        "Adress": "Adres",
+        "Birthday": "DoğumTarihi",
+        "BirthPlace": "DoğumYeri",
+        "EmployeeId": "1",
+        "Surname": "Doe",
+        "TcNumber": "TcNo",
+        "PhoneNumber": "TelefonNumarası"
+      }
+  }
+}

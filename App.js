@@ -36,9 +36,7 @@ import AddNewDepartment from "./src/screens/AddNewDepartmentScreen";
 
 const Stack = createNativeStackNavigator();
 function App() {
-   /*addusers(() => {
-      
-    }, []); */
+
     const [tasks, setTasks] = useState([]);
    
     const getTasks = () => {
@@ -94,7 +92,7 @@ function App() {
     <NavigationContainer>
          <Stack.Navigator >
             <Stack.Screen name="LoginScreen" component={LoginScreen} options={{headerShown:false}} />
-            <Stack.Screen name="HomeScreen" component={HomeScreen} />
+            <Stack.Screen name="HomeScreen" component={HomeScreen} options={{headerShown:false}} />
             <Stack.Screen name="Yeni Kullanici Ekle" component={DepartmentScreen} />
             <Stack.Screen name="Yeni Departman Ekle" component={AddNewDepartment} />
             <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
