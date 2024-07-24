@@ -15,24 +15,24 @@ export const fetchEmployeeData = async () => {
 
     if (userSnapshot.exists()) {
       const userData = userSnapshot.val();
-      const EmployeeId = userData.EmployeeId; // EmployeeId'yi al
+      const PersonId = userData.PersonId; // PersonId'yi al
 
-      // Employee bilgilerini al
-      const Employeeref = ref(db, 'Employees');
-      const employeeSnapshot = await get(Employeeref);
+      // Person bilgilerini al
+      const Personref = ref(db, 'Persons');
+      const PersonSnapshot = await get(Personref);
 
-      if (employeeSnapshot.exists()) {
-        const employeeData = employeeSnapshot.val();
+      if (PersonSnapshot.exists()) {
+        const PersonData = PersonSnapshot.val();
 
-        // Employees objesinde EmployeeId'ye sahip olanı bul
-        for (const key in employeeData) {
-          if (employeeData[key].EmployeeId === EmployeeId) {
-            return employeeData[key]; // Eşleşen öğeyi döndür
+        // Persons objesinde PersonId'ye sahip olanı bul
+        for (const key in PersonData) {
+          if (PersonData[key].PersonId === PersonId) {
+            return PersonData[key]; // Eşleşen öğeyi döndür
           }
         }
       }
     }
   }
 
-  return null;
+  return ["kullanici yok"];
 };

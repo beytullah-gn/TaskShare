@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
 import { ref, get, set, push } from 'firebase/database';
-import { db } from '../Components/firebase-config';
-import { fetchUserData } from '../Components/fetchUserData'; // Kullanıcı verilerini almak için yardımcı fonksiyon
+import { db } from '../Services/firebase-config';
+import { fetchUserData } from '../Services/fetchUserData'; // Kullanıcı verilerini almak için yardımcı fonksiyon
+import fetchActiveDepartments from '../Services/fetchActiveDepartments'; // Aktif departmanları almak için yardımcı fonksiyon
+import { deactivateDepartmentAndEmployees } from '../Services/deactivateDepartmentsAndEmployees';
+import { Button } from 'react-native-elements';
 
 const AddNewDepartment = () => {
   const [departmentName, setDepartmentName] = useState('');
@@ -29,18 +32,12 @@ const AddNewDepartment = () => {
   const loadDepartments = async () => {
     setIsLoading(true);
     try {
-      const departmentsRef = ref(db, 'Departments');
-      const snapshot = await get(departmentsRef);
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const departmentsArray = Object.keys(data).map(key => ({
-          id: key,
-          ...data[key]
-        }));
-        setDepartmentsList(departmentsArray);
+      const activeDepartments = await fetchActiveDepartments();
+      if (activeDepartments.length > 0) {
+        setDepartmentsList(activeDepartments);
         setIsModalVisible(true); // Modalı aç
       } else {
-        Alert.alert('No Data', 'No departments found.');
+        Alert.alert('No Data', 'No active departments found.');
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to fetch departments.');
@@ -48,6 +45,7 @@ const AddNewDepartment = () => {
       setIsLoading(false);
     }
   };
+
 
   const handleListDepartments = () => {
     loadDepartments();
@@ -66,13 +64,9 @@ const AddNewDepartment = () => {
       const snapshot = await get(existingDepartmentRef);
       if (snapshot.exists()) {
         const data = snapshot.val();
-        // Debug: Mevcut departman verilerini kontrol et
-        console.log('Existing Departments Data:', data);
         
         const departmentExists = Object.values(data).some(department => {
           const name = department.DepartmentName;
-          // Debug: Departman ismini kontrol et
-          console.log('Checking department name:', name);
           return typeof name === 'string' && name.toLowerCase() === departmentName.toLowerCase();
         });
         if (departmentExists) {
@@ -81,14 +75,20 @@ const AddNewDepartment = () => {
         }
       }
       
-      // Verileri Firebase'e kaydetme
-      const newDepartmentRef = ref(db, 'Departments').push(); // Yeni benzersiz bir anahtar oluştur
+      
+      const newDepartmentRef = push(ref(db, 'Departments'));
+      console.log(newDepartmentRef) // Yeni benzersiz bir anahtar oluştur
       await set(newDepartmentRef, {
         DepartmentName: departmentName,
         DepartmentDescription: departmentDescription,
         ParentDepartment: selectedDepartmentId,
         CreatedBy: currentUser?.id,
-        Permissions: [] // Varsayılan bir boş dizi
+        Active:true,
+        Permissions: {
+          ManageTasks:false,
+          ManageEmployees:false,
+          ManageDepartments:false}
+  
       });
       
       console.log('Department successfully added.');
@@ -104,15 +104,19 @@ const AddNewDepartment = () => {
     }
   };
   
-  
   const renderDepartmentItem = ({ item }) => (
     <TouchableOpacity
       style={[styles.departmentItem, selectedDepartmentId === item.id && styles.selectedItem]}
       onPress={() => setSelectedDepartmentId(item.id)}
     >
-      <Text style={styles.departmentText}>ID: {item.id}</Text>
-      <Text style={styles.departmentText}>Name: {item.name}</Text>
-      <Text style={styles.departmentText}>Description: {item.description}</Text>
+      <Text style={styles.departmentText}>Departman Adı: {item.DepartmentName}</Text>
+      <Button title="Tıkla" onPress={
+        () => {
+          deactivateDepartmentAndEmployees(item.id)
+           
+          }
+      }></Button>
+      <Text style={styles.departmentText}>Departman Açıklaması: {item.DepartmentDescription}</Text>
     </TouchableOpacity>
   );
 

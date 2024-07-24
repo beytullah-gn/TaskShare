@@ -1,0 +1,243 @@
+{
+  "DepartmentEmployees": {
+    "DepEmployee1": {
+      "Active": false,
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP1",
+      "EmployeeId": "1",
+      "EndDate": "null",
+      "StartingDate": "null"
+    },
+    "DepEmployee2": {
+      "Active": true,
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP1",
+      "EmployeeId": "1",
+      "EndDate": "null",
+      "StartingDate": "null"
+    },
+    "DepEmployee3": {
+      "Active": false,
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP1",
+      "EmployeeId": "1",
+      "EndDate": "null",
+      "StartingDate": "null"
+    }
+  },
+  "Departments": {
+    "-O1LqPAVZhrZRkv1JsP1": {
+      "DepartmentDescription": "En üst düzey birim",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP1",
+      "DepartmentName": "Yönetim",
+      "Active":true,
+      "PMS": "null",
+      "Permissions": {
+        "ManageDepartments": true,
+        "ManageEmployees": true,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP2": {
+      "DepartmentDescription": "Finans ve Muhasebe",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP2",
+      "DepartmentName": "Finans",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP1",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": true,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP2-A": {
+      "DepartmentDescription": "Bütçe Yönetimi",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP2-A",
+      "DepartmentName": "Bütçe",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP2",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": false,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP2-B": {
+      "DepartmentDescription": "Mali Raporlama",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP2-B",
+      "DepartmentName": "Raporlama",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP2",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": false,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP3": {
+      "DepartmentDescription": "Pazarlama ve Satış",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP3",
+      "DepartmentName": "Pazarlama",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP1",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": true,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP3-A": {
+      "DepartmentDescription": "Pazar Araştırmaları",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP3-A",
+      "DepartmentName": "Araştırma",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP3",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": false,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP3-B": {
+      "DepartmentDescription": "Satış Stratejileri",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP3-B",
+      "DepartmentName": "Strateji",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP3",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": false,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4": {
+      "DepartmentDescription": "İnsan Kaynakları",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4",
+      "DepartmentName": "İK",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP1",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": true,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-A": {
+      "DepartmentDescription": "Rekabetçi Analizler",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4-A",
+      "DepartmentName": "Analiz",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": false,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP4-B": {
+      "DepartmentDescription": "Personel Yönetimi",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP4-B",
+      "DepartmentName": "Yönetim",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP4",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": true,
+        "ManageTasks": false
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP5": {
+      "DepartmentDescription": "Teknik Destek",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP5",
+      "DepartmentName": "Destek",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP1",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": true,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP5-A": {
+      "DepartmentDescription": "Sistem Bakımı",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP5-A",
+      "DepartmentName": "Sistem",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP5",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": false,
+        "ManageTasks": true
+      }
+    },
+    "-O1LqPAVZhrZRkv1JsP5-B": {
+      "DepartmentDescription": "Yazılım Destek",
+      "DepartmentId": "-O1LqPAVZhrZRkv1JsP5-B",
+      "DepartmentName": "Yazılım",
+      "Active":true,
+      "PMS": "null",
+      "ParentDepartment": "-O1LqPAVZhrZRkv1JsP5",
+      "Permissions": {
+        "ManageDepartments": false,
+        "ManageEmployees": false,
+        "ManageTasks": true
+      }
+    }
+  },
+  "Employees": {
+    "Employee1": {
+      "Adress": "Adres",
+      "BirthPlace": "DoğumYeri",
+      "Birthday": "DoğumTarihi",
+      "EmployeeId": "1",
+      "Name": "John",
+      "PhoneNumber": "TelefonNumarası",
+      "Surname": "Doe",
+      "TcNumber": "TcNo"
+    }
+  },
+  "Persons": [
+    null,
+    {
+      "AccountType": "Employee",
+      "Adress": "Adres",
+      "BirthPlace": "DoğumYeri",
+      "Birthday": "DoğumTarihi",
+      "Name": "John",
+      "PersonId": "1",
+      "PhoneNumber": "TelefonNumarası",
+      "Surname": "Doe",
+      "TcNumber": "TcNo"
+    },
+    {
+      "AccountType": "Client",
+      "Adress": "Adres",
+      "BirthPlace": "DoğumYeri",
+      "Birthday": "DoğumTarihi",
+      "Name": "Beytullah ",
+      "PersonId": "2",
+      "PhoneNumber": "TelefonNumarası",
+      "Surname": "Günaydın",
+      "TcNumber": "TcNo"
+    }
+  ],
+  "Users": {
+    "ORCo6Dt18LZ0MdPHv6PHVZgPvob2": {
+      "AuthToken": {
+        "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjBjYjQyNzQyYWU1OGY0ZGE0NjdiY2RhZWE0Yjk1YTI5ZmJhMGM1ZjkiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGFza3NoYXJlLTY0OGNmIiwiYXVkIjoidGFza3NoYXJlLTY0OGNmIiwiYXV0aF90aW1lIjoxNzIxODE2MzAyLCJ1c2VyX2lkIjoiT1JDbzZEdDE4TFowTWRQSHY2UEhWWmdQdm9iMiIsInN1YiI6Ik9SQ282RHQxOExaME1kUEh2NlBIVlpnUHZvYjIiLCJpYXQiOjE3MjE4MTYzMDIsImV4cCI6MTcyMTgxOTkwMiwiZW1haWwiOiJqb2huZG9lQGhvdG1haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImpvaG5kb2VAaG90bWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.r6CnYP9vXMJQNTrqInqoHzd5T6ECkiVps0t_-c86aDt8EU4dbfIIGk1hun3AsG3GA3cj_wOb-DR16AyMj_L5BzaGRt7L5c_x5jJzEEMEg1dg46HL8MZJ6hgy8V_3blnL-sXqF2X7Iz_5_VyekqRxlKTmgQl4sWmV7B0uonCt80NgcF2HK91a_1xDB8zDIz49a6xMyQBZjSnRHxvwVBVSo6jsDZL_30z7NB3GSPUZXbY0J5NvAiesCdTm17LGfNsAEWOVv5ZlACiPEsr2SGHUjhYrHK3SalDYB5fNt6PNJWe5zJeHBIydFnpAEjZDxZmtCK2sxNTR2-YBqdw-tUbF5g"
+      },
+      "EMail": "johndoe@hotmail.com",
+      "Password": "123456",
+      "PersonId": "1",
+      "UserId": "ORCo6Dt18LZ0MdPHv6PHVZgPvob2"
+    }
+  }
+}

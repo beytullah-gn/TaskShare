@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { View, TextInput, Button, ActivityIndicator, StyleSheet,FlatList,TouchableOpacity,Text } from 'react-native';
-import FetchDepartments from '../Components/fetchDepartments';
-import TreeItem from '../Components/TreeItem';
-import { buildHierarchy, findAncestors, findAllExpandedItems } from '../Components/DepartmentUtils';
+import { View, TextInput, Button, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity, Text, SafeAreaView, FlatList } from 'react-native';
+import FetchDepartments from '../Services/fetchDepartments';
+import TreeCardItem from '../Components/TreeCardItem';
+import { buildHierarchy, findAncestors, findAllExpandedItems } from '../Services/DepartmentUtils';
 
-const DepartmentScreen = ({navigation}) => {
+const DepartmentScreen = ({ navigation }) => {
   const [departments, setDepartments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedItems, setExpandedItems] = useState([]);
@@ -43,7 +43,6 @@ const DepartmentScreen = ({navigation}) => {
       prevItems.includes(id) ? prevItems.filter(item => item !== id) : [...prevItems, id]
     );
   }, []);
-  
 
   // Arama terimi değiştiğinde genişletme durumu güncelle
   useEffect(() => {
@@ -67,24 +66,38 @@ const DepartmentScreen = ({navigation}) => {
 
   const renderTree = useCallback(() => {
     return (
-      <FlatList
-        data={filteredDepartments}
-        renderItem={({ item }) => <TreeItem item={item} expandedItems={expandedItems} onToggleExpand={handleToggleExpand} searchTerm={searchTerm} />}
-        keyExtractor={item => item.id}
-        initialNumToRender={10}
-        maxToRenderPerBatch={10}
-        windowSize={5}
-      />
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+      >
+        <ScrollView
+          style={styles.innerScrollContainer}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {filteredDepartments.map((item) => (
+            <TreeCardItem
+              key={item.id}
+              item={item}
+              expandedItems={expandedItems}
+              onToggleExpand={handleToggleExpand}
+              searchTerm={searchTerm}
+            />
+          ))}
+        </ScrollView>
+      </ScrollView>
     );
   }, [filteredDepartments, expandedItems, handleToggleExpand, searchTerm]);
 
-//navigate
-  const AddNewDepartment=()=>{
+  // Navigate to add new department
+  const AddNewDepartment = () => {
     navigation.navigate("Yeni Departman Ekle");
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -94,6 +107,7 @@ const DepartmentScreen = ({navigation}) => {
         />
         <Button title="Clear" onPress={() => setSearchTerm('')} />
       </View>
+      <ScrollView>
       {isLoading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
@@ -102,12 +116,13 @@ const DepartmentScreen = ({navigation}) => {
           {renderTree()}
         </>
       )}
+      </ScrollView>
       <View style={styles.bottomContainer}>
         <TouchableOpacity style={styles.bottomButton} onPress={AddNewDepartment}>
           <Text style={styles.bottomText}>Click ME</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -129,23 +144,33 @@ const styles = StyleSheet.create({
     marginRight: 8,
     borderRadius: 4,
   },
-  bottomContainer: {
+  scrollContainer: {
     flex: 1,
-    width:"100%",
+  },
+  innerScrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  bottomContainer: {
+    width: '100%',
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
-  bottomButton:{
-    width:"80%",
-    backgroundColor:'blue',
-    alignItems:'center',
-    justifyContent:'center',
-    padding:10,
-    borderRadius:10,
+  bottomButton: {
+    width: '80%',
+    backgroundColor: 'blue',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 20,
   },
-  bottomText:{
-    fontWeight:'bold',
-    color:'white',
+  bottomText: {
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
 

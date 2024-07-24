@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput,  Alert, Text, TouchableOpacity } from 'react-native';
-import { login } from '../Components/AuthService';
+import { login } from '../Services/AuthService';
 import { styles } from '../styles/loginscreenStyle';
 
 const LoginScreen = ({ navigation }) => {
