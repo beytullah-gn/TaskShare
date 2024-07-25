@@ -19,7 +19,7 @@ export const getToken = async () => {
   if (user) {
     const token = await user.getIdToken();
     const decodedToken = jwtDecode(token);
-    //console.log('Current Token:', token);
+    console.log('Current Token:', token);
     return token;
   } else {
     console.log('No user is signed in.');
@@ -34,5 +34,17 @@ export const removeToken = async () => {
     await AsyncStorage.removeItem('userToken');
   } catch (error) {
     console.error('Token silme hatası:', error);
+  }
+};
+
+
+export const getData = async () => {
+  try {
+    const value = await AsyncStorage.getItem('userToken');
+    if (value !== null) {
+      return value;
+    }
+  } catch (e) {
+    // error reading value
   }
 };

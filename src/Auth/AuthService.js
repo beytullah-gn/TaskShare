@@ -1,8 +1,6 @@
-// services/AuthService.js
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { getDatabase, ref, set,update,push } from 'firebase/database';
-import { saveToken } from './tokenStorage';
-
+import { saveToken } from '../Services/tokenStorage';
 
 const auth = getAuth();
 const db = getDatabase();

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { View, TextInput,  Alert, Text, TouchableOpacity } from 'react-native';
-import { login } from '../Services/AuthService';
+import { login } from '../Auth/AuthService';
 import { styles } from '../styles/loginscreenStyle';
+import { getData, getToken } from '../Services/tokenStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -14,7 +16,8 @@ const LoginScreen = ({ navigation }) => {
       setEmail('');
       // Kullanıcıyı ana sayfaya yönlendir ve token'ı geç
       
-      navigation.navigate('HomeScreen', { token });
+      navigation.navigate("HomeScreen");
+   
     } catch (error) {
       Alert.alert('Giriş Hatası', error.message);
     }
@@ -46,7 +49,10 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.buttonText}>Giriş Yap</Text>
       </TouchableOpacity>
       
-      <TouchableOpacity style={styles.registerContainer} onPress={() => {navigation.navigate('RegisterScreen')}}>
+      <TouchableOpacity style={styles.registerContainer} onPress={()=>{
+        
+        getData();
+      }}>
         <Text style={styles.registerText}>Hesabınız yok mu? Kayıt olun</Text>
       </TouchableOpacity>
     </View>

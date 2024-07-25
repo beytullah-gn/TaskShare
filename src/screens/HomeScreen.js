@@ -5,6 +5,7 @@ import { getToken } from '../Services/tokenStorage';
 import { fetchDepartmentEmployeeData } from '../Services/fetchDepartmentEmployees';
 import { fetchCurrentDepartment } from '../Services/fetchCurrenUserDepartment';
 import BottomBar from '../Components/BottomBar';
+import { SignOutService } from '../Auth/SignOut';
 
 const HomeScreen = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
@@ -13,8 +14,10 @@ const HomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
 
   const handleLogout = () => {
-    // Çıkış yapma işlemleri
-    console.log('Çıkış yapıldı');
+    
+    SignOutService();
+    navigation.navigate("LoginScreen");
+    
   };
 
   const handleSettings = () => {
