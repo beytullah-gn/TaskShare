@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, SafeAreaView, Text, StyleSheet, TextInput, Button, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Modal } from 'react-native';
 import { ref, onValue, push } from 'firebase/database';
 import { db } from './firebase-config'; // Firebase bağlantı noktanızı buraya ekleyin
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function Login({ navigation }) {
     const [text, onChangeText] = useState('');

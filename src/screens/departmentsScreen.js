@@ -1,10 +1,13 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { View, TextInput, Button, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity, Text, SafeAreaView, FlatList } from 'react-native';
+import { View, TextInput, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
 import FetchDepartments from '../Services/fetchDepartments';
 import TreeCardItem from '../Components/TreeCardItem';
 import { buildHierarchy, findAncestors, findAllExpandedItems } from '../Services/DepartmentUtils';
+import { SafeAreaView } from "react-native-safe-area-context";
+import BottomBar from '../Components/BottomBar';
 
 const DepartmentScreen = ({ navigation }) => {
+  
   const [departments, setDepartments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedItems, setExpandedItems] = useState([]);
@@ -44,7 +47,20 @@ const DepartmentScreen = ({ navigation }) => {
     );
   }, []);
 
-  // Arama terimi değiştiğinde genişletme durumu güncelle
+  const handleProfile = () => {
+    navigation.navigate('MyProfile');
+  };
+  const handleDepartments = () => {
+    navigation.navigate('Departments');
+  };
+  const handlePersons = () => {
+    navigation.navigate('Persons');
+  };
+  const handleSettings = () => {
+    navigation.navigate('Settings');
+  };
+
+  // Arama terimi değiştiğinde genişletme durumu güncelley
   useEffect(() => {
     if (searchTerm) {
       const matchingDepartments = departments.filter(department =>
@@ -69,7 +85,7 @@ const DepartmentScreen = ({ navigation }) => {
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
-        horizontal
+        horizontal={false} // Yalnızca dikey düzen
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
       >
@@ -84,6 +100,7 @@ const DepartmentScreen = ({ navigation }) => {
               expandedItems={expandedItems}
               onToggleExpand={handleToggleExpand}
               searchTerm={searchTerm}
+              level={0}
             />
           ))}
         </ScrollView>
@@ -93,7 +110,7 @@ const DepartmentScreen = ({ navigation }) => {
 
   // Navigate to add new department
   const AddNewDepartment = () => {
-    navigation.navigate("Yeni Departman Ekle");
+    navigation.navigate("AddNewDepartment");
   }
 
   return (
@@ -101,26 +118,31 @@ const DepartmentScreen = ({ navigation }) => {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search departments..."
+          placeholder="Departman Ara..."
           value={searchTerm}
           onChangeText={setSearchTerm}
         />
-        <Button title="Clear" onPress={() => setSearchTerm('')} />
+        <TouchableOpacity style={styles.clearButton} onPress={() => setSearchTerm('')}>
+          <Text style={styles.clearButtonText}>Clear</Text>
+        </TouchableOpacity>
       </View>
-      <ScrollView>
-      {isLoading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <>
-          <FetchDepartments setDepartments={setDepartments} setIsLoading={setIsLoading} />
-          {renderTree()}
-        </>
-      )}
+      <ScrollView style={styles.scrollView}>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#007bff" />
+        ) : (
+          <>
+            <FetchDepartments setDepartments={setDepartments} setIsLoading={setIsLoading} />
+            {renderTree()}
+          </>
+        )}
       </ScrollView>
       <View style={styles.bottomContainer}>
         <TouchableOpacity style={styles.bottomButton} onPress={AddNewDepartment}>
-          <Text style={styles.bottomText}>Click ME</Text>
+          <Text style={styles.bottomText}>Add New Department</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.bottomBarContainer}>
+        <BottomBar onProfile={handleProfile} onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} />
       </View>
     </SafeAreaView>
   );
@@ -130,6 +152,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#f4f6f9' 
   },
   searchContainer: {
     flexDirection: 'row',
@@ -140,9 +163,24 @@ const styles = StyleSheet.create({
     flex: 1,
     borderColor: '#ccc',
     borderWidth: 1,
-    padding: 8,
+    padding: 10,
     marginRight: 8,
-    borderRadius: 4,
+    borderRadius: 5,
+    backgroundColor: '#ffffff',
+    color: '#003366', 
+  },
+  clearButton: {
+    backgroundColor: '#003366', 
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+  },
+  clearButtonText: {
+    color: '#ffffff', // Beyaz metin
+    fontWeight: 'bold',
+  },
+  scrollView: {
+    flex: 1,
   },
   scrollContainer: {
     flex: 1,
@@ -151,17 +189,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    flexDirection: 'row',
+    flexDirection: 'column', // Dikey düzen
     flexWrap: 'wrap',
   },
   bottomContainer: {
     width: '100%',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 60, // Yeterli boşluk bırakmak için
   },
   bottomButton: {
     width: '80%',
-    backgroundColor: 'blue',
+    backgroundColor: '#007bff', // Mavi arka plan
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
@@ -170,7 +209,13 @@ const styles = StyleSheet.create({
   },
   bottomText: {
     fontWeight: 'bold',
-    color: 'white',
+    color: '#ffffff', // Beyaz metin
+  },
+  bottomBarContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });
 

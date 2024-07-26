@@ -3,7 +3,7 @@ import { ref, get } from 'firebase/database';
 import { db } from './firebase-config';
 import { getToken } from './tokenStorage';
 
-export const fetchEmployeeData = async () => {
+export const fetchPersonData = async () => {
   const token = await getToken();
   const auth = getAuth();
   const user = auth.currentUser;

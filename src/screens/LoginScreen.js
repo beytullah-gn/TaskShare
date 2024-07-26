@@ -8,20 +8,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    try {
-      const { user, token } = await login(email, password);
-      setPassword('');
-      setEmail('');
-      // Kullanıcıyı ana sayfaya yönlendir ve token'ı geç
-      
-      navigation.navigate("HomeScreen");
-   
-    } catch (error) {
-      Alert.alert('Giriş Hatası', error.message);
-    }
-  };
+  setLoading(true);
+  try {
+    const { user, token } = await login(email, password);
+    setPassword('');
+    setEmail('');
+    
+    
+  } catch (error) {
+    Alert.alert('Giriş Hatası', error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <View style={styles.container}>
@@ -34,6 +36,7 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        cursorColor="blue"
       />
       
       <TextInput
@@ -43,15 +46,20 @@ const LoginScreen = ({ navigation }) => {
         value={password}
         onChangeText={setPassword}
         autoCapitalize="none"
+        cursorColor="blue"
       />
-      
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Giriş Yap</Text>
-      </TouchableOpacity>
+     <TouchableOpacity 
+      style={styles.button} 
+      onPress={handleLogin}
+      disabled={loading} // Butona tıklamayı engeller
+    >
+      <Text style={styles.buttonText}>{loading ? 'Yükleniyor...' : 'Giriş Yap'}</Text>
+    </TouchableOpacity>
       
       <TouchableOpacity style={styles.registerContainer} onPress={()=>{
         
         getData();
+        getToken();
       }}>
         <Text style={styles.registerText}>Hesabınız yok mu? Kayıt olun</Text>
       </TouchableOpacity>

@@ -1,10 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 import { getStorage } from 'firebase/storage';
-import 'firebase/compat/auth';
+import { getAuth } from 'firebase/auth';
 import firebase from 'firebase/compat/app';
-
-
+import 'firebase/compat/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAXRPtPtb11D36bqucUG0ZNfMEYjMdV918",
@@ -17,13 +16,15 @@ const firebaseConfig = {
   measurementId: "G-CFD7FDE8Y5"
 };
 
-
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const app = initializeApp(firebaseConfig);
+// Alternatif olarak initializeApp çağrısını firebase'den değil 'firebase/app' den yapabilirsiniz.
+// const app = firebase.apps.length ? firebase.app() : initializeApp(firebaseConfig);
+const app = firebase.apps.length ? firebase.app() : initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 
-export { db, storage, firebase};
+export { db, storage, auth, firebase };

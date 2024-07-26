@@ -11,11 +11,14 @@ export const login = async (email, password) => {
     const user = userCredential.user;
     const token = await user.getIdToken(); // Token'ı al
     saveToken(token);
-    // Token'ı Realtime Database'de sakla
-    const userRef = ref(db, `Users/${user.uid}/AuthToken`);
-    await set(userRef, { token });
 
-        return { user, token };
+    // Token'ı Realtime Database'de saklamak için ayrı bir işlem başlatın
+    setTimeout(async () => {
+      const userRef = ref(db, `Users/${user.uid}/AuthToken`);
+      await set(userRef, { token });
+    }, 0);
+
+    return { user, token };
   } catch (error) {
     throw new Error(error.message);
   }

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, SafeAreaView, ScrollView } from 'react-native';
-import { fetchEmployeeData } from '../Services/fetchEmployeeData';
-import { getToken } from '../Services/tokenStorage';
+import { fetchPersonData } from '../Services/fetchPersonData';
+import { getData, getToken } from '../Services/tokenStorage';
 import { fetchDepartmentEmployeeData } from '../Services/fetchDepartmentEmployees';
-import { fetchCurrentDepartment } from '../Services/fetchCurrenUserDepartment';
+import { fetchCurrentDepartment } from '../Services/fetchCurrentUserDepartment';
 import BottomBar from '../Components/BottomBar';
 import { SignOutService } from '../Auth/SignOut';
 
@@ -15,8 +15,8 @@ const HomeScreen = ({ navigation }) => {
 
   const handleLogout = () => {
     
-    SignOutService();
-    navigation.navigate("LoginScreen");
+    SignOutService(navigation);
+    
     
   };
 
@@ -29,7 +29,7 @@ const HomeScreen = ({ navigation }) => {
       try {
         setLoading(true);
         const [employeeData, departmentData, currentDepartmentData] = await Promise.all([
-          fetchEmployeeData(),
+          fetchPersonData(),
           fetchDepartmentEmployeeData(),
           fetchCurrentDepartment()
         ]);
@@ -38,7 +38,7 @@ const HomeScreen = ({ navigation }) => {
         setUserDepartment(departmentData);
         setUserCurrentDepartment(currentDepartmentData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.log('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
@@ -57,7 +57,7 @@ const HomeScreen = ({ navigation }) => {
       setUserDepartment(department);
       setUserCurrentDepartment(currentDepartment);
     } catch (error) {
-      console.error('Error fetching department data:', error);
+      console.log('Error fetching department data:', error);
     }
   };
 
@@ -78,7 +78,7 @@ const HomeScreen = ({ navigation }) => {
 
             <TouchableOpacity
               style={styles.button}
-              onPress={() => navigation.navigate("Yeni Kullanici Ekle")}
+              onPress={() => navigation.navigate("Departments")}
             >
               <Text style={styles.buttonText}>Departmanları Listele</Text>
             </TouchableOpacity>
@@ -86,8 +86,8 @@ const HomeScreen = ({ navigation }) => {
             <TouchableOpacity
               style={styles.button}
               onPress={async () => {
-                const token = await getToken();
-                console.log(token);
+                getToken();
+                getData();
               }}
             >
               <Text style={styles.buttonText}>Tokenı consola yazdır</Text>

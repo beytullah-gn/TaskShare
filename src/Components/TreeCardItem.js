@@ -4,8 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 // Dinamik renk üretmek için bir fonksiyon
 const generateColor = (level) => {
-  const hue = (level * 137.508) % 360; // Farklı renk tonları için bir hesaplama
-  return `hsl(${hue}, 70%, 80%)`; // Renk tonu, doygunluk ve parlaklık ayarları
+  const lightness = 80 - (level * 10); // Daha yüksek seviyelerde daha açık renk
+  return `hsl(210, 80%, ${lightness}%)`; // Mavi renk tonları için hue değeri
 };
 
 const TreeCardItem = ({ item, expandedItems, onToggleExpand, searchTerm, level = 0 }) => {
@@ -23,11 +23,14 @@ const TreeCardItem = ({ item, expandedItems, onToggleExpand, searchTerm, level =
             <Ionicons
               name={isExpanded ? 'chevron-down-outline' : 'chevron-forward-outline'}
               size={20}
-              color="black"
+              color="#003366" // Koyu mavi ikon rengi
               style={styles.icon}
             />
           )}
-          <Text style={[styles.cardTitle, searchTerm && item.DepartmentName.toLowerCase().includes(searchTerm.toLowerCase()) && styles.highlighted]}>
+          <Text style={[
+            styles.cardTitle, 
+            searchTerm && item.DepartmentName.toLowerCase().includes(searchTerm.toLowerCase()) && styles.highlighted
+          ]}>
             {item.DepartmentName}
           </Text>
         </View>
@@ -80,9 +83,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 10,
     flexShrink: 1,
+    color: '#003366', // Koyu mavi metin rengi
   },
   highlighted: {
-    backgroundColor: '#e0f7fa',
+    backgroundColor: '#e6f0ff', // Açık mavi arka plan
     borderRadius: 5,
     padding: 5,
   },
