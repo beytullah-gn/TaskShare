@@ -11,6 +11,7 @@ import {SignOutService} from "./src/Auth/SignOut";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import './src/Services/firebase-config';
 import MyProfile from "./src/screens/myProfile";
+import PersonsScreen from "./src/screens/PersonsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -64,6 +65,7 @@ function App() {
             <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Departments" component={DepartmentScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="AddNewDepartment" component={AddNewDepartment} />
+            <Stack.Screen name="Persons" component={PersonsScreen} options={{ headerShown: false }}/>
             {/* Diğer ekranlar buraya eklenir */}
           </>
         )}
