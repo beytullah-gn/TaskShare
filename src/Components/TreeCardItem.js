@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Button } from 'react-native-elements';
 
 // Dinamik renk üretmek için bir fonksiyon
 const generateColor = (level) => {
@@ -8,9 +9,13 @@ const generateColor = (level) => {
   return `hsl(210, 80%, ${lightness}%)`; // Mavi renk tonları için hue değeri
 };
 
-const TreeCardItem = ({ item, expandedItems, onToggleExpand, searchTerm, level = 0 }) => {
+const TreeCardItem = ({ item, expandedItems, onToggleExpand, searchTerm, level = 0, navigation }) => {
   const isExpanded = expandedItems.includes(item.id);
   const hasChildren = item.children && item.children.length > 0;
+
+  const handleDetailPress = () => {
+    navigation.navigate('SelectedDepartment', { id: item.id }); // 'DepartmentDetail' sayfasına yönlendirir
+  };
 
   return (
     <View style={styles.cardContainer}>
@@ -27,12 +32,19 @@ const TreeCardItem = ({ item, expandedItems, onToggleExpand, searchTerm, level =
               style={styles.icon}
             />
           )}
-          <Text style={[
-            styles.cardTitle, 
-            searchTerm && item.DepartmentName.toLowerCase().includes(searchTerm.toLowerCase()) && styles.highlighted
-          ]}>
-            {item.DepartmentName}
-          </Text>
+          <View style={{flexDirection:'row',alignItems:'center'}}>
+            <Text style={[
+              styles.cardTitle, 
+              searchTerm && item.DepartmentName.toLowerCase().includes(searchTerm.toLowerCase()) && styles.highlighted
+            ]}>
+              {item.DepartmentName}
+            </Text>
+            <TouchableOpacity style={styles.detailsButton} onPress={handleDetailPress}>
+              <Text style={{color:'white',fontWeight:'bold'}}>Detayları Görüntüle</Text>
+            </TouchableOpacity>
+          </View>
+          
+          
         </View>
         {isExpanded && item.children && item.children.length > 0 && (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.childContainer}>
@@ -44,6 +56,7 @@ const TreeCardItem = ({ item, expandedItems, onToggleExpand, searchTerm, level =
                 onToggleExpand={onToggleExpand}
                 searchTerm={searchTerm}
                 level={level + 1} // Alt kartın seviyesi bir artırılır
+                navigation={navigation} // Navigation prop'unu ekleyin
               />
             ))}
           </ScrollView>
@@ -96,6 +109,13 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 10,
+  },
+  detailsButton:{
+    backgroundColor:'#003366',
+    paddingHorizontal:15,
+    paddingVertical:7,
+    borderRadius:10,
+    marginLeft:20,
   },
 });
 

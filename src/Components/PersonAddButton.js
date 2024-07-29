@@ -2,9 +2,9 @@ import React from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 
-const PersonAddButton = () => {
+const PersonAddButton = ({onAdd}) => {
     return (
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity style={styles.addButton} onPress={onAdd}>
             <Ionicons name="add" size={24} color="#fff" />
         </TouchableOpacity>
     );

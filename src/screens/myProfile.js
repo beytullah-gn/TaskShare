@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { ScrollView, StyleSheet, View, Text } from "react-native";
 import BottomBar from "../Components/BottomBar";
 import { fetchDepartmentEmployeeData } from '../Services/fetchDepartmentEmployees';
@@ -8,6 +8,7 @@ import { fetchInactiveDepartments } from "../Services/fetchInactiveDepartments";
 import fetchAllDepartments from "../Services/fetchAllDepartments";
 import fetchAllDepartmentEmployees from "../Services/fetchAllDepartmentEmployees";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 
 const MyProfile = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
@@ -18,34 +19,36 @@ const MyProfile = ({ navigation }) => {
   const [allDepartments, setAllDepartments] = useState(null);
   const [allDepartmentEmployees, setAllDepartmentEmployees] = useState(null);
 
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        setLoading(true);
-        const [employeeData, departmentData, currentDepartmentData, oldDepartmentData, allDepartments, allDepartmentEmployees] = await Promise.all([
-          fetchPersonData(),
-          fetchDepartmentEmployeeData(),
-          fetchCurrentDepartment(),
-          fetchInactiveDepartments(),
-          fetchAllDepartments(),
-          fetchAllDepartmentEmployees()
-        ]);
+  const getUserData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [employeeData, departmentData, currentDepartmentData, oldDepartmentData, allDepartments, allDepartmentEmployees] = await Promise.all([
+        fetchPersonData(),
+        fetchDepartmentEmployeeData(),
+        fetchCurrentDepartment(),
+        fetchInactiveDepartments(),
+        fetchAllDepartments(),
+        fetchAllDepartmentEmployees()
+      ]);
 
-        setUserInfo(employeeData);
-        setUserDepartment(departmentData);
-        setUserCurrentDepartment(currentDepartmentData);
-        setUserOldDepartment(oldDepartmentData);
-        setAllDepartments(allDepartments);
-        setAllDepartmentEmployees(allDepartmentEmployees);
-      } catch (error) {
-        console.log('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getUserData();
+      setUserInfo(employeeData);
+      setUserDepartment(departmentData);
+      setUserCurrentDepartment(currentDepartmentData);
+      setUserOldDepartment(oldDepartmentData);
+      setAllDepartments(allDepartments);
+      setAllDepartmentEmployees(allDepartmentEmployees);
+    } catch (error) {
+      console.log('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      getUserData();
+    }, [getUserData])
+  );
 
   const handleDepartments = () => {
     navigation.navigate('Departments');
@@ -78,7 +81,7 @@ const MyProfile = ({ navigation }) => {
                 <Text>Telefon Numarası: {userInfo.PhoneNumber}</Text>
                 <Text>Doğum Günü: {userInfo.Birthday}</Text>
                 <Text>Doğum Yeri: {userInfo.BirthPlace}</Text>
-                <Text>Adresi: {userInfo.Adress}</Text>
+                <Text>Adresi: {userInfo.Address}</Text>
               </View>
             ) : (
               <Text>Kişi bulunamadı.</Text>
@@ -93,7 +96,7 @@ const MyProfile = ({ navigation }) => {
             ) : null}
             {userOldDepartment && userOldDepartment.length > 0 ? (
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>Eski Departmanlar</Text>
+                <Text style={styles.cardTitle}>Çalışma Geçmişi</Text>
                 {userOldDepartment.map((dept, index) => {
                   const department = allDepartments.find(d => d.DepartmentId === dept.DepartmentId);
                   return (
@@ -141,7 +144,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 80, // BottomBar'ın yüksekliğinden biraz fazla
+    paddingBottom: 80,
   },
   card: {
     width: '90%',

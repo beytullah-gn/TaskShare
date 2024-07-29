@@ -15,6 +15,7 @@ const AddNewDepartment = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [selectedDepartmentName, setSelectedDepartmentName] = useState('');
 
   useEffect(() => {
     const loadCurrentUser = async () => {
@@ -22,7 +23,7 @@ const AddNewDepartment = () => {
       if (userData) {
         setCurrentUser(userData);
       } else {
-        Alert.alert('Error', 'Failed to fetch user data.');
+        Alert.alert('Hata', 'Kullanıcı verileri alınamadı.');
       }
     };
 
@@ -37,15 +38,14 @@ const AddNewDepartment = () => {
         setDepartmentsList(activeDepartments);
         setIsModalVisible(true); // Modalı aç
       } else {
-        Alert.alert('No Data', 'No active departments found.');
+        Alert.alert('Veri Yok', 'Aktif departman bulunamadı.');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to fetch departments.');
+      Alert.alert('Hata', 'Departmanlar alınamadı.');
     } finally {
       setIsLoading(false);
     }
   };
-
 
   const handleListDepartments = () => {
     loadDepartments();
@@ -54,7 +54,7 @@ const AddNewDepartment = () => {
   const saveDepartment = async () => {
     // Form doğrulama
     if (!departmentName || !departmentDescription || !selectedDepartmentId) {
-      Alert.alert('Validation Error', 'Please fill out all fields and select a department.');
+      Alert.alert('Doğrulama Hatası', 'Lütfen tüm alanları doldurun ve bir departman seçin.');
       return;
     }
     
@@ -70,14 +70,12 @@ const AddNewDepartment = () => {
           return typeof name === 'string' && name.toLowerCase() === departmentName.toLowerCase();
         });
         if (departmentExists) {
-          Alert.alert('Error', 'A department with this name already exists.');
+          Alert.alert('Hata', 'Bu isimde bir departman zaten mevcut.');
           return;
         }
       }
       
-      
       const newDepartmentRef = push(ref(db, 'Departments'));
-      console.log(newDepartmentRef) // Yeni benzersiz bir anahtar oluştur
       await set(newDepartmentRef, {
         DepartmentName: departmentName,
         DepartmentDescription: departmentDescription,
@@ -88,10 +86,9 @@ const AddNewDepartment = () => {
           ManageTasks:false,
           ManageEmployees:false,
           ManageDepartments:false}
-  
       });
       
-      console.log('Department successfully added.');
+      console.log('Departman başarıyla eklendi.');
       
       // Formu sıfırlama
       setSelectedDepartmentId(null);
@@ -99,56 +96,106 @@ const AddNewDepartment = () => {
       setDepartmentDescription('');
       setIsModalVisible(false); // Modalı kapatma
     } catch (error) {
-      console.error('Error adding department:', error);
-      Alert.alert('Error', 'Failed to add department.');
+      console.error('Departman eklenirken hata:', error);
+      Alert.alert('Hata', 'Departman eklenemedi.');
     }
   };
-  
+
+  const confirmAndDeactivate = async (departmentId, departmentName) => {
+    Alert.alert(
+      'Onay',
+      'Bu departmanı ve altındaki departmanları kaldırmak istediğinize emin misiniz?',
+      [
+        {
+          text: 'Hayır',
+          onPress: () => console.log('İptal Edildi'),
+          style: 'cancel',
+        },
+        {
+          text: 'Evet',
+          onPress: async () => {
+            try {
+              const departmentRef = ref(db, `Departments/${departmentId}`);
+              const snapshot = await get(departmentRef);
+              if (snapshot.exists()) {
+                const department = snapshot.val();
+                if (department.Permissions?.Admin) {
+                  Alert.alert('Hata', 'Bu departman silinemez.');
+                } else {
+                  await deactivateDepartmentAndEmployees(departmentId);
+                  setDepartmentsList(prevList => prevList.filter(dep => dep.id !== departmentId));
+                  setIsModalVisible(false); // Modalı kapatma
+                }
+              }
+            } catch (error) {
+              console.error('Departman silinirken hata:', error);
+              Alert.alert('Hata', 'Departman silinemedi.');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const renderDepartmentItem = ({ item }) => (
-    <TouchableOpacity
-      style={[styles.departmentItem, selectedDepartmentId === item.id && styles.selectedItem]}
-      onPress={() => setSelectedDepartmentId(item.id)}
-    >
-      <Text style={styles.departmentText}>Departman Adı: {item.DepartmentName}</Text>
-      <Button title="Tıkla" onPress={
-        () => {
-          deactivateDepartmentAndEmployees(item.id)
-           
-          }
-      }></Button>
-      <Text style={styles.departmentText}>Departman Açıklaması: {item.DepartmentDescription}</Text>
-    </TouchableOpacity>
+    <View style={[
+      styles.departmentContainer,
+      selectedDepartmentId === item.id && styles.selectedItem
+    ]}>
+      <TouchableOpacity
+        style={styles.departmentItem}
+        onPress={() => {
+          setSelectedDepartmentId(item.id);
+          setSelectedDepartmentName(item.DepartmentName);
+        }}
+      >
+        <Text style={styles.departmentText}>Departman Adı: {item.DepartmentName}</Text>
+        <Text style={styles.departmentText}>Departman Açıklaması: {item.DepartmentDescription}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => confirmAndDeactivate(item.id, item.DepartmentName)}
+      >
+        <Text style={styles.deleteButtonText}>✕</Text>
+      </TouchableOpacity>
+    </View>
   );
+  
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Add New Department</Text>
+      <Text style={styles.header}>Yeni Departman Oluştur</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           value={departmentName}
           onChangeText={setDepartmentName}
-          placeholder="Department Name"
+          placeholder="Departman Adı"
           placeholderTextColor="#888"
         />
         <TextInput
           style={styles.input}
           value={departmentDescription}
           onChangeText={setDepartmentDescription}
-          placeholder="Description"
+          placeholder="Açıklama"
           placeholderTextColor="#888"
         />
       </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleListDepartments}>
-          <Text style={styles.buttonText}>List Departments</Text>
+          <Text style={styles.buttonText}>Yetkili Departman Seç</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={saveDepartment}>
-          <Text style={styles.buttonText}>Add Department</Text>
+          <Text style={styles.buttonText}>Departmanı Oluştur</Text>
         </TouchableOpacity>
       </View>
+
+      {selectedDepartmentName ? (
+        <Text style={styles.selectedDepartmentText}>Seçilen departman: {selectedDepartmentName}</Text>
+      ) : null}
 
       {/* Modal */}
       <Modal
@@ -163,11 +210,11 @@ const AddNewDepartment = () => {
               style={styles.closeButton}
               onPress={() => setIsModalVisible(false)}
             >
-              <Text style={styles.buttonText}>✕</Text>
+              <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
-            <Text style={styles.modalHeader}>Departments List</Text>
+            <Text style={styles.modalHeader}>Departmanlar Listesi</Text>
             {isLoading ? (
-              <Text style={styles.loadingText}>Loading...</Text>
+              <Text style={styles.loadingText}>Yükleniyor...</Text>
             ) : (
               <FlatList
                 data={departmentsList}
@@ -193,7 +240,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#343a40',
+    color: '#003366',
     textAlign: 'center',
   },
   inputContainer: {
@@ -203,7 +250,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    borderColor: '#ced4da',
+    borderColor: '#003366',
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 16,
@@ -224,7 +271,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#003366',
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 20,
@@ -241,8 +288,11 @@ const styles = StyleSheet.create({
   listContainer: {
     flexGrow: 1,
   },
-  departmentItem: {
-    backgroundColor: '#ffffff',
+  departmentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#ffffff', // Varsayılan arka plan rengi
     borderRadius: 8,
     padding: 16,
     marginVertical: 8,
@@ -253,11 +303,27 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   selectedItem: {
-    backgroundColor: '#d1ecf1', // Seçilen item için renk
+    backgroundColor: '#e0f7fa', // Seçilen departman için arka plan rengi (mavi)
+  },
+  departmentItem: {
+    flex: 1,
+  },
+  deleteButton: {
+    backgroundColor: '#dc3545',
+    borderRadius: 20,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  deleteButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
   },
   departmentText: {
     fontSize: 16,
-    color: '#343a40',
+    color: '#003366',
   },
   modalContainer: {
     flex: 1,
@@ -266,7 +332,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f1f1f1',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 20,
@@ -276,11 +342,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#343a40',
+    color: '#003366',
   },
   loadingText: {
     fontSize: 16,
-    color: '#007bff',
+    color: '#003366',
     textAlign: 'center',
   },
   closeButton: {
@@ -294,6 +360,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1, // Kapatma butonunun diğer içeriklerin üstünde olmasını sağlar
+  },
+  closeButtonText: {
+    fontSize: 20,
+    color: '#fff',
+  },
+  selectedDepartmentText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#003366',
+    marginTop: 20,
+    textAlign: 'center',
   },
 });
 

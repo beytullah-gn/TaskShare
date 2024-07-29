@@ -55,13 +55,13 @@ export const fetchInactiveDepartments = async () => {
               if (inactiveDepartments.length > 0) {
                 return inactiveDepartments;
               } else {
-                throw new Error("Aktif olmayan departman yok.");
+                return []; // Boş dizi döndür
               }
             } else {
-              throw new Error("Departman çalışan bilgileri bulunamadı.");
+              return []; // Boş dizi döndür
             }
           } else if (personData.AccountType === 'Client') {
-            return 'Kişi bir çalışan değil.';
+            return []; // Boş dizi döndür
           } else {
             throw new Error("Bilinmeyen hesap türü.");
           }
@@ -77,6 +77,4 @@ export const fetchInactiveDepartments = async () => {
   } else {
     throw new Error("Kullanıcı oturumu açmamış veya token bulunamadı.");
   }
-
-  return null;
 };

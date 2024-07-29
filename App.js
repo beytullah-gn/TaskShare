@@ -12,6 +12,9 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import './src/Services/firebase-config';
 import MyProfile from "./src/screens/myProfile";
 import PersonsScreen from "./src/screens/PersonsScreen";
+import SelectedDepartment from "./src/screens/SelectedDepartment";
+import SettingsScreen from "./src/screens/SettingsScreen";
+import AddNewPersonScreen from "./src/screens/AddNewPerson";
 
 const Stack = createNativeStackNavigator();
 
@@ -64,9 +67,12 @@ function App() {
             <Stack.Screen name="MyProfile" component={MyProfile} options={{ headerShown: false }} />
             <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Departments" component={DepartmentScreen} options={{ headerShown: false }}/>
-            <Stack.Screen name="AddNewDepartment" component={AddNewDepartment} />
+            <Stack.Screen name="AddNewDepartment" component={AddNewDepartment} options={{title:"Yeni Departman Oluştur"}} />
             <Stack.Screen name="Persons" component={PersonsScreen} options={{ headerShown: false }}/>
-            {/* Diğer ekranlar buraya eklenir */}
+            <Stack.Screen name="SelectedDepartment" component={SelectedDepartment} options={{title:'Seçili Departman'}} />
+            <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="AddPerson" component={AddNewPersonScreen} options={{ title:"Yeni Kişi Ekle" }} />
+          
           </>
         )}
       </Stack.Navigator>
@@ -75,4 +81,4 @@ function App() {
 }
 
 export default App;
-``
+

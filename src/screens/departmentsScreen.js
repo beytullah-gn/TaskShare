@@ -5,15 +5,33 @@ import TreeCardItem from '../Components/TreeCardItem';
 import { buildHierarchy, findAncestors, findAllExpandedItems } from '../Services/DepartmentUtils';
 import { SafeAreaView } from "react-native-safe-area-context";
 import BottomBar from '../Components/BottomBar';
+import { fetchCurrentDepartment } from "../Services/fetchCurrentUserDepartment";
 
 const DepartmentScreen = ({ navigation }) => {
-  
   const [departments, setDepartments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedItems, setExpandedItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showAddButton, setShowAddButton] = useState(false);
 
-  // Departmanları arama terimine göre filtreleme
+  useEffect(() => {
+    const checkPermissions = async () => {
+      try {
+        const department = await fetchCurrentDepartment();
+        if (department && department.Permissions && department.Permissions.ManageDepartments) {
+          setShowAddButton(true);
+        } else {
+          setShowAddButton(false);
+        }
+      } catch (error) {
+        console.log("Error fetching department: ", error);
+        setShowAddButton(false);
+      }
+    };
+
+    checkPermissions();
+  }, []);
+
   const filteredDepartments = useMemo(() => {
     const lowercasedSearchTerm = searchTerm.toLowerCase();
     const matchingDepartments = departments.filter(department =>
@@ -40,7 +58,6 @@ const DepartmentScreen = ({ navigation }) => {
     return filterDepartments(buildHierarchy(departments));
   }, [departments, searchTerm]);
 
-  // Genişletme durumu güncelleyici fonksiyon
   const handleToggleExpand = useCallback((id) => {
     setExpandedItems(prevItems => 
       prevItems.includes(id) ? prevItems.filter(item => item !== id) : [...prevItems, id]
@@ -60,7 +77,6 @@ const DepartmentScreen = ({ navigation }) => {
     navigation.navigate('Settings');
   };
 
-  // Arama terimi değiştiğinde genişletme durumu güncelley
   useEffect(() => {
     if (searchTerm) {
       const matchingDepartments = departments.filter(department =>
@@ -73,7 +89,6 @@ const DepartmentScreen = ({ navigation }) => {
         setExpandedItems(newExpandedItems);
       }
     } else {
-      // Varsayılan olarak kök departmanları genişlet
       const rootDepartments = departments.filter(department => !department.ParentDepartment);
       const rootExpandedItems = rootDepartments.map(dep => dep.id);
       setExpandedItems(rootExpandedItems);
@@ -85,7 +100,7 @@ const DepartmentScreen = ({ navigation }) => {
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
-        horizontal={false} // Yalnızca dikey düzen
+        horizontal={false}
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
       >
@@ -101,14 +116,14 @@ const DepartmentScreen = ({ navigation }) => {
               onToggleExpand={handleToggleExpand}
               searchTerm={searchTerm}
               level={0}
+              navigation={navigation} // Navigation prop'unu ekleyin
             />
           ))}
         </ScrollView>
       </ScrollView>
     );
-  }, [filteredDepartments, expandedItems, handleToggleExpand, searchTerm]);
+  }, [filteredDepartments, expandedItems, handleToggleExpand, searchTerm, navigation]);
 
-  // Navigate to add new department
   const AddNewDepartment = () => {
     navigation.navigate("AddNewDepartment");
   }
@@ -123,7 +138,7 @@ const DepartmentScreen = ({ navigation }) => {
           onChangeText={setSearchTerm}
         />
         <TouchableOpacity style={styles.clearButton} onPress={() => setSearchTerm('')}>
-          <Text style={styles.clearButtonText}>Clear</Text>
+          <Text style={styles.clearButtonText}>Temizle</Text>
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.scrollView}>
@@ -136,11 +151,13 @@ const DepartmentScreen = ({ navigation }) => {
           </>
         )}
       </ScrollView>
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.bottomButton} onPress={AddNewDepartment}>
-          <Text style={styles.bottomText}>Add New Department</Text>
-        </TouchableOpacity>
-      </View>
+      {showAddButton && (
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity style={styles.bottomButton} onPress={AddNewDepartment}>
+            <Text style={styles.bottomText}>Yeni Departman Oluştur</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <View style={styles.bottomBarContainer}>
         <BottomBar onProfile={handleProfile} onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} />
       </View>
@@ -176,7 +193,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   clearButtonText: {
-    color: '#ffffff', // Beyaz metin
+    color: '#ffffff',
     fontWeight: 'bold',
   },
   scrollView: {
@@ -189,27 +206,29 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    flexDirection: 'column', // Dikey düzen
+    flexDirection: 'column',
     flexWrap: 'wrap',
   },
   bottomContainer: {
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 60, // Yeterli boşluk bırakmak için
+    marginBottom: 60,
+    
   },
   bottomButton: {
     width: '80%',
-    backgroundColor: '#007bff', // Mavi arka plan
+    backgroundColor: '#007bff',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: 3,
+    marginBottom:10
   },
   bottomText: {
     fontWeight: 'bold',
-    color: '#ffffff', // Beyaz metin
+    color: '#ffffff',
   },
   bottomBarContainer: {
     position: 'absolute',

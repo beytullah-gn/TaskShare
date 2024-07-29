@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAuth } from 'firebase/auth';
+import { getAuth, signOut } from 'firebase/auth';
 import { jwtDecode } from 'jwt-decode';
 
 // Token'ı sakla
@@ -15,11 +15,14 @@ export const saveToken = async (token) => {
 export const getToken = async () => {
   const auth = getAuth();
   const user = auth.currentUser;
-
+  const asyncToken = await AsyncStorage.getItem('userToken');
   if (user) {
     const token = await user.getIdToken();
+    if(asyncToken!==token){
+      signOut(auth);
+    }
     const decodedToken = jwtDecode(token);
-    console.log('Firebase Auth Token =================>:', token);
+    console.log('Firebase Auth Token ===>:',token,"\n" ,"AsyncStorage token ========>:",asyncToken);
     return token;
   } else {
     console.log('No user is signed in.');

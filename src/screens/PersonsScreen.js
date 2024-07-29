@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import {  ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useState, useCallback } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BottomBar from "../Components/BottomBar";
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import PersonToggleButton from "../Components/PersonToggleButton";
 import PersonCard from "../Components/PersonCard";
 import PersonSearchInput from "../Components/PersonSearchInput";
 import PersonAddButton from "../Components/PersonAddButton";
+import { useFocusEffect } from '@react-navigation/native';
 
 const PersonsScreen = ({ navigation }) => {
     const [persons, setPersons] = useState([]);
@@ -17,32 +18,38 @@ const PersonsScreen = ({ navigation }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [expandedPerson, setExpandedPerson] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const personsData = await fetchAllPersons();
-            if (personsData) {
-                personsData.sort((a, b) => a.Name.localeCompare(b.Name));
-            }
-            setPersons(personsData);
-        };
+    useFocusEffect(
+        useCallback(() => {
+            const fetchData = async () => {
+                try {
+                    const personsData = await fetchAllPersons();
+                    if (personsData) {
+                        personsData.sort((a, b) => a.Name.localeCompare(b.Name));
+                    }
+                    setPersons(personsData);
+                } catch (error) {
+                    console.log("Error fetching persons: ", error);
+                }
+            };
 
-        const checkPermissions = async () => {
-            try {
-                const department = await fetchCurrentDepartment();
-                if (department && department.Permissions && department.Permissions.ManagePersons) {
-                    setShowAddButton(true);
-                } else {
+            const checkPermissions = async () => {
+                try {
+                    const department = await fetchCurrentDepartment();
+                    if (department && department.Permissions && department.Permissions.ManagePersons) {
+                        setShowAddButton(true);
+                    } else {
+                        setShowAddButton(false);
+                    }
+                } catch (error) {
+                    console.log("Error fetching department: ", error);
                     setShowAddButton(false);
                 }
-            } catch (error) {
-                console.log("Error fetching department: ", error);
-                setShowAddButton(false);
-            }
-        };
+            };
 
-        fetchData();
-        checkPermissions();
-    }, []);
+            fetchData();
+            checkPermissions();
+        }, []) // Bağımlılık dizisi boş, böylece her sayfa açılışında çalışır
+    );
 
     const handleSearch = (text) => {
         setSearchTerm(text);
@@ -68,11 +75,7 @@ const PersonsScreen = ({ navigation }) => {
     };
 
     const toggleExpand = (personId) => {
-        if (expandedPerson === personId) {
-            setExpandedPerson(null);
-        } else {
-            setExpandedPerson(personId);
-        }
+        setExpandedPerson(expandedPerson === personId ? null : personId);
     };
 
     const handleDepartments = () => {
@@ -87,6 +90,9 @@ const PersonsScreen = ({ navigation }) => {
         navigation.navigate('Settings');
     };
 
+    const handleAddPerson=()=>{
+        navigation.navigate("AddPerson");
+    };
     return (
         <SafeAreaView style={styles.container}>
             <PersonSearchInput searchTerm={searchTerm} onSearch={handleSearch} />
@@ -110,7 +116,7 @@ const PersonsScreen = ({ navigation }) => {
                     )}
                 </ScrollView>
             </View>
-            {showAddButton && <PersonAddButton />}
+            {showAddButton && <PersonAddButton onAdd={handleAddPerson} />}
             <BottomBar
                 onProfile={handleProfile}
                 onDepartments={handleDepartments}
