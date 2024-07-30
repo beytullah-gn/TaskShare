@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
-import { ref, get, set, push } from 'firebase/database';
-import { db } from '../Services/firebase-config';
-import { fetchUserData } from '../Services/fetchUserData'; // Kullanıcı verilerini almak için yardımcı fonksiyon
-import fetchActiveDepartments from '../Services/fetchActiveDepartments'; // Aktif departmanları almak için yardımcı fonksiyon
+import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
+import { ref as dbRef, get, set, push } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as DocumentPicker from 'expo-document-picker'; // Expo kullanıcıları için
+import { db, storage } from '../Services/firebase-config'; // Firebase config dosyanız
+import { fetchUserData } from '../Services/fetchUserData';
+import fetchActiveDepartments from '../Services/fetchActiveDepartments';
 import { deactivateDepartmentAndEmployees } from '../Services/deactivateDepartmentsAndEmployees';
-import { Button } from 'react-native-elements';
+import { styles } from '../styles/addDepartment';
 
 const AddNewDepartment = () => {
   const [departmentName, setDepartmentName] = useState('');
@@ -16,14 +18,20 @@ const AddNewDepartment = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedDepartmentName, setSelectedDepartmentName] = useState('');
+  const [pdfUri, setPdfUri] = useState(null); // PDF URI durumu
 
   useEffect(() => {
     const loadCurrentUser = async () => {
-      const userData = await fetchUserData();
-      if (userData) {
-        setCurrentUser(userData);
-      } else {
-        Alert.alert('Hata', 'Kullanıcı verileri alınamadı.');
+      try {
+        const userData = await fetchUserData();
+        if (userData) {
+          setCurrentUser(userData);
+        } else {
+          Alert.alert('Hata', 'Kullanıcı verileri alınamadı.');
+        }
+      } catch (error) {
+        console.error('Kullanıcı verileri yüklenirken hata:', error);
+        Alert.alert('Hata', 'Kullanıcı verileri yüklenirken bir hata oluştu.');
       }
     };
 
@@ -36,12 +44,13 @@ const AddNewDepartment = () => {
       const activeDepartments = await fetchActiveDepartments();
       if (activeDepartments.length > 0) {
         setDepartmentsList(activeDepartments);
-        setIsModalVisible(true); // Modalı aç
+        setIsModalVisible(true);
       } else {
         Alert.alert('Veri Yok', 'Aktif departman bulunamadı.');
       }
     } catch (error) {
-      Alert.alert('Hata', 'Departmanlar alınamadı.');
+      console.error('Departmanlar yüklenirken hata:', error);
+      Alert.alert('Hata', 'Departmanlar yüklenirken bir hata oluştu.');
     } finally {
       setIsLoading(false);
     }
@@ -52,19 +61,16 @@ const AddNewDepartment = () => {
   };
 
   const saveDepartment = async () => {
-    // Form doğrulama
     if (!departmentName || !departmentDescription || !selectedDepartmentId) {
       Alert.alert('Doğrulama Hatası', 'Lütfen tüm alanları doldurun ve bir departman seçin.');
       return;
     }
     
-    // Aynı isimde departman olup olmadığını kontrol et
-    const existingDepartmentRef = ref(db, 'Departments');
+    const existingDepartmentRef = dbRef(db, 'Departments');
     try {
       const snapshot = await get(existingDepartmentRef);
       if (snapshot.exists()) {
         const data = snapshot.val();
-        
         const departmentExists = Object.values(data).some(department => {
           const name = department.DepartmentName;
           return typeof name === 'string' && name.toLowerCase() === departmentName.toLowerCase();
@@ -75,29 +81,49 @@ const AddNewDepartment = () => {
         }
       }
       
-      const newDepartmentRef = push(ref(db, 'Departments'));
+      const newDepartmentRef = push(dbRef(db, 'Departments'));
+      let pdfUrl = null;
+      
+      if (pdfUri) {
+        try {
+          const response = await fetch(pdfUri);
+          const blob = await response.blob();
+          const pdfRef = storageRef(storage, `pdfs/${newDepartmentRef.key}.pdf`);
+          await uploadBytes(pdfRef, blob);
+          pdfUrl = await getDownloadURL(pdfRef);
+          console.log('PDF başarıyla yüklendi.');
+        } catch (uploadError) {
+          console.error('PDF yüklenirken hata:', uploadError);
+          Alert.alert('Hata', 'PDF yüklenirken bir hata oluştu.');
+          return;
+        }
+      }
+      
       await set(newDepartmentRef, {
         DepartmentName: departmentName,
         DepartmentDescription: departmentDescription,
         ParentDepartment: selectedDepartmentId,
+        DepartmentId:newDepartmentRef.key,
         CreatedBy: currentUser?.id,
-        Active:true,
+        Active: true,
         Permissions: {
-          ManageTasks:false,
-          ManageEmployees:false,
-          ManageDepartments:false}
+          ManageTasks: false,
+          ManageEmployees: false,
+          ManageDepartments: false
+        },
+        PDFUrl: pdfUrl // PDF URL'sini ekleyin
       });
-      
+
       console.log('Departman başarıyla eklendi.');
-      
-      // Formu sıfırlama
+
       setSelectedDepartmentId(null);
       setDepartmentName('');
       setDepartmentDescription('');
-      setIsModalVisible(false); // Modalı kapatma
+      setPdfUri(null); // PDF URI'yi sıfırla
+      setIsModalVisible(false);
     } catch (error) {
       console.error('Departman eklenirken hata:', error);
-      Alert.alert('Hata', 'Departman eklenemedi.');
+      Alert.alert('Hata', 'Departman eklenirken bir hata oluştu.');
     }
   };
 
@@ -115,7 +141,7 @@ const AddNewDepartment = () => {
           text: 'Evet',
           onPress: async () => {
             try {
-              const departmentRef = ref(db, `Departments/${departmentId}`);
+              const departmentRef = dbRef(db, `Departments/${departmentId}`);
               const snapshot = await get(departmentRef);
               if (snapshot.exists()) {
                 const department = snapshot.val();
@@ -124,12 +150,12 @@ const AddNewDepartment = () => {
                 } else {
                   await deactivateDepartmentAndEmployees(departmentId);
                   setDepartmentsList(prevList => prevList.filter(dep => dep.id !== departmentId));
-                  setIsModalVisible(false); // Modalı kapatma
+                  setIsModalVisible(false);
                 }
               }
             } catch (error) {
               console.error('Departman silinirken hata:', error);
-              Alert.alert('Hata', 'Departman silinemedi.');
+              Alert.alert('Hata', 'Departman silinirken bir hata oluştu.');
             }
           },
         },
@@ -161,6 +187,33 @@ const AddNewDepartment = () => {
       </TouchableOpacity>
     </View>
   );
+
+  const pickPDF = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+      });
+  
+      // Sonuç detaylarını kontrol et
+      console.log('PDF seçim sonucu:', result);
+  
+      if (result.canceled) {
+        Alert.alert('İptal Edildi', 'PDF seçimi iptal edildi.');
+        console.log('PDF seçimi iptal edildi.');
+      } else if (result.assets && result.assets.length > 0) {
+        // PDF seçimi başarılı
+        const { uri } = result.assets[0];
+        setPdfUri(uri);
+        console.log('PDF seçildi:', uri);
+      } else {
+        Alert.alert('Hata', 'Beklenmeyen bir durum oluştu.');
+        console.log('Beklenmeyen durum:', result);
+      }
+    } catch (error) {
+      console.error('PDF seçilirken hata:', error);
+      Alert.alert('Hata', 'PDF seçilirken bir hata oluştu.');
+    }
+  };
   
 
   return (
@@ -190,6 +243,9 @@ const AddNewDepartment = () => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={saveDepartment}>
           <Text style={styles.buttonText}>Departmanı Oluştur</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={pickPDF}>
+          <Text style={styles.buttonText}>PDF Seç</Text>
         </TouchableOpacity>
       </View>
 
@@ -229,149 +285,5 @@ const AddNewDepartment = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#f8f9fa',
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#003366',
-    textAlign: 'center',
-  },
-  inputContainer: {
-    width: '100%',
-    maxWidth: 400,
-    marginBottom: 20,
-  },
-  input: {
-    height: 50,
-    borderColor: '#003366',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 15,
-    backgroundColor: '#ffffff',
-    fontSize: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    flexWrap: 'wrap', // Butonların sarmalanmasını sağlar
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: '#003366',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 5, // Butonlar arasında boşluk
-    flex: 1, // Butonların eşit genişlikte olmasını sağlar
-    maxWidth: '48%', // Ekrana sığması için maksimum genişlik
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  listContainer: {
-    flexGrow: 1,
-  },
-  departmentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#ffffff', // Varsayılan arka plan rengi
-    borderRadius: 8,
-    padding: 16,
-    marginVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  selectedItem: {
-    backgroundColor: '#e0f7fa', // Seçilen departman için arka plan rengi (mavi)
-  },
-  departmentItem: {
-    flex: 1,
-  },
-  deleteButton: {
-    backgroundColor: '#dc3545',
-    borderRadius: 20,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  deleteButtonText: {
-    color: '#ffffff',
-    fontSize: 18,
-  },
-  departmentText: {
-    fontSize: 16,
-    color: '#003366',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Gölge efekti
-  },
-  modalContent: {
-    width: '100%',
-    backgroundColor: '#f1f1f1',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    padding: 20,
-    maxHeight: '80%', // Modalın yüksekliğini sınırlama
-  },
-  modalHeader: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#003366',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#003366',
-    textAlign: 'center',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: '#dc3545',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1, // Kapatma butonunun diğer içeriklerin üstünde olmasını sağlar
-  },
-  closeButtonText: {
-    fontSize: 20,
-    color: '#fff',
-  },
-  selectedDepartmentText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#003366',
-    marginTop: 20,
-    textAlign: 'center',
-  },
-});
 
 export default AddNewDepartment;

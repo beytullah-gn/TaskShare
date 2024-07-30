@@ -55,7 +55,8 @@ export const fetchDepartmentEmployeeData = async () => {
               if (activeDepartments.length > 1) {
                 throw new Error("Birden fazla aktif departman bulundu.");
               } else if (activeDepartments.length === 0) {
-                throw new Error("Aktif departman bulunamadı.");
+                //throw new Error("Aktif departman bulunamadı.");
+                return null;
               } else {
                 return activeDepartments[0]; // Tek aktif olan departmanı döndür
               }

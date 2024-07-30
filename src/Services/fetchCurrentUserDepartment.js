@@ -55,7 +55,8 @@ export const fetchCurrentDepartment = async () => {
               if (activeDepartments.length > 1) {
                 throw new Error("Birden fazla aktif departman hatası.");
               } else if (activeDepartments.length === 0) {
-                throw new Error("Aktif departman yok.");
+                //throw new Error("Aktif departman yok.");;
+                return null;
               } else {
                 const departmentId = activeDepartments[0].DepartmentId;
 
@@ -72,10 +73,11 @@ export const fetchCurrentDepartment = async () => {
                       return departmentsData[deptKey]; // Eşleşen department verisini döndür
                     }
                   }
-
-                  throw new Error("Departman bulunamadı.");
+                  return null
+                  //throw new Error("Departman bulunamadı.");
                 } else {
-                  throw new Error("Departman bilgileri bulunamadı.");
+                  return null
+                  //throw new Error("Departman bilgileri bulunamadı.");
                 }
               }
             } else {

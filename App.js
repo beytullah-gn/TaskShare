@@ -27,7 +27,7 @@ function App() {
     const handleAppStateChange = async (nextAppState) => {
       if (appState.match(/inactive|background/) && nextAppState === 'active') {
         const timeInBackground = Date.now() - lastBackgroundTime;
-        if (timeInBackground > 10000) { // 10 seconds
+        if (timeInBackground > 60000) { // 10 seconds
           try {
             await SignOutService();
             setIsLoggedIn(false);

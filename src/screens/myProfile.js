@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { ScrollView, StyleSheet, View, Text } from "react-native";
-import BottomBar from "../Components/BottomBar";
+import React, { useCallback, useState } from 'react';
+import { ScrollView, StyleSheet, View, Text, Button, Modal, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
+import WebView from 'react-native-webview';
+import BottomBar from '../Components/BottomBar';
 import { fetchDepartmentEmployeeData } from '../Services/fetchDepartmentEmployees';
 import { fetchCurrentDepartment } from '../Services/fetchCurrentUserDepartment';
 import { fetchPersonData } from '../Services/fetchPersonData';
-import { fetchInactiveDepartments } from "../Services/fetchInactiveDepartments";
-import fetchAllDepartments from "../Services/fetchAllDepartments";
-import fetchAllDepartmentEmployees from "../Services/fetchAllDepartmentEmployees";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
+import { fetchInactiveDepartments } from '../Services/fetchInactiveDepartments';
+import fetchAllDepartments from '../Services/fetchAllDepartments';
 
 const MyProfile = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
@@ -17,26 +17,24 @@ const MyProfile = ({ navigation }) => {
   const [userOldDepartment, setUserOldDepartment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [allDepartments, setAllDepartments] = useState(null);
-  const [allDepartmentEmployees, setAllDepartmentEmployees] = useState(null);
+  const [showPDF, setShowPDF] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState('');
 
   const getUserData = useCallback(async () => {
     try {
       setLoading(true);
-      const [employeeData, departmentData, currentDepartmentData, oldDepartmentData, allDepartments, allDepartmentEmployees] = await Promise.all([
+      const [employeeData, departmentData, currentDepartmentData, oldDepartmentData, allDepartmentsData] = await Promise.all([
         fetchPersonData(),
         fetchDepartmentEmployeeData(),
         fetchCurrentDepartment(),
         fetchInactiveDepartments(),
         fetchAllDepartments(),
-        fetchAllDepartmentEmployees()
       ]);
-
       setUserInfo(employeeData);
       setUserDepartment(departmentData);
       setUserCurrentDepartment(currentDepartmentData);
       setUserOldDepartment(oldDepartmentData);
-      setAllDepartments(allDepartments);
-      setAllDepartmentEmployees(allDepartmentEmployees);
+      setAllDepartments(allDepartmentsData);
     } catch (error) {
       console.log('Error fetching data:', error);
     } finally {
@@ -53,11 +51,22 @@ const MyProfile = ({ navigation }) => {
   const handleDepartments = () => {
     navigation.navigate('Departments');
   };
+
   const handlePersons = () => {
     navigation.navigate('Persons');
   };
+
   const handleSettings = () => {
     navigation.navigate('Settings');
+  };
+
+  const handleViewPDF = () => {
+    if (userCurrentDepartment && userCurrentDepartment.PDFUrl) {
+      setPdfUrl(userCurrentDepartment.PDFUrl);
+      setShowPDF(true);
+    } else {
+      alert('PDF dosyası bulunamadı.');
+    }
   };
 
   return (
@@ -92,6 +101,7 @@ const MyProfile = ({ navigation }) => {
                 <Text>Departman Adı: {userCurrentDepartment.DepartmentName}</Text>
                 <Text>Departman Açıklaması: {userCurrentDepartment.DepartmentDescription}</Text>
                 <Text>Başlama Tarihi: {userDepartment.StartingDate}</Text>
+                <Button title="Departman PDF'ini Görüntüle" onPress={handleViewPDF} />
               </View>
             ) : null}
             {userOldDepartment && userOldDepartment.length > 0 ? (
@@ -118,6 +128,22 @@ const MyProfile = ({ navigation }) => {
           </>
         )}
       </ScrollView>
+
+      {/* PDF Görüntüleme Modal'ı */}
+      <Modal
+        visible={showPDF}
+        onRequestClose={() => setShowPDF(false)}
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={styles.modalContainer}>
+        <WebView style={{ height: 500, width: 350 }} nestedScrollEnabled={true} source={{ uri: 'https://drive.google.com/viewerng/viewer?embedded=true&url=http://www.africau.edu/images/default/sample.pdf' }} />
+          <TouchableOpacity onPress={() => setShowPDF(false)} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>Kapat</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
       <View style={styles.bottomBarContainer}>
         <BottomBar onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} />
       </View>
@@ -173,6 +199,27 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
+  },
+  pdf: {
+    width: '100%',
+    height: '90%',
+  },
+  closeButton: {
+    backgroundColor: '#ff0000',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
