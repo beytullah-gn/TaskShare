@@ -15,7 +15,8 @@ import PersonsScreen from "./src/screens/PersonsScreen";
 import SelectedDepartment from "./src/screens/SelectedDepartment";
 import SettingsScreen from "./src/screens/SettingsScreen";
 import AddNewPersonScreen from "./src/screens/AddNewPerson";
-import GysDöküman from "./src/screens/deneme";
+import GysDöküman from "./src/screens/MyDocument";
+
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +24,7 @@ function App() {
   const [appState, setAppState] = useState(AppState.currentState);
   const [lastBackgroundTime, setLastBackgroundTime] = useState(Date.now());
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+
 
   useEffect(() => {
     const handleAppStateChange = async (nextAppState) => {
@@ -41,6 +43,7 @@ function App() {
       }
       setAppState(nextAppState);
     };
+    
 
     const appStateSubscription = AppState.addEventListener("change", handleAppStateChange);
 
@@ -65,7 +68,7 @@ function App() {
           <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
         ) : (
           <>
-           
+         
             <Stack.Screen name="MyProfile" component={MyProfile} options={{ headerShown: false }} />
             <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Departments" component={DepartmentScreen} options={{ headerShown: false }}/>
@@ -74,9 +77,7 @@ function App() {
             <Stack.Screen name="SelectedDepartment" component={SelectedDepartment} options={{title:'Seçili Departman'}} />
             <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
             <Stack.Screen name="AddPerson" component={AddNewPersonScreen} options={{ title:"Yeni Kişi Ekle" }} />
-            <Stack.Screen name="Deneme" component={GysDöküman}  />
-           
-          
+            <Stack.Screen name="MyDocument" component={GysDöküman} options={{title:"Görev Dökümantasyonu"}} />
           </>
         )}
       </Stack.Navigator>

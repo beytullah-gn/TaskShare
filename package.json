@@ -21,8 +21,9 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.10.0",
     "add": "^2.0.6",
-    "expo": "~51.0.17",
+    "expo": "~51.0.24",
     "expo-checkbox": "^3.0.0",
+    "expo-dev-client": "~4.0.21",
     "expo-document-picker": "~12.0.2",
     "expo-file-system": "~17.0.1",
     "expo-image-picker": "~15.0.7",
@@ -51,7 +52,7 @@
     "react-native-svg": "15.2.0",
     "react-native-vector-icons": "^10.1.0",
     "react-native-webview": "13.8.6",
-    "expo-dev-client": "~4.0.21"
+    "rn-inkpad": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

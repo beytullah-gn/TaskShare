@@ -42,11 +42,15 @@
       ],
       [
         "expo-dev-launcher",
-          {
-            "launchMode": "most-recent"
-          }
+        {
+          "launchMode": "most-recent"
+        }
       ]
-      
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b2288fc7-b511-439c-be8b-0e31b2fd6f27"
+      }
+    }
   }
 }

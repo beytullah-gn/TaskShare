@@ -9,6 +9,7 @@ import { db, storage } from "../Services/firebase-config";
 import { ref, update, push } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as DocumentPicker from 'expo-document-picker';
+import CheckBox from "@react-native-community/checkbox";
 
 const SelectedDepartment = ({navigation}) => {
   const route = useRoute();
@@ -23,44 +24,45 @@ const SelectedDepartment = ({navigation}) => {
   const [canManagePersons, setCanManagePersons] = useState(false);
   const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
   const [availablePersons, setAvailablePersons] = useState([]);
-  const [pdfUri, setPdfUri] = useState(null); // PDF URI durumu
-  const [pdfUrl, setPdfUrl] = useState(null); // PDF URL durumu
-  const [isSaving, setIsSaving] = useState(false); // Kaydetme durumu
+  const [pdfUri, setPdfUri] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); //Bu özellik eklenecek
+
+  const fetchData = async () => {
+    try {
+      const departments = await fetchAllDepartments();
+      const department = departments.find(department => department.id === id);
+      setSelectedDepartment(department);
+
+      if (department) {
+        setDepartmentName(department.DepartmentName);
+        setDepartmentDescription(department.DepartmentDescription);
+        setPdfUrl(department.PDFUrl);
+        const employees = await fetchAllDepartmentEmployees();
+        const departmentEmployees = employees.filter(employee => 
+          employee.DepartmentId === id && employee.Active
+        );
+        setSelectedDepartmentEmployees(departmentEmployees);
+        const persons = await fetchAllPersons();
+        const departmentPersons = persons.filter(person => 
+          departmentEmployees.some(employee => employee.EmployeeId === person.id)
+        );
+        setSelectedDepartmentPersons(departmentPersons);
+      }
+
+      const currentDepartment = await fetchCurrentDepartment();
+      if (currentDepartment && currentDepartment.Permissions) {
+        setCanEdit(currentDepartment.Permissions.ManageDepartments);
+        setCanManagePersons(currentDepartment.Permissions.ManagePersons);
+      }
+
+    } catch (error) {
+      console.log("Error fetching data: ", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const departments = await fetchAllDepartments();
-        const department = departments.find(department => department.id === id);
-        setSelectedDepartment(department);
-
-        if (department) {
-          setDepartmentName(department.DepartmentName);
-          setDepartmentDescription(department.DepartmentDescription);
-          setPdfUrl(department.PDFUrl); // Mevcut PDF URL'sini al
-          const employees = await fetchAllDepartmentEmployees();
-          const departmentEmployees = employees.filter(employee => 
-            employee.DepartmentId === id && employee.Active
-          );
-          setSelectedDepartmentEmployees(departmentEmployees);
-          const persons = await fetchAllPersons();
-          const departmentPersons = persons.filter(person => 
-            departmentEmployees.some(employee => employee.EmployeeId === person.id)
-          );
-          setSelectedDepartmentPersons(departmentPersons);
-        }
-
-        const currentDepartment = await fetchCurrentDepartment();
-        if (currentDepartment && currentDepartment.Permissions) {
-          setCanEdit(currentDepartment.Permissions.ManageDepartments);
-          setCanManagePersons(currentDepartment.Permissions.ManagePersons);
-        }
-
-      } catch (error) {
-        console.log("Error fetching data: ", error);
-      }
-    };
-
     fetchData();
   }, [id]);
 
@@ -70,11 +72,10 @@ const SelectedDepartment = ({navigation}) => {
       return;
     }
 
-    setIsSaving(true); // Kaydetme işlemine başla
+    setIsSaving(true);
 
     try {
       if (pdfUri) {
-        // PDF yükleme işlemi
         const response = await fetch(pdfUri);
         const blob = await response.blob();
         const pdfRef = storageRef(storage, `pdfs/${id}.pdf`);
@@ -83,11 +84,15 @@ const SelectedDepartment = ({navigation}) => {
         setPdfUrl(newPdfUrl);
       }
 
-      // Departman bilgilerini güncelle
       await update(ref(db, 'Departments/' + id), {
         DepartmentName: departmentName,
         DepartmentDescription: departmentDescription,
-        PDFUrl: pdfUrl, // Yeni PDF URL'sini kaydet
+        PDFUrl: pdfUrl,
+        Permissions: {
+          // Bu ikisi değiştirilecek
+          ManageDepartments: canEdit,
+          ManagePersons: canManagePersons,
+        }
       });
 
       setEditMode(false);
@@ -96,7 +101,7 @@ const SelectedDepartment = ({navigation}) => {
       console.log("Error updating department: ", error);
       Alert.alert('Hata', 'Departman bilgileri güncellenirken bir hata oluştu.');
     } finally {
-      setIsSaving(false); // Kaydetme işlemi tamamlandı
+      setIsSaving(false);
     }
   };
 
@@ -138,8 +143,7 @@ const SelectedDepartment = ({navigation}) => {
                 Active: false,
                 EndDate: new Date()
               });
-              const updatedEmployees = selectedDepartmentEmployees.filter(employee => employee.id !== employeeId);
-              setSelectedDepartmentEmployees(updatedEmployees);
+              await fetchData(); // Çalışan kaldırıldıktan sonra listeyi güncelle
               Alert.alert('Başarılı', 'Çalışan kaldırıldı.');
             } catch (error) {
               console.log("Error updating employee: ", error);
@@ -154,9 +158,9 @@ const SelectedDepartment = ({navigation}) => {
 
   const handleViewPDF = () => {
     if (selectedDepartment && selectedDepartment.PDFUrl) {
-      navigation.navigate("Deneme", { pdfUrl: selectedDepartment.PDFUrl });
+      navigation.navigate("MyDocument", { pdfUrl: selectedDepartment.PDFUrl });
     } else {
-      alert('PDF dosyası bulunamadı.');
+      Alert.alert('Hata', 'PDF dosyası bulunamadı.');
     }
   };
 
@@ -227,6 +231,22 @@ const SelectedDepartment = ({navigation}) => {
                   {pdfUri && (
                     <Text style={styles.selectedPdfText}>Seçilen PDF: {pdfUri.split('/').pop()}</Text>
                   )}
+                  <View style={styles.checkboxContainer}>
+                    <CheckBox
+                      value={canEdit}
+                      onValueChange={setCanEdit}
+                      disabled={!editMode}
+                    />
+                    <Text style={styles.checkboxLabel}>Departmanları Yönet</Text>
+                  </View>
+                  <View style={styles.checkboxContainer}>
+                    <CheckBox
+                      value={canManagePersons}
+                      onValueChange={setCanManagePersons}
+                      disabled={!editMode}
+                    />
+                    <Text style={styles.checkboxLabel}>Kişileri Yönet</Text>
+                  </View>
                   <Button 
                     title={isSaving ? "Kaydediliyor..." : "Kaydet"} 
                     onPress={handleSave} 
@@ -254,7 +274,7 @@ const SelectedDepartment = ({navigation}) => {
             </View>
           </View>
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Aktif Çalışanlar</Text>
+            <Text style={styles.cardTitle}> Çalışanlar</Text>
             <View style={styles.cardContent}>
               {selectedDepartmentEmployees.length > 0 ? (
                 selectedDepartmentPersons.length > 0 ? (
@@ -322,8 +342,6 @@ const SelectedDepartment = ({navigation}) => {
     </SafeAreaView>
   );
 };
-
-export default SelectedDepartment;
 
 const styles = StyleSheet.create({
   container: {
@@ -444,7 +462,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#ff4d4d', // Kırmızı renk
+    backgroundColor: '#ff4d4d',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -466,5 +484,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 10,
-  }
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  checkboxLabel: {
+    marginLeft: 8,
+    fontSize: 16,
+  },
 });
+
+export default SelectedDepartment;

@@ -1,67 +1,58 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Button } from 'react-native-elements';
 
-// Dinamik renk üretmek için bir fonksiyon
-const generateColor = (level) => {
-  const lightness = 80 - (level * 10); // Daha yüksek seviyelerde daha açık renk
-  return `hsl(210, 80%, ${lightness}%)`; // Mavi renk tonları için hue değeri
-};
-
-const TreeCardItem = ({ item, expandedItems, onToggleExpand, searchTerm, level = 0, navigation }) => {
+const TreeCardItem = ({ item, expandedItems, onToggleExpand, level = 0, navigation }) => {
   const isExpanded = expandedItems.includes(item.id);
   const hasChildren = item.children && item.children.length > 0;
 
   const handleDetailPress = () => {
-    navigation.navigate('SelectedDepartment', { id: item.id }); // 'DepartmentDetail' sayfasına yönlendirir
+    navigation.navigate('SelectedDepartment', { id: item.id });
   };
 
   return (
-    <View style={styles.cardContainer}>
+    <View style={[styles.cardContainer, { marginLeft: level * 20 }]}>
       <TouchableOpacity
         onPress={() => onToggleExpand(item.id)}
-        style={[styles.card, { backgroundColor: generateColor(level) }, hasChildren && styles.cardWithChildren]}
+        style={styles.card}
       >
         <View style={styles.cardHeader}>
           {hasChildren && (
             <Ionicons
               name={isExpanded ? 'chevron-down-outline' : 'chevron-forward-outline'}
               size={20}
-              color="#003366" // Koyu mavi ikon rengi
+              color="#000"
               style={styles.icon}
             />
           )}
-          <View style={{flexDirection:'row',alignItems:'center'}}>
-            <Text style={[
-              styles.cardTitle, 
-              searchTerm && item.DepartmentName.toLowerCase().includes(searchTerm.toLowerCase()) && styles.highlighted
-            ]}>
-              {item.DepartmentName}
-            </Text>
-            <TouchableOpacity style={styles.detailsButton} onPress={handleDetailPress}>
-              <Text style={{color:'white',fontWeight:'bold'}}>Detayları Görüntüle</Text>
-            </TouchableOpacity>
-          </View>
-          
-          
+          <Text style={styles.cardTitle}>
+            {item.DepartmentName}
+          </Text>
+          <TouchableOpacity style={styles.detailsButton} onPress={handleDetailPress}>
+            <Ionicons
+              name="information-circle-outline"
+              size={24}
+              color="#fff"
+            />
+          </TouchableOpacity>
         </View>
-        {isExpanded && item.children && item.children.length > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.childContainer}>
+      </TouchableOpacity>
+      {isExpanded && hasChildren && (
+        <ScrollView horizontal={true}>
+          <View style={styles.childContainer}>
             {item.children.map(child => (
               <TreeCardItem
                 key={child.id}
                 item={child}
                 expandedItems={expandedItems}
                 onToggleExpand={onToggleExpand}
-                searchTerm={searchTerm}
-                level={level + 1} // Alt kartın seviyesi bir artırılır
-                navigation={navigation} // Navigation prop'unu ekleyin
+                level={level + 1}
+                navigation={navigation}
               />
             ))}
-          </ScrollView>
-        )}
-      </TouchableOpacity>
+          </View>
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -69,53 +60,45 @@ const TreeCardItem = ({ item, expandedItems, onToggleExpand, searchTerm, level =
 const styles = StyleSheet.create({
   cardContainer: {
     marginVertical: 5,
-    alignItems: 'center',
   },
   card: {
     borderRadius: 10,
-    elevation: 5,
-    padding: 15,
+    elevation: 2,
+    padding: 10,
     marginHorizontal: 10,
-    minWidth: 160, // Minimum kart genişliği
+    backgroundColor: '#fff',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardWithChildren: {
-    marginBottom: 10,
+    shadowRadius: 2,
+    width: 300, // Sabit genişlik
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between', // Bu satır butonu sağa hizalar
+    width: '100%',
   },
   cardTitle: {
+    flex: 0.7, // %70 genişlik
     fontSize: 16,
     fontWeight: 'bold',
-    marginLeft: 10,
-    flexShrink: 1,
-    color: '#003366', // Koyu mavi metin rengi
-  },
-  highlighted: {
-    backgroundColor: '#e6f0ff', // Açık mavi arka plan
-    borderRadius: 5,
-    padding: 5,
-  },
-  childContainer: {
-    flexDirection: 'row',
-    marginTop: 10,
   },
   icon: {
+    flex: 0.1, // %10 genişlik
     marginRight: 10,
   },
-  detailsButton:{
-    backgroundColor:'#003366',
-    paddingHorizontal:15,
-    paddingVertical:7,
-    borderRadius:10,
-    marginLeft:20,
+  detailsButton: {
+    flex: 0.2, // %20 genişlik
+    backgroundColor: '#000',
+    paddingHorizontal: 15,
+    paddingVertical: 7,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  childContainer: {
+    marginTop: 10,
   },
 });
 
