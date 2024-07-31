@@ -18,7 +18,6 @@ const MyProfile = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [allDepartments, setAllDepartments] = useState(null);
   const [showPDF, setShowPDF] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState('');
 
   const getUserData = useCallback(async () => {
     try {
@@ -62,8 +61,7 @@ const MyProfile = ({ navigation }) => {
 
   const handleViewPDF = () => {
     if (userCurrentDepartment && userCurrentDepartment.PDFUrl) {
-      setPdfUrl(userCurrentDepartment.PDFUrl);
-      setShowPDF(true);
+      navigation.navigate("Deneme", { pdfUrl: userCurrentDepartment.PDFUrl });
     } else {
       alert('PDF dosyası bulunamadı.');
     }

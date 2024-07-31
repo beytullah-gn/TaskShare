@@ -5,10 +5,12 @@ import fetchAllDepartments from "../Services/fetchAllDepartments";
 import fetchAllDepartmentEmployees from "../Services/fetchAllDepartmentEmployees";
 import fetchAllPersons from "../Services/fetchAllPersons";
 import { fetchCurrentDepartment } from "../Services/fetchCurrentUserDepartment";
-import { db } from "../Services/firebase-config";
+import { db, storage } from "../Services/firebase-config";
 import { ref, update, push } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as DocumentPicker from 'expo-document-picker';
 
-const SelectedDepartment = () => {
+const SelectedDepartment = ({navigation}) => {
   const route = useRoute();
   const { id } = route.params || {};
   const [selectedDepartment, setSelectedDepartment] = useState(null);
@@ -21,6 +23,9 @@ const SelectedDepartment = () => {
   const [canManagePersons, setCanManagePersons] = useState(false);
   const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
   const [availablePersons, setAvailablePersons] = useState([]);
+  const [pdfUri, setPdfUri] = useState(null); // PDF URI durumu
+  const [pdfUrl, setPdfUrl] = useState(null); // PDF URL durumu
+  const [isSaving, setIsSaving] = useState(false); // Kaydetme durumu
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,6 +37,7 @@ const SelectedDepartment = () => {
         if (department) {
           setDepartmentName(department.DepartmentName);
           setDepartmentDescription(department.DepartmentDescription);
+          setPdfUrl(department.PDFUrl); // Mevcut PDF URL'sini al
           const employees = await fetchAllDepartmentEmployees();
           const departmentEmployees = employees.filter(employee => 
             employee.DepartmentId === id && employee.Active
@@ -64,18 +70,53 @@ const SelectedDepartment = () => {
       return;
     }
 
-    if (selectedDepartment) {
-      try {
-        await update(ref(db, 'Departments/' + id), {
-          DepartmentName: departmentName,
-          DepartmentDescription: departmentDescription,
-        });
-        setEditMode(false);
-        Alert.alert('Başarılı', 'Departman bilgileri güncellendi!');
-      } catch (error) {
-        console.log("Error updating department: ", error);
-        Alert.alert('Hata', 'Departman bilgileri güncellenirken bir hata oluştu.');
+    setIsSaving(true); // Kaydetme işlemine başla
+
+    try {
+      if (pdfUri) {
+        // PDF yükleme işlemi
+        const response = await fetch(pdfUri);
+        const blob = await response.blob();
+        const pdfRef = storageRef(storage, `pdfs/${id}.pdf`);
+        await uploadBytes(pdfRef, blob);
+        const newPdfUrl = await getDownloadURL(pdfRef);
+        setPdfUrl(newPdfUrl);
       }
+
+      // Departman bilgilerini güncelle
+      await update(ref(db, 'Departments/' + id), {
+        DepartmentName: departmentName,
+        DepartmentDescription: departmentDescription,
+        PDFUrl: pdfUrl, // Yeni PDF URL'sini kaydet
+      });
+
+      setEditMode(false);
+      Alert.alert('Başarılı', 'Departman bilgileri güncellendi!');
+    } catch (error) {
+      console.log("Error updating department: ", error);
+      Alert.alert('Hata', 'Departman bilgileri güncellenirken bir hata oluştu.');
+    } finally {
+      setIsSaving(false); // Kaydetme işlemi tamamlandı
+    }
+  };
+
+  const pickPDF = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+      });
+
+      if (result.canceled) {
+        Alert.alert('İptal Edildi', 'PDF seçimi iptal edildi.');
+      } else if (result.assets && result.assets.length > 0) {
+        const { uri } = result.assets[0];
+        setPdfUri(uri);
+      } else {
+        Alert.alert('Hata', 'Beklenmeyen bir durum oluştu.');
+      }
+    } catch (error) {
+      console.error('PDF seçilirken hata:', error);
+      Alert.alert('Hata', 'PDF seçilirken bir hata oluştu.');
     }
   };
 
@@ -111,6 +152,14 @@ const SelectedDepartment = () => {
     );
   };
 
+  const handleViewPDF = () => {
+    if (selectedDepartment && selectedDepartment.PDFUrl) {
+      navigation.navigate("Deneme", { pdfUrl: selectedDepartment.PDFUrl });
+    } else {
+      alert('PDF dosyası bulunamadı.');
+    }
+  };
+
   const handleAddEmployee = async (personId) => {
     try {
       const newEmployeeRef = push(ref(db, 'DepartmentEmployees'));
@@ -131,7 +180,6 @@ const SelectedDepartment = () => {
       Alert.alert('Hata', 'Çalışan eklenirken bir hata oluştu.');
     }
   };
-  
 
   const fetchAvailablePersons = async () => {
     try {
@@ -170,8 +218,21 @@ const SelectedDepartment = () => {
                     placeholder="Departman Açıklaması"
                     multiline
                   />
-                  <Button title="Kaydet" onPress={handleSave} color="#003366" />
-
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={pickPDF}
+                  >
+                    <Text style={styles.buttonText}>PDF Seç</Text>
+                  </TouchableOpacity>
+                  {pdfUri && (
+                    <Text style={styles.selectedPdfText}>Seçilen PDF: {pdfUri.split('/').pop()}</Text>
+                  )}
+                  <Button 
+                    title={isSaving ? "Kaydediliyor..." : "Kaydet"} 
+                    onPress={handleSave} 
+                    color="#003366" 
+                    disabled={isSaving}
+                  />
                 </>
               ) : (
                 <>
@@ -179,12 +240,15 @@ const SelectedDepartment = () => {
                   <Text style={styles.text}>{selectedDepartment.DepartmentName}</Text>
                   <Text style={styles.label}>Departman Açıklaması:</Text>
                   <Text style={styles.text}>{selectedDepartment.DepartmentDescription}</Text>
+                  <Text style={styles.label}>GYS Döküman Görüntüle</Text>
+                  <TouchableOpacity style={styles.showButton} onPress={handleViewPDF}>
+                      <Text style={styles.editButtonText}>Dökümanı Görüntüle</Text>
+                    </TouchableOpacity>
                   {canEdit && !editMode && (
                     <TouchableOpacity style={styles.editButton} onPress={() => setEditMode(true)}>
                       <Text style={styles.editButtonText}>Düzenle</Text>
                     </TouchableOpacity>
                   )}
-
                 </>
               )}
             </View>
@@ -248,7 +312,6 @@ const SelectedDepartment = () => {
                   )}
                 </ScrollView>
                 <Button title="Kapat" onPress={() => setShowAddEmployeeModal(false)} color="#003366" />
-
               </View>
             </View>
           </Modal>
@@ -259,6 +322,8 @@ const SelectedDepartment = () => {
     </SafeAreaView>
   );
 };
+
+export default SelectedDepartment;
 
 const styles = StyleSheet.create({
   container: {
@@ -326,7 +391,6 @@ const styles = StyleSheet.create({
     width: 40, 
     height: 40, 
   },
-  
   removeButtonText: {
     color: '#fff',
     fontSize: 30,
@@ -379,6 +443,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  button: {
+    backgroundColor: '#ff4d4d', // Kırmızı renk
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  selectedPdfText: {
+    fontSize: 16,
+    color: '#003366',
+    marginVertical: 10,
+  },
+  showButton:{
+    backgroundColor: 'skyblue',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  }
 });
-
-export default SelectedDepartment;
