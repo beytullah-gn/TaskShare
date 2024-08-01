@@ -51,6 +51,24 @@ export const styles = StyleSheet.create({
       flex: 1, // Butonların eşit genişlikte olmasını sağlar
       maxWidth: '48%', // Ekrana sığması için maksimum genişlik
     },
+    pdfButtonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      width: '100%',
+      flexWrap: 'wrap', // Butonların sarmalanmasını sağlar
+      marginBottom: 20,
+    },
+    pdfButton: {
+      backgroundColor: 'red',
+      borderRadius: 8,
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+      justifyContent:'center',
+      alignItems: 'center',
+      marginVertical: 5, // Butonlar arasında boşluk
+      flex: 1, // Butonların eşit genişlikte olmasını sağlar
+      maxWidth: '100%', // Ekrana sığması için maksimum genişlik
+    },
     buttonText: {
       color: '#ffffff',
       fontSize: 16,

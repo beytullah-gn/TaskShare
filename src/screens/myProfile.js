@@ -1,14 +1,41 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, View, Text, Button, Modal, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import WebView from 'react-native-webview';
 import BottomBar from '../Components/BottomBar';
 import { fetchDepartmentEmployeeData } from '../Services/fetchDepartmentEmployees';
 import { fetchCurrentDepartment } from '../Services/fetchCurrentUserDepartment';
 import { fetchPersonData } from '../Services/fetchPersonData';
 import { fetchInactiveDepartments } from '../Services/fetchInactiveDepartments';
 import fetchAllDepartments from '../Services/fetchAllDepartments';
+
+const formatDateString = (dateString) => {
+  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  const date = new Date(dateString);
+  return date.toLocaleDateString('tr-TR', options);
+};
+
+// Function to get color based on index
+const getColorForIndex = (index) => {
+  return index % 2 === 0 ? '#f0f0f0' : '#ffffff';
+};
+
+const renderDepartments = (departments, parentId, index = 0) => {
+  return (
+    <View>
+      {departments
+        .filter(dept => dept.ParentDepartment === parentId)
+        .map((dept, deptIndex) => (
+          <View key={dept.DepartmentId} style={{ marginBottom: 5}}>
+            <View style={[styles.responsibleDepartmentItem, { backgroundColor: getColorForIndex(index + deptIndex) }]}>
+              <Text><Text style={styles.boldText}>Departman Adı: </Text>{dept.DepartmentName}</Text>
+              <Text><Text style={styles.boldText}>Departman Açıklaması: </Text>{dept.DepartmentDescription}</Text>
+            </View>
+            {renderDepartments(departments, dept.DepartmentId, index + deptIndex + 1)}
+          </View>
+        ))}
+    </View>
+  );
+};
 
 const MyProfile = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
@@ -66,6 +93,12 @@ const MyProfile = ({ navigation }) => {
     }
   };
 
+  // Find departments where the current user is responsible
+  const responsibleDepartments = allDepartments?.filter(dept => dept.ParentDepartment === userDepartment?.DepartmentId) || [];
+
+  // Determine the max card width for scrollable view
+  const maxCardWidth = Math.min(Dimensions.get('window').width - 40, 300);
+
   return (
     <SafeAreaView style={styles.topView}>
       <View style={styles.header}>
@@ -81,13 +114,13 @@ const MyProfile = ({ navigation }) => {
             {userInfo ? (
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>Kişi Bilgileri</Text>
-                <Text>Adı: {userInfo.Name}</Text>
-                <Text>Soyadı: {userInfo.Surname}</Text>
-                <Text>TC : {userInfo.TcNumber}</Text>
-                <Text>Telefon Numarası: {userInfo.PhoneNumber}</Text>
-                <Text>Doğum Günü: {userInfo.Birthday}</Text>
-                <Text>Doğum Yeri: {userInfo.BirthPlace}</Text>
-                <Text>Adresi: {userInfo.Address}</Text>
+                <Text><Text style={styles.boldText}>Adı: </Text>{userInfo.Name}</Text>
+                <Text><Text style={styles.boldText}>Soyadı: </Text>{userInfo.Surname}</Text>
+                <Text><Text style={styles.boldText}>TC: </Text>{userInfo.TcNumber}</Text>
+                <Text><Text style={styles.boldText}>Telefon Numarası: </Text>{userInfo.PhoneNumber}</Text>
+                <Text><Text style={styles.boldText}>Doğum Günü: </Text>{userInfo.Birthday}</Text>
+                <Text><Text style={styles.boldText}>Doğum Yeri: </Text>{userInfo.BirthPlace}</Text>
+                <Text><Text style={styles.boldText}>Adresi: </Text>{userInfo.Address}</Text>
               </View>
             ) : (
               <Text>Kişi bulunamadı.</Text>
@@ -95,9 +128,9 @@ const MyProfile = ({ navigation }) => {
             {userDepartment && userCurrentDepartment ? (
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>Mevcut Departman ve Bilgileri</Text>
-                <Text>Departman Adı: {userCurrentDepartment.DepartmentName}</Text>
-                <Text>Departman Açıklaması: {userCurrentDepartment.DepartmentDescription}</Text>
-                <Text>Başlama Tarihi: {userDepartment.StartingDate}</Text>
+                <Text><Text style={styles.boldText}>Departman Adı: </Text>{userCurrentDepartment.DepartmentName}</Text>
+                <Text><Text style={styles.boldText}>Departman Açıklaması: </Text>{userCurrentDepartment.DepartmentDescription}</Text>
+                <Text><Text style={styles.boldText}>Başlama Tarihi: </Text>{formatDateString(userDepartment.StartingDate)}</Text>
                 <TouchableOpacity style={styles.pdfButton} onPress={handleViewPDF}>
                   <Text style={styles.pdfButtonText}>Departman PDF'ini Görüntüle</Text>
                 </TouchableOpacity>
@@ -116,14 +149,20 @@ const MyProfile = ({ navigation }) => {
                         { backgroundColor: index % 2 === 0 ? '#f0f0f0' : '#ffffff' }
                       ]}
                     >
-                      <Text>Departman Adı: {department ? department.DepartmentName : 'Bilinmiyor'}</Text>
-                      <Text>Başlama Tarihi: {dept.StartingDate}</Text>
-                      <Text>Bitiş Tarihi: {dept.EndDate}</Text>
+                      <Text><Text style={styles.boldText}>Departman Adı: </Text>{department ? department.DepartmentName : 'Bilinmiyor'}</Text>
+                      <Text><Text style={styles.boldText}>Başlama Tarihi: </Text>{formatDateString(dept.StartingDate)}</Text>
+                      <Text><Text style={styles.boldText}>Bitiş Tarihi: </Text>{formatDateString(dept.EndDate)}</Text>
                     </View>
                   );
                 })}
               </View>
             ) : null}
+            {responsibleDepartments.length > 0 && (
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>Sorumlu Olduğu Departmanlar</Text>
+                {renderDepartments(allDepartments, userDepartment?.DepartmentId)}
+              </View>
+            )}
           </>
         )}
       </ScrollView>
@@ -133,13 +172,15 @@ const MyProfile = ({ navigation }) => {
       </View>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   topView: {
     flex: 1,
+    backgroundColor: '#ADD8E6'
   },
   header: {
+    paddingTop: 30,
     backgroundColor: '#003366',
     paddingVertical: 15,
     alignItems: 'center',
@@ -172,6 +213,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#003366',
+  },
+  responsibleDepartmentItem: {
+    width: 300,
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 5,
   },
   oldDepartmentItem: {
     padding: 10,
@@ -183,10 +231,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-  },
-  pdf: {
-    width: '100%',
-    height: '90%',
   },
   pdfButton: {
     backgroundColor: '#4CAF50',
@@ -201,7 +245,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  
+  horizontalScrollView: {
+    paddingHorizontal: 10,
+  },
+  scrollContainer: {
+    flexDirection: 'row',
+  },
+  boldText: {
+    color: '#003366',
+    fontWeight: 'bold',
+  },
 });
 
 export default MyProfile;

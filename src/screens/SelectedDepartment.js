@@ -1,3 +1,11 @@
+//Pdf seç butonunu sadece  canManageTasks:true olan kişiler yapabilecek
+//Mevcut kullanıcı admin ise ve düzenlenecek departman admin değil(eğer düzenlenmeye çalışan departman adminse uyarı versin) ise   
+//yetkilerini düzenlemek için 3 tane checbox çıkacak
+//Bu 3 checkbox hasManagePersons,hasManageTasks,hasManageDepartments değerleri ile düzenlenecek
+//Kaydet dendiği zaman firebasede kaydetsin 
+
+
+
 import React, { useEffect, useState } from "react";
 import { SafeAreaView, Text, StyleSheet, View, TextInput, Button, ScrollView, Alert, TouchableOpacity, Modal } from "react-native";
 import { useRoute } from '@react-navigation/native';
@@ -22,12 +30,20 @@ const SelectedDepartment = ({navigation}) => {
   const [departmentDescription, setDepartmentDescription] = useState('');
   const [canEdit, setCanEdit] = useState(false);
   const [canManagePersons, setCanManagePersons] = useState(false);
+  const [canManageTasks, setCanManageTasks] = useState(false);
   const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
   const [availablePersons, setAvailablePersons] = useState([]);
   const [pdfUri, setPdfUri] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false); //Bu özellik eklenecek
+  const [isAdmin, setIsAdmin] = useState(false); //Mevcut kullanıcının departmanının  admin yetkisi var mı
+  const [hasManagePersons, setHasManagePersons] = useState(false);
+  const [hasManageDepartments, setHasManageDepartments] = useState(false);
+  const [hasManageTasks, setHasManageTasks] = useState(false);
+  const [hasAdmin, setHasAdmin] = useState(false);//Görüntülenen departmanın admin yetkisi var mı
+
+  
+
 
   const fetchData = async () => {
     try {
@@ -36,7 +52,11 @@ const SelectedDepartment = ({navigation}) => {
       setSelectedDepartment(department);
 
       if (department) {
+        setHasManageDepartments(department.Permissions.ManageDepartments);
+        setHasManagePersons(department.Permissions.ManagePersons);
+        setHasManageTasks(department.Permissions.ManageTasks);
         setDepartmentName(department.DepartmentName);
+        setHasAdmin(department.Permissions.Admin);
         setDepartmentDescription(department.DepartmentDescription);
         setPdfUrl(department.PDFUrl);
         const employees = await fetchAllDepartmentEmployees();
@@ -55,6 +75,9 @@ const SelectedDepartment = ({navigation}) => {
       if (currentDepartment && currentDepartment.Permissions) {
         setCanEdit(currentDepartment.Permissions.ManageDepartments);
         setCanManagePersons(currentDepartment.Permissions.ManagePersons);
+        setCanManageTasks(currentDepartment.Permissions.ManageTasks);
+        setIsAdmin(currentDepartment.Permissions.Admin);
+
       }
 
     } catch (error) {
@@ -89,9 +112,10 @@ const SelectedDepartment = ({navigation}) => {
         DepartmentDescription: departmentDescription,
         PDFUrl: pdfUrl,
         Permissions: {
-          // Bu ikisi değiştirilecek
-          ManageDepartments: canEdit,
-          ManagePersons: canManagePersons,
+          Admin:hasAdmin,
+          ManageTasks:hasManageTasks,
+          ManageDepartments: hasManageDepartments,
+          ManagePersons: hasManagePersons,
         }
       });
 
@@ -207,46 +231,68 @@ const SelectedDepartment = ({navigation}) => {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Departman Bilgileri</Text>
             <View style={styles.cardContent}>
-              {editMode && canEdit ? (
+              {editMode && (canEdit || canManageTasks) ? (
                 <>
-                  <TextInput
-                    style={styles.input}
-                    value={departmentName}
-                    onChangeText={setDepartmentName}
-                    placeholder="Departman Adı"
-                  />
-                  <TextInput
-                    style={styles.input}
-                    value={departmentDescription}
-                    onChangeText={setDepartmentDescription}
-                    placeholder="Departman Açıklaması"
-                    multiline
-                  />
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={pickPDF}
-                  >
-                    <Text style={styles.buttonText}>PDF Seç</Text>
-                  </TouchableOpacity>
+                {canEdit && (
+                  <View>
+                    <TextInput
+                      style={styles.input}
+                      value={departmentName}
+                      onChangeText={setDepartmentName}
+                      placeholder="Departman Adı"
+                    />
+                    <TextInput
+                      style={styles.input}
+                      value={departmentDescription}
+                      onChangeText={setDepartmentDescription}
+                      placeholder="Departman Açıklaması"
+                      multiline
+                    />
+                  </View>
+                )}
+                  
+                  {canManageTasks && (
+                     <TouchableOpacity
+                     style={styles.button}
+                     onPress={pickPDF}
+                   >
+                     <Text style={styles.buttonText}>PDF Seç</Text>
+                   </TouchableOpacity>
+                  )}
+                 
                   {pdfUri && (
                     <Text style={styles.selectedPdfText}>Seçilen PDF: {pdfUri.split('/').pop()}</Text>
                   )}
-                  <View style={styles.checkboxContainer}>
-                    <CheckBox
-                      value={canEdit}
-                      onValueChange={setCanEdit}
-                      disabled={!editMode}
-                    />
-                    <Text style={styles.checkboxLabel}>Departmanları Yönet</Text>
-                  </View>
-                  <View style={styles.checkboxContainer}>
-                    <CheckBox
-                      value={canManagePersons}
-                      onValueChange={setCanManagePersons}
-                      disabled={!editMode}
-                    />
-                    <Text style={styles.checkboxLabel}>Kişileri Yönet</Text>
-                  </View>
+                  {
+                    isAdmin && !hasAdmin && (
+                      <View>
+                         <View style={styles.checkboxContainer}>
+                          <CheckBox
+                            value={hasManageDepartments}
+                            onValueChange={setHasManageDepartments}
+                            disabled={!editMode}
+                          />
+                          <Text style={styles.checkboxLabel}>Departmanları Yönet</Text>
+                        </View>
+                        <View style={styles.checkboxContainer}>
+                          <CheckBox
+                            value={hasManagePersons}
+                            onValueChange={setHasManagePersons}
+                            disabled={!editMode}
+                          />
+                          <Text style={styles.checkboxLabel}>Kişileri Yönet</Text>
+                        </View>
+                        <View style={styles.checkboxContainer}>
+                          <CheckBox
+                            value={hasManageTasks}
+                            onValueChange={setHasManageTasks}
+                            disabled={!editMode}
+                          />
+                          <Text style={styles.checkboxLabel}>Görevleri Yönet</Text>
+                        </View>
+                      </View>               
+                    )
+                  }                 
                   <Button 
                     title={isSaving ? "Kaydediliyor..." : "Kaydet"} 
                     onPress={handleSave} 
@@ -264,7 +310,7 @@ const SelectedDepartment = ({navigation}) => {
                   <TouchableOpacity style={styles.showButton} onPress={handleViewPDF}>
                       <Text style={styles.editButtonText}>Dökümanı Görüntüle</Text>
                     </TouchableOpacity>
-                  {canEdit && !editMode && (
+                  {(canEdit || canManageTasks) && !editMode && (
                     <TouchableOpacity style={styles.editButton} onPress={() => setEditMode(true)}>
                       <Text style={styles.editButtonText}>Düzenle</Text>
                     </TouchableOpacity>
@@ -463,15 +509,17 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#ff4d4d',
-    padding: 10,
+    padding: 5,
     borderRadius: 5,
+    marginVertical:10,
     alignItems: 'center',
-    marginTop: 10,
+    
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    paddingVertical:5,
   },
   selectedPdfText: {
     fontSize: 16,

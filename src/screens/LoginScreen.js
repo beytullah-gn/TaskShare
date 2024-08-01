@@ -3,7 +3,6 @@ import { View, TextInput,  Alert, Text, TouchableOpacity } from 'react-native';
 import { login } from '../Auth/AuthService';
 import { styles } from '../styles/loginscreenStyle';
 import { getData, getToken } from '../Services/tokenStorage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');

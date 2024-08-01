@@ -236,6 +236,12 @@ const AddNewDepartment = () => {
           placeholderTextColor="#888"
         />
       </View>
+      <View style={styles.pdfButtonContainer}>
+        <TouchableOpacity style={styles.pdfButton} onPress={pickPDF}>
+          <Text style={styles.buttonText}>PDF Seç</Text>
+        </TouchableOpacity>
+      </View>
+
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleListDepartments}>
@@ -243,9 +249,6 @@ const AddNewDepartment = () => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={saveDepartment}>
           <Text style={styles.buttonText}>Departmanı Oluştur</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={pickPDF}>
-          <Text style={styles.buttonText}>PDF Seç</Text>
         </TouchableOpacity>
       </View>
 
