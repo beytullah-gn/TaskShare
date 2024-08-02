@@ -48,7 +48,7 @@ const PersonsScreen = ({ navigation }) => {
 
             fetchData();
             checkPermissions();
-        }, []) // Bağımlılık dizisi boş, böylece her sayfa açılışında çalışır
+        }, [])
     );
 
     const handleSearch = (text) => {
@@ -57,7 +57,7 @@ const PersonsScreen = ({ navigation }) => {
 
     const filteredPersons = persons
         .filter(person => person.AccountType === selectedType)
-        .filter(person => 
+        .filter(person =>
             person.Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             person.Surname.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -65,17 +65,13 @@ const PersonsScreen = ({ navigation }) => {
     const highlightText = (text, highlight) => {
         if (!highlight) return text;
         const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
-        return parts.map((part, index) => 
+        return parts.map((part, index) =>
             part.toLowerCase() === highlight.toLowerCase() ? (
                 <Text key={index} style={styles.highlight}>{part}</Text>
             ) : (
                 part
             )
         );
-    };
-
-    const toggleExpand = (personId) => {
-        setExpandedPerson(expandedPerson === personId ? null : personId);
     };
 
     const handleDepartments = () => {
@@ -90,9 +86,14 @@ const PersonsScreen = ({ navigation }) => {
         navigation.navigate('Settings');
     };
 
-    const handleAddPerson=()=>{
+    const handleAddPerson = () => {
         navigation.navigate("AddPerson");
     };
+
+    const handlePerson = (person) => {
+        navigation.navigate("SelectedPerson", { person });
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <PersonSearchInput searchTerm={searchTerm} onSearch={handleSearch} />
@@ -105,10 +106,10 @@ const PersonsScreen = ({ navigation }) => {
                                 key={person.id}
                                 person={person}
                                 expandedPerson={expandedPerson}
-                                onToggleExpand={toggleExpand}
                                 showEditButton={showAddButton}
                                 searchTerm={searchTerm}
                                 highlightText={highlightText}
+                                onPerson={handlePerson}
                             />
                         ))
                     ) : (

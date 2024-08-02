@@ -17,6 +17,7 @@ import AddNewPersonScreen from "./src/screens/AddNewPerson";
 import GysDöküman from "./src/screens/MyDocument";
 import EntryScreen from "./src/screens/EntryScreen";
 import EntryDocument from "./src/screens/entryMyDocument";
+import SelectedPerson from "./src/screens/selectedPersonScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -75,6 +76,14 @@ function App() {
           <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
           <Stack.Screen name="AddPerson" component={AddNewPersonScreen} options={{ title:"Yeni Kişi Ekle" }} />
           <Stack.Screen name="MyDocument" component={GysDöküman} options={{title:"Görev Dökümantasyonu"}} />
+          <Stack.Screen
+              name="SelectedPerson"
+              component={SelectedPerson}
+              options={({ route }) => ({
+                  title: route.params.person.Name+" "+route.params.person.Surname
+              })}
+          />
+
         </Stack.Navigator>
       ) : (
         <AuthStack.Navigator>
