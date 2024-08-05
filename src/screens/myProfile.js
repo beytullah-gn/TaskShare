@@ -7,6 +7,11 @@ import { fetchCurrentDepartment } from '../Services/fetchCurrentUserDepartment';
 import { fetchPersonData } from '../Services/fetchPersonData';
 import { fetchInactiveDepartments } from '../Services/fetchInactiveDepartments';
 import fetchAllDepartments from '../Services/fetchAllDepartments';
+import { fetchUserRoles } from '../Services/fetchUserRoles';
+import fetchAllRoles from '../Services/fetchAllRoles';
+
+
+
 
 const formatDateString = (dateString) => {
   const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -25,7 +30,7 @@ const renderDepartments = (departments, parentId, index = 0) => {
       {departments
         .filter(dept => dept.ParentDepartment === parentId)
         .map((dept, deptIndex) => (
-          <View key={dept.DepartmentId} style={{ marginBottom: 5}}>
+          <View key={dept.DepartmentId} style={{ marginBottom: 5 }}>
             <View style={[styles.responsibleDepartmentItem, { backgroundColor: getColorForIndex(index + deptIndex) }]}>
               <Text><Text style={styles.boldText}>Departman Adı: </Text>{dept.DepartmentName}</Text>
               <Text><Text style={styles.boldText}>Departman Açıklaması: </Text>{dept.DepartmentDescription}</Text>
@@ -40,26 +45,38 @@ const renderDepartments = (departments, parentId, index = 0) => {
 const MyProfile = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [userDepartment, setUserDepartment] = useState(null);
-  const [userCurrentDepartment, setUserCurrentDepartment] = useState(null);
+  const [userCurrentDepartment, setUserCurrentDepartment] = useState([]);
   const [userOldDepartment, setUserOldDepartment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [allDepartments, setAllDepartments] = useState(null);
+  const [departmentEmployeesData, setDepartmentEmployeesData] = useState([]);
+  const [userRoles, setUserRoles] = useState([]);
+  const [allRoles, setAllRoles] = useState([]);
 
   const getUserData = useCallback(async () => {
     try {
       setLoading(true);
-      const [employeeData, departmentData, currentDepartmentData, oldDepartmentData, allDepartmentsData] = await Promise.all([
+      const [employeeData, departmentData, currentDepartmentData, oldDepartmentData, allDepartmentsData, departmentEmployees,roles,allRoles] = await Promise.all([
         fetchPersonData(),
         fetchDepartmentEmployeeData(),
         fetchCurrentDepartment(),
         fetchInactiveDepartments(),
         fetchAllDepartments(),
+        fetchDepartmentEmployeeData(), // Tarih verilerini burada çekiyoruz
+        fetchUserRoles(), // Kullanıcı rol bilgilerini burada alıyoruz
+        fetchAllRoles(), // Kullanıcı rol bilgilerini burada alıyoruz
+        
       ]);
+      console.log("current department", currentDepartmentData);
+      console.log(oldDepartmentData);
       setUserInfo(employeeData);
       setUserDepartment(departmentData);
       setUserCurrentDepartment(currentDepartmentData);
       setUserOldDepartment(oldDepartmentData);
       setAllDepartments(allDepartmentsData);
+      setDepartmentEmployeesData(departmentEmployees); // Tarih verilerini buraya kaydediyoruz
+      setUserRoles(roles); // Kullanıcı rol bilgilerini burada kaydediyoruz
+      setAllRoles(allRoles);
     } catch (error) {
       console.log('Error fetching data:', error);
     } finally {
@@ -85,9 +102,9 @@ const MyProfile = ({ navigation }) => {
     navigation.navigate('Settings');
   };
 
-  const handleViewPDF = () => {
-    if (userCurrentDepartment && userCurrentDepartment.PDFUrl) {
-      navigation.navigate("MyDocument", { pdfUrl: userCurrentDepartment.PDFUrl });
+  const handleViewPDF = (pdfUrl) => {
+    if (pdfUrl) {
+      navigation.navigate("MyDocument", { pdfUrl });
     } else {
       alert('PDF dosyası bulunamadı.');
     }
@@ -96,8 +113,13 @@ const MyProfile = ({ navigation }) => {
   // Find departments where the current user is responsible
   const responsibleDepartments = allDepartments?.filter(dept => dept.ParentDepartment === userDepartment?.DepartmentId) || [];
 
-  // Determine the max card width for scrollable view
-  const maxCardWidth = Math.min(Dimensions.get('window').width - 40, 300);
+  // Get department data with corresponding employee dates
+  const getDepartmentDate = (departmentId) => {
+    const departmentData = departmentEmployeesData.find(dept => {
+      return userRoles.some(role => role.RoleID === dept.RoleID && role.DepartmentId === departmentId);
+    });
+    return departmentData ? departmentData.StartingDate : 'Bilgi Yok';
+  };
 
   return (
     <SafeAreaView style={styles.topView}>
@@ -125,22 +147,31 @@ const MyProfile = ({ navigation }) => {
             ) : (
               <Text>Kişi bulunamadı.</Text>
             )}
-            {userDepartment && userCurrentDepartment ? (
+            {userCurrentDepartment.length > 0 ? (
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>Mevcut Departman ve Bilgileri</Text>
-                <Text><Text style={styles.boldText}>Departman Adı: </Text>{userCurrentDepartment.DepartmentName}</Text>
-                <Text><Text style={styles.boldText}>Departman Açıklaması: </Text>{userCurrentDepartment.DepartmentDescription}</Text>
-                <Text><Text style={styles.boldText}>Başlama Tarihi: </Text>{formatDateString(userDepartment.StartingDate)}</Text>
-                <TouchableOpacity style={styles.pdfButton} onPress={handleViewPDF}>
-                  <Text style={styles.pdfButtonText}>Departman PDF'ini Görüntüle</Text>
-                </TouchableOpacity>
+                {userCurrentDepartment.map((dept, index) => (
+                  <View key={index} style={styles.departmentItem}>
+                    <Text><Text style={styles.boldText}>Departman Adı: </Text>{dept.DepartmentName || 'Bilgi Yok'}</Text>
+                    <Text><Text style={styles.boldText}>Departman Açıklaması: </Text>{dept.DepartmentDescription || 'Bilgi Yok'}</Text>
+                    <Text><Text style={styles.boldText}>Başlama Tarihi: </Text>{formatDateString(getDepartmentDate(dept.DepartmentId)) || 'Bilgi Yok'}</Text>
+                    
+                      <TouchableOpacity style={styles.pdfButton} onPress={() => handleViewPDF(dept.PDFUrl)}>
+                        <Text style={styles.pdfButtonText}>Departman PDF'ini Görüntüle</Text>
+                      </TouchableOpacity>
+                    
+                  </View>
+                ))}
               </View>
             ) : null}
             {userOldDepartment && userOldDepartment.length > 0 ? (
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>Çalışma Geçmişi</Text>
                 {userOldDepartment.map((dept, index) => {
-                  const department = allDepartments.find(d => d.DepartmentId === dept.DepartmentId);
+                  // Eşleşen rolü bul
+                  const role = userRoles.find(role => role.RoleID === dept.RoleID);
+                  // Eğer rol varsa, departman ID'sini kullanarak departmanı bul
+                  const department = role ? allDepartments.find(d => d.DepartmentId === role.DepartmentId) : null;
                   return (
                     <View
                       key={index}
@@ -245,11 +276,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  horizontalScrollView: {
-    paddingHorizontal: 10,
-  },
-  scrollContainer: {
-    flexDirection: 'row',
+  departmentItem: {
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#f9f9f9',
   },
   boldText: {
     color: '#003366',

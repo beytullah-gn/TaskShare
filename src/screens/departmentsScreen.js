@@ -5,7 +5,7 @@ import TreeCardItem from '../Components/TreeCardItem';
 import { buildHierarchy, findAncestors, findAllExpandedItems } from '../Services/DepartmentUtils';
 import { SafeAreaView } from "react-native-safe-area-context";
 import BottomBar from '../Components/BottomBar';
-import { fetchCurrentDepartment } from "../Services/fetchCurrentUserDepartment";
+import { getPermission } from '../Services/getPermission'; // Yeni eklenen import
 
 const DepartmentScreen = ({ navigation }) => {
   const [departments, setDepartments] = useState([]);
@@ -17,14 +17,15 @@ const DepartmentScreen = ({ navigation }) => {
   useEffect(() => {
     const checkPermissions = async () => {
       try {
-        const department = await fetchCurrentDepartment();
-        if (department && department.Permissions && department.Permissions.ManageDepartments) {
+        const permissions = await getPermission(); // getPermission fonksiyonunu çağır
+        console.log(permissions);
+        if (permissions.includes('ManageDepartments')) {
           setShowAddButton(true);
         } else {
           setShowAddButton(false);
         }
       } catch (error) {
-        console.log("Error fetching department: ", error);
+        console.log("Error fetching permissions: ", error);
         setShowAddButton(false);
       }
     };

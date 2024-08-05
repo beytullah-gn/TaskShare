@@ -22,7 +22,7 @@ export const getToken = async () => {
       signOut(auth);
     }
     const decodedToken = jwtDecode(token);
-    console.log('Firebase Auth Token ==>:',token,"\n" ,"AsyncStorage token =======>:",decodedToken);
+    //console.log('Firebase Auth Token ==>:',token,"\n" ,"AsyncStorage token =======>:",decodedToken);
     return token;
   } else {
     console.log('No user is signed in.');
