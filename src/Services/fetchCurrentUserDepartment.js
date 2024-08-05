@@ -3,7 +3,7 @@ import { ref, get } from 'firebase/database';
 import { db } from './firebase-config';
 import { getToken } from './tokenStorage';
 
-export const fetchCurrentDepartment = async () => {
+export const fetchCurrentDepartments = async () => {
   const token = await getToken();
   const auth = getAuth();
   const user = auth.currentUser;
@@ -37,49 +37,63 @@ export const fetchCurrentDepartment = async () => {
           // AccountType'ı kontrol et
           if (personData.AccountType === 'Employee') {
             // DepartmentEmployees içindeki EmployeeId'yi kontrol et
-            const deptRef = ref(db, 'DepartmentEmployees');
-            const deptSnapshot = await get(deptRef);
+            const deptEmployeesRef = ref(db, 'DepartmentEmployees');
+            const deptEmployeesSnapshot = await get(deptEmployeesRef);
 
-            if (deptSnapshot.exists()) {
-              const deptData = deptSnapshot.val();
-              let activeDepartments = [];
+            if (deptEmployeesSnapshot.exists()) {
+              const deptEmployeesData = deptEmployeesSnapshot.val();
+              let activeRoles = [];
 
-              for (const key in deptData) {
-                const employee = deptData[key];
+              for (const key in deptEmployeesData) {
+                const employee = deptEmployeesData[key];
                 if (employee.EmployeeId === personData.PersonId && employee.Active === true) {
-                  activeDepartments.push(employee);
+                  activeRoles.push(employee.RoleID);
                 }
               }
 
-              // Hata yakalama
-              if (activeDepartments.length > 1) {
-                throw new Error("Birden fazla aktif departman hatası.");
-              } else if (activeDepartments.length === 0) {
-                //throw new Error("Aktif departman yok.");;
+              if (activeRoles.length === 0) {
                 return null;
-              } else {
-                const departmentId = activeDepartments[0].DepartmentId;
+              }
 
-                // Departments bilgilerini al
-                const departmentsRef = ref(db, 'Departments');
-                const departmentsSnapshot = await get(departmentsRef);
+              const rolesRef = ref(db, 'Roles');
+              const rolesSnapshot = await get(rolesRef);
 
-                if (departmentsSnapshot.exists()) {
-                  const departmentsData = departmentsSnapshot.val();
+              if (!rolesSnapshot.exists()) {
+                throw new Error("Role bilgileri bulunamadı.");
+              }
 
-                  // Departments objesinde DepartmentId'ye sahip olanı bul
-                  for (const deptKey in departmentsData) {
-                    if (departmentsData[deptKey].DepartmentId === departmentId) {
-                      return departmentsData[deptKey]; // Eşleşen department verisini döndür
-                    }
+              const rolesData = rolesSnapshot.val();
+              let departmentIds = [];
+
+              for (const roleId of activeRoles) {
+                for (const roleKey in rolesData) {
+                  if (rolesData[roleKey].RoleID === roleId) {
+                    departmentIds.push(rolesData[roleKey].DepartmentId);
                   }
-                  return null
-                  //throw new Error("Departman bulunamadı.");
-                } else {
-                  return null
-                  //throw new Error("Departman bilgileri bulunamadı.");
                 }
               }
+
+              if (departmentIds.length === 0) {
+                return null;
+              }
+
+              const departmentsRef = ref(db, 'Departments');
+              const departmentsSnapshot = await get(departmentsRef);
+
+              if (!departmentsSnapshot.exists()) {
+                throw new Error("Departman bilgileri bulunamadı.");
+              }
+
+              const departmentsData = departmentsSnapshot.val();
+              let departments = [];
+
+              for (const deptKey in departmentsData) {
+                if (departmentIds.includes(departmentsData[deptKey].DepartmentId)) {
+                  departments.push(departmentsData[deptKey]);
+                }
+              }
+
+              return departments.length > 0 ? departments : null;
             } else {
               throw new Error("Departman çalışan bilgileri bulunamadı.");
             }

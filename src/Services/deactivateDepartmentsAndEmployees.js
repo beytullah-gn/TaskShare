@@ -1,4 +1,3 @@
-// firebaseUtils.js
 import { ref, get, update } from 'firebase/database';
 import { db } from './firebase-config';
 
