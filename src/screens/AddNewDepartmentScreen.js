@@ -103,12 +103,14 @@ const AddNewDepartment = () => {
         DepartmentName: departmentName,
         DepartmentDescription: departmentDescription,
         ParentDepartment: selectedDepartmentId,
+        PDFUrl:"null",
         DepartmentId:newDepartmentRef.key,
         CreatedBy: currentUser?.id,
         Active: true,
         Permissions: {
+          Admin:false,
           ManageTasks: false,
-          ManageEmployees: false,
+          ManagePersons: false,
           ManageDepartments: false
         },
         PDFUrl: pdfUrl // PDF URL'sini ekleyin

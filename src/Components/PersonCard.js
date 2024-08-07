@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
+import QRCode from "react-qr-code";
 
 const PersonCard = ({ person, searchTerm, highlightText, onPerson }) => {
     return (
@@ -8,6 +9,12 @@ const PersonCard = ({ person, searchTerm, highlightText, onPerson }) => {
             <Text style={styles.personName}>
                 {highlightText(person.Name, searchTerm)} {highlightText(person.Surname, searchTerm)}
             </Text>
+            <QRCode
+                size={127}
+                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                value={person.PersonId}
+                viewBox={`0 0 256 256`}
+            />
             <Ionicons
                 name={'arrow-forward'}
                 size={40}

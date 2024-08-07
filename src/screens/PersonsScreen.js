@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, StyleSheet, Text, View,SafeAreaView} from "react-native";
 import BottomBar from "../Components/BottomBar";
 import { Ionicons } from '@expo/vector-icons';
 import fetchAllPersons from "../Services/fetchAllPersons";
@@ -96,6 +95,7 @@ const PersonsScreen = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
+            <View style={{backgroundColor:"#003366",paddingTop:20}} />
             <PersonSearchInput searchTerm={searchTerm} onSearch={handleSearch} />
             <PersonToggleButton selectedType={selectedType} onSelectType={setSelectedType} />
             <View style={styles.content}>

@@ -1,11 +1,3 @@
-//Pdf seç butonunu sadece  canManageTasks:true olan kişiler yapabilecek
-//Mevcut kullanıcı admin ise ve düzenlenecek departman admin değil(eğer düzenlenmeye çalışan departman adminse uyarı versin) ise   
-//yetkilerini düzenlemek için 3 tane checbox çıkacak
-//Bu 3 checkbox hasManagePersons,hasManageTasks,hasManageDepartments değerleri ile düzenlenecek
-//Kaydet dendiği zaman firebasede kaydetsin 
-
-
-
 import React, { useEffect, useState } from "react";
 import { SafeAreaView, Text, StyleSheet, View, TextInput, Button, ScrollView, Alert, TouchableOpacity, Modal } from "react-native";
 import { useRoute } from '@react-navigation/native';
@@ -18,6 +10,8 @@ import { ref, update, push } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as DocumentPicker from 'expo-document-picker';
 import CheckBox from "@react-native-community/checkbox";
+import { fetchDepartmentEmployeeData } from "../Services/fetchDepartmentEmployees";
+
 
 const SelectedDepartment = ({navigation}) => {
   const route = useRoute();
@@ -41,7 +35,7 @@ const SelectedDepartment = ({navigation}) => {
   const [hasManageDepartments, setHasManageDepartments] = useState(false);
   const [hasManageTasks, setHasManageTasks] = useState(false);
   const [hasAdmin, setHasAdmin] = useState(false);//Görüntülenen departmanın admin yetkisi var mı
-
+  const [parentDepartment,setParentDepartment]= useState([]);
   
 
 
@@ -50,7 +44,8 @@ const SelectedDepartment = ({navigation}) => {
       const departments = await fetchAllDepartments();
       const department = departments.find(department => department.id === id);
       setSelectedDepartment(department);
-
+      const parentDepartment = departments.find(d => d.id === department.ParentDepartment)
+      setParentDepartment(parentDepartment);
       if (department) {
         setHasManageDepartments(department.Permissions.ManageDepartments);
         setHasManagePersons(department.Permissions.ManagePersons);
@@ -58,7 +53,11 @@ const SelectedDepartment = ({navigation}) => {
         setDepartmentName(department.DepartmentName);
         setHasAdmin(department.Permissions.Admin);
         setDepartmentDescription(department.DepartmentDescription);
-        setPdfUrl(department.PDFUrl);
+        if(department.PDFUrl)
+        {
+          setPdfUrl(department.PDFUrl);
+        }
+       
         const employees = await fetchAllDepartmentEmployees();
         const departmentEmployees = employees.filter(employee => 
           employee.DepartmentId === id && employee.Active
@@ -71,7 +70,9 @@ const SelectedDepartment = ({navigation}) => {
         setSelectedDepartmentPersons(departmentPersons);
       }
 
-      const currentDepartment = await fetchCurrentDepartment();
+
+      //Mevcut kullanıcının izinlerini burada kontrol ediyor 
+      const currentDepartment = await fetchDepartmentEmployeeData();
       if (currentDepartment && currentDepartment.Permissions) {
         setCanEdit(currentDepartment.Permissions.ManageDepartments);
         setCanManagePersons(currentDepartment.Permissions.ManagePersons);
@@ -198,6 +199,12 @@ const SelectedDepartment = ({navigation}) => {
         EndDate: "null",
         StartingDate: new Date(),
         id: newEmployeeRef.key,
+        Permissions: {
+          Admin:false,
+          ManageTasks: false,
+          ManagePersons: false,
+          ManageDepartments: false
+        },
       };
       await update(newEmployeeRef, newEmployeeData);
       setShowAddEmployeeModal(false);
@@ -266,30 +273,37 @@ const SelectedDepartment = ({navigation}) => {
                   {
                     isAdmin && !hasAdmin && (
                       <View>
-                         <View style={styles.checkboxContainer}>
-                          <CheckBox
-                            value={hasManageDepartments}
-                            onValueChange={setHasManageDepartments}
-                            disabled={!editMode}
-                          />
-                          <Text style={styles.checkboxLabel}>Departmanları Yönet</Text>
-                        </View>
-                        <View style={styles.checkboxContainer}>
-                          <CheckBox
-                            value={hasManagePersons}
-                            onValueChange={setHasManagePersons}
-                            disabled={!editMode}
-                          />
-                          <Text style={styles.checkboxLabel}>Kişileri Yönet</Text>
-                        </View>
-                        <View style={styles.checkboxContainer}>
-                          <CheckBox
-                            value={hasManageTasks}
-                            onValueChange={setHasManageTasks}
-                            disabled={!editMode}
-                          />
-                          <Text style={styles.checkboxLabel}>Görevleri Yönet</Text>
-                        </View>
+                        {parentDepartment.Permissions.ManageDepartments && (
+                          <View style={styles.checkboxContainer}>
+                            <CheckBox
+                              value={hasManageDepartments}
+                              onValueChange={setHasManageDepartments}
+                              disabled={!editMode}
+                            />
+                            <Text style={styles.checkboxLabel}>Departmanları Yönet</Text>
+                          </View>
+                        )}
+                         {parentDepartment.Permissions.ManagePersons && (
+                            <View style={styles.checkboxContainer}>
+                              <CheckBox
+                                value={hasManagePersons}
+                                onValueChange={setHasManagePersons}
+                                disabled={!editMode}
+                              />
+                              <Text style={styles.checkboxLabel}>Kişileri Yönet</Text>
+                            </View>
+                         )}
+                        {parentDepartment.Permissions.ManageTasks && (
+                          <View style={styles.checkboxContainer}>
+                            <CheckBox
+                              value={hasManageTasks}
+                              onValueChange={setHasManageTasks}
+                              disabled={!editMode}
+                            />
+                            <Text style={styles.checkboxLabel}>Görevleri Yönet</Text>
+                          </View>
+                        )}
+                        
                       </View>               
                     )
                   }                 

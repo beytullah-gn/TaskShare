@@ -18,6 +18,7 @@ import GysDöküman from "./src/screens/MyDocument";
 import EntryScreen from "./src/screens/EntryScreen";
 import EntryDocument from "./src/screens/entryMyDocument";
 import SelectedPerson from "./src/screens/selectedPersonScreen";
+import QRCodeScannerScreen from "./src/screens/qrScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -68,6 +69,7 @@ function App() {
     <NavigationContainer>
       {isLoggedIn ? (
         <Stack.Navigator>
+          <Stack.Screen name="QrScreen" component={QRCodeScannerScreen}/>
           <Stack.Screen name="MyProfile" component={MyProfile} options={{ headerShown: false }} />
           <Stack.Screen name="Departments" component={DepartmentScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="AddNewDepartment" component={AddNewDepartment} options={{title:"Yeni Departman Oluştur"}} />
