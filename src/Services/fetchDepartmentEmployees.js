@@ -51,15 +51,17 @@ export const fetchDepartmentEmployeeData = async () => {
                 }
               }
 
-              // Eğer hiç aktif departman yoksa
-              if (activeDepartments.length === 0) {
+              // Hata yakalama
+              if (activeDepartments.length > 1) {
+                throw new Error("Birden fazla aktif departman bulundu.");
+              } else if (activeDepartments.length === 0) {
+                //throw new Error("Aktif departman bulunamadı.");
                 return null;
+              } else {
+                return activeDepartments[0]; // Tek aktif olan departmanı döndür
               }
-
-              // Tüm aktif departmanları döndür
-              return activeDepartments;
             } else {
-              throw new Error("Departman çalışan bilgileri bulunamadı.");
+              throw new Error("Departman bilgileri bulunamadı.");
             }
           } else if (personData.AccountType === 'Client') {
             return 'Kişi bir çalışan değil.';

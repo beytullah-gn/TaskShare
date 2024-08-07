@@ -37,63 +37,49 @@ export const fetchCurrentDepartment = async () => {
           // AccountType'ı kontrol et
           if (personData.AccountType === 'Employee') {
             // DepartmentEmployees içindeki EmployeeId'yi kontrol et
-            const deptEmployeesRef = ref(db, 'DepartmentEmployees');
-            const deptEmployeesSnapshot = await get(deptEmployeesRef);
+            const deptRef = ref(db, 'DepartmentEmployees');
+            const deptSnapshot = await get(deptRef);
 
-            if (deptEmployeesSnapshot.exists()) {
-              const deptEmployeesData = deptEmployeesSnapshot.val();
-              let activeRoles = [];
+            if (deptSnapshot.exists()) {
+              const deptData = deptSnapshot.val();
+              let activeDepartments = [];
 
-              for (const key in deptEmployeesData) {
-                const employee = deptEmployeesData[key];
+              for (const key in deptData) {
+                const employee = deptData[key];
                 if (employee.EmployeeId === personData.PersonId && employee.Active === true) {
-                  activeRoles.push(employee.RoleID);
+                  activeDepartments.push(employee);
                 }
               }
 
-              if (activeRoles.length === 0) {
+              // Hata yakalama
+              if (activeDepartments.length > 1) {
+                throw new Error("Birden fazla aktif departman hatası.");
+              } else if (activeDepartments.length === 0) {
+                //throw new Error("Aktif departman yok.");;
                 return null;
-              }
+              } else {
+                const departmentId = activeDepartments[0].DepartmentId;
 
-              const rolesRef = ref(db, 'Roles');
-              const rolesSnapshot = await get(rolesRef);
+                // Departments bilgilerini al
+                const departmentsRef = ref(db, 'Departments');
+                const departmentsSnapshot = await get(departmentsRef);
 
-              if (!rolesSnapshot.exists()) {
-                throw new Error("Role bilgileri bulunamadı.");
-              }
+                if (departmentsSnapshot.exists()) {
+                  const departmentsData = departmentsSnapshot.val();
 
-              const rolesData = rolesSnapshot.val();
-              let departmentIds = [];
-
-              for (const roleId of activeRoles) {
-                for (const roleKey in rolesData) {
-                  if (rolesData[roleKey].RoleID === roleId) {
-                    departmentIds.push(rolesData[roleKey].DepartmentId);
+                  // Departments objesinde DepartmentId'ye sahip olanı bul
+                  for (const deptKey in departmentsData) {
+                    if (departmentsData[deptKey].DepartmentId === departmentId) {
+                      return departmentsData[deptKey]; // Eşleşen department verisini döndür
+                    }
                   }
+                  return null
+                  //throw new Error("Departman bulunamadı.");
+                } else {
+                  return null
+                  //throw new Error("Departman bilgileri bulunamadı.");
                 }
               }
-
-              if (departmentIds.length === 0) {
-                return null;
-              }
-
-              const departmentsRef = ref(db, 'Departments');
-              const departmentsSnapshot = await get(departmentsRef);
-
-              if (!departmentsSnapshot.exists()) {
-                throw new Error("Departman bilgileri bulunamadı.");
-              }
-
-              const departmentsData = departmentsSnapshot.val();
-              let departments = [];
-
-              for (const deptKey in departmentsData) {
-                if (departmentIds.includes(departmentsData[deptKey].DepartmentId)) {
-                  departments.push(departmentsData[deptKey]);
-                }
-              }
-
-              return departments.length > 0 ? departments : null;
             } else {
               throw new Error("Departman çalışan bilgileri bulunamadı.");
             }

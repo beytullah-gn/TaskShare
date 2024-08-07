@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { db } from '../Services/firebase-config';
 import { update,ref} from 'firebase/database';
+import fetchAllDepartmentEmployees from '../Services/fetchAllDepartmentEmployees';
+import { fetchDepartmentEmployeeData } from '../Services/fetchDepartmentEmployees';
+
 
 const SelectedPerson = ({ route }) => {
     const { person } = route.params;
