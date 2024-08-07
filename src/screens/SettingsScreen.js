@@ -16,6 +16,9 @@ const SettingsScreen = ({ navigation }) => {
   const handleProfile = () => {
     navigation.navigate('MyProfile');
   };
+  const handleQrScreen = () => {
+    navigation.navigate('QrScreen');
+  };
 
   const handleRemoveToken = async () => {
     await removeToken();
@@ -30,6 +33,7 @@ const SettingsScreen = ({ navigation }) => {
         onProfile={handleProfile}
         onDepartments={handleDepartments}
         onPersons={handlePersons}
+        onQrScreen={handleQrScreen}
       />
     </SafeAreaView>
   );

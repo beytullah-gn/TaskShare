@@ -92,6 +92,9 @@ const PersonsScreen = ({ navigation }) => {
     const handlePerson = (person) => {
         navigation.navigate("SelectedPerson", { person });
     };
+    const handleQrScreen = (person) => {
+        navigation.navigate("QrScreen");
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -122,6 +125,7 @@ const PersonsScreen = ({ navigation }) => {
                 onProfile={handleProfile}
                 onDepartments={handleDepartments}
                 onSettings={handleSettings}
+                onQrScreen={handleQrScreen}
             />
         </SafeAreaView>
     );
@@ -130,7 +134,7 @@ const PersonsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#ADD8E6',
     },
     content: {
         flex: 1,

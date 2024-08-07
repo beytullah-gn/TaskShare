@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Or another icon librar
 
 const { height } = Dimensions.get('window');
 
-const BottomBar = ({ onProfile, onDepartments, onPersons, onSettings }) => {
+const BottomBar = ({ onProfile, onDepartments, onPersons,onQrScreen, onSettings }) => {
   return (
     <View style={styles.bottomBar}>
       <TouchableOpacity style={styles.button} onPress={onProfile}>
@@ -14,6 +14,10 @@ const BottomBar = ({ onProfile, onDepartments, onPersons, onSettings }) => {
       <TouchableOpacity style={styles.button} onPress={onDepartments}>
         <Icon name="layers-outline" size={24} color="#fff" />
         <Text style={styles.buttonText}>Departmanlar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={onQrScreen}>
+        <Icon name="scan" size={24} color="#fff" />
+        <Text style={styles.buttonText}>Tara</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={onPersons}>
         <Icon name="people-outline" size={24} color="#fff" />

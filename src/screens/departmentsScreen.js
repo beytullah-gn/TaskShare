@@ -76,6 +76,10 @@ const DepartmentScreen = ({ navigation }) => {
   const handleSettings = () => {
     navigation.navigate('Settings');
   };
+  const handleQrScreen = () => {
+    navigation.navigate('QrScreen');
+  };
+  
 
   useEffect(() => {
     if (searchTerm) {
@@ -130,16 +134,18 @@ const DepartmentScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Departman Ara..."
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-        />
-        <TouchableOpacity style={styles.clearButton} onPress={() => setSearchTerm('')}>
-          <Text style={styles.clearButtonText}>Temizle</Text>
-        </TouchableOpacity>
+      <View style={styles.headerContainer}>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Departman Ara..."
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+          />
+          <TouchableOpacity style={styles.clearButton} onPress={() => setSearchTerm('')}>
+            <Text style={styles.clearButtonText}>Temizle</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <ScrollView style={styles.scrollView}>
         {isLoading ? (
@@ -159,7 +165,7 @@ const DepartmentScreen = ({ navigation }) => {
         </View>
       )}
       <View style={styles.bottomBarContainer}>
-        <BottomBar onProfile={handleProfile} onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} />
+        <BottomBar onQrScreen={handleQrScreen} onProfile={handleProfile} onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} />
       </View>
     </SafeAreaView>
   );
@@ -168,12 +174,17 @@ const DepartmentScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#f4f6f9' 
+    backgroundColor: '#ADD8E6' 
+  },
+  headerContainer: {
+    backgroundColor: '#003366', // Dark blue color for the header
+    paddingVertical: 16,
+    paddingHorizontal: 16,
   },
   searchContainer: {
     flexDirection: 'row',
-    marginBottom: 16,
+    borderRadius: 5,
+    padding: 8,
     alignItems: 'center',
   },
   searchInput: {
@@ -184,10 +195,10 @@ const styles = StyleSheet.create({
     marginRight: 8,
     borderRadius: 5,
     backgroundColor: '#ffffff',
-    color: '#003366', 
+    color: '#003366', // Text color
   },
   clearButton: {
-    backgroundColor: '#003366', 
+    backgroundColor: '#007bff', // Dark blue color for the clear button
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 5,
@@ -214,7 +225,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 60,
-    
   },
   bottomButton: {
     width: '80%',
@@ -224,7 +234,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     marginTop: 3,
-    marginBottom:10
+    marginBottom: 10,
   },
   bottomText: {
     fontWeight: 'bold',

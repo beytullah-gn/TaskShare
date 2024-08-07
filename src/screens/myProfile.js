@@ -80,6 +80,9 @@ const MyProfile = ({ navigation }) => {
   const handlePersons = () => {
     navigation.navigate('Persons');
   };
+  const handleQrScreen = () => {
+    navigation.navigate('QrScreen');
+  };
 
   const handleSettings = () => {
     navigation.navigate('Settings');
@@ -168,7 +171,7 @@ const MyProfile = ({ navigation }) => {
       </ScrollView>
 
       <View style={styles.bottomBarContainer}>
-        <BottomBar onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} />
+        <BottomBar onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} onQrScreen={handleQrScreen} />
       </View>
     </SafeAreaView>
   );

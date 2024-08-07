@@ -406,7 +406,7 @@ const SelectedDepartment = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f4f6f9',
+    backgroundColor: '#ADD8E6',
     padding: 10,
   },
   content: {

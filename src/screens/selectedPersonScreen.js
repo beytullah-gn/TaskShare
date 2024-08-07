@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         padding: 20,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#ADD8E6',
     },
     card: {
         padding: 20,
