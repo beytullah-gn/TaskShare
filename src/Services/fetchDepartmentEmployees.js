@@ -64,7 +64,7 @@ export const fetchDepartmentEmployeeData = async () => {
               throw new Error("Departman bilgileri bulunamadı.");
             }
           } else if (personData.AccountType === 'Client') {
-            return 'Kişi bir çalışan değil.';
+            return null;
           } else {
             throw new Error("Bilinmeyen hesap türü.");
           }

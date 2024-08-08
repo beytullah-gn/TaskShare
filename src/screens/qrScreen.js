@@ -125,10 +125,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ffffff', // Beyaz arka plan
+    backgroundColor: '#ADD8E6', // Beyaz arka plan
   },
   openButton: {
-    backgroundColor: '#4CAF50', // Yeşil arka plan
+    backgroundColor: '#003366', // Yeşil arka plan
     padding: 15,
     borderRadius: 30,
     shadowColor: '#000',

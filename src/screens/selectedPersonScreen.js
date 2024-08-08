@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Image } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
-import { db } from '../Services/firebase-config';
+import { Picker } from '@react-native-picker/picker';
+import { db,storage } from '../Services/firebase-config';
 import { update, ref } from 'firebase/database';
 import { fetchDepartmentEmployeeData } from '../Services/fetchDepartmentEmployees';
 import { fetchDepartmentEmployeeDataByPersonId } from '../Services/fetchDepartmentEmployeesById';
 import fetchAllDepartments from '../Services/fetchAllDepartments';
+import { ref as sref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
 
 const SelectedPerson = ({ route }) => {
     const { person } = route.params;
@@ -16,13 +19,13 @@ const SelectedPerson = ({ route }) => {
     const [selectedDepartmentEmployee, setSelectedDepartmentEmployee] = useState(null);
     const [selectedDepartment, setSelectedDepartment] = useState(null);
     const [currentDepartmentEmployee, setCurrentDepartmentEmployee] = useState(null);
-
     const [permissions, setPermissions] = useState({
         Admin: false,
         ManageDepartments: false,
         ManagePersons: false,
         ManageTasks: false,
     });
+    const [image, setImage] = useState(null);
 
     const fetchData = async () => {
         const selectedDepartmentEmployee = await fetchDepartmentEmployeeDataByPersonId(person.PersonId);
@@ -49,15 +52,27 @@ const SelectedPerson = ({ route }) => {
         fetchData();
     }, [person]);
 
-    const handleEditToggle = async () => {
+const handleEditToggle = async () => {
         if (isEditing) {
             // Save changes to Firebase
             try {
-                await update(ref(db, 'Persons/' + person.PersonId), {
-                    ...personData
-                });
+                let updatedPersonData = { ...personData };
+
+                // Upload new profile picture if selected
+                if (image) {
+                    const imageName = `${person.PersonId}`;
+                    const storageRef = sref(storage, `ProfilePictures/${imageName}`);
+                    const img = await fetch(image);
+                    const bytes = await img.blob();
+                    await uploadBytes(storageRef, bytes);
+                    const imageUrl = await getDownloadURL(storageRef);
+                    updatedPersonData.ProfilePictureUrl = imageUrl;
+                }
+
+                await update(ref(db, 'Persons/' + person.PersonId), updatedPersonData);
                 Alert.alert("Başarılı", "Veriler başarıyla güncellendi.");
-                setOriginalData({ ...personData });
+                setOriginalData({ ...updatedPersonData });
+                setImage(null); // Clear selected image after upload
             } catch (error) {
                 Alert.alert("Hata", "Veriler güncellenirken bir hata oluştu: " + error.message);
             }
@@ -91,9 +106,54 @@ const SelectedPerson = ({ route }) => {
         }
     };
 
+    const pickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            alert("Kamera veya galeriye erişim izni gerekli!");
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.card}>
+                {/* Display the profile picture */}
+                <View style={styles.profilePictureContainer}>
+                    {personData.ProfilePictureUrl ? (
+                    <Image 
+                        source={{ uri: personData.ProfilePictureUrl }} 
+                        style={styles.profilePicture} 
+                    />
+                ) : 
+                    <Image 
+                        source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/taskshare-648cf.appspot.com/o/ProfilePictures%2Fprofilephoto.png?alt=media&token=731cf747-ca06-43d3-8a54-2655b2f8ee3c' }} 
+                        style={styles.profilePicture} 
+                    />
+                }
+                </View>
+                {isEditing && (
+                    <View style={styles.imagePickerContainer}>
+                        <Button title="Fotoğraf Seç" onPress={pickImage} color="#003366" />
+                        {image && (
+                            <View style={styles.imageContainer}>
+                                <Text style={styles.imageLabel}>Seçilen fotoğraf:</Text>
+                                <Image source={{ uri: image }} style={styles.image} />
+                            </View>
+                        )}
+                    </View>
+                )}
                 {isEditing ? (
                     <View>
                         <TextInput
@@ -108,12 +168,14 @@ const SelectedPerson = ({ route }) => {
                             onChangeText={(text) => handleInputChange('Surname', text)}
                             placeholder="Surname"
                         />
-                        <TextInput
-                            style={styles.input}
-                            value={personData.AccountType}
-                            onChangeText={(text) => handleInputChange('AccountType', text)}
-                            placeholder="Account Type"
-                        />
+                        <Picker
+                            selectedValue={personData.AccountType}
+                            style={styles.picker}
+                            onValueChange={(itemValue) => handleInputChange('AccountType', itemValue)}
+                        >
+                            <Picker.Item label="Çalışan" value="Employee" />
+                            <Picker.Item label="Müşteri" value="Client" />
+                        </Picker>
                         <TextInput
                             style={styles.input}
                             value={personData.Address}
@@ -148,12 +210,12 @@ const SelectedPerson = ({ route }) => {
                 ) : (
                     <View>
                         <Text style={styles.title}>{personData.Name} {personData.Surname}</Text>
-                        <Text style={styles.detail}>Account Type: {personData.AccountType}</Text>
-                        <Text style={styles.detail}>Address: {personData.Address}</Text>
-                        <Text style={styles.detail}>Birth Place: {personData.BirthPlace}</Text>
-                        <Text style={styles.detail}>Birthday: {personData.Birthday}</Text>
-                        <Text style={styles.detail}>Phone Number: {personData.PhoneNumber}</Text>
-                        <Text style={styles.detail}>Tc Number: {personData.TcNumber}</Text>
+                        <Text style={styles.detail}>Hesap Türü: {personData.AccountType === 'Employee' ? 'Çalışan' : 'Müşteri'}</Text>
+                        <Text style={styles.detail}>Adresi: {personData.Address}</Text>
+                        <Text style={styles.detail}>Doğum Yeri: {personData.BirthPlace}</Text>
+                        <Text style={styles.detail}>Doğum Günü: {personData.Birthday}</Text>
+                        <Text style={styles.detail}>Telefon Numarası: {personData.PhoneNumber}</Text>
+                        <Text style={styles.detail}>Tc Numarası: {personData.TcNumber}</Text>
                     </View>
                 )}
                 <View style={styles.buttonContainer}>
@@ -177,7 +239,7 @@ const SelectedPerson = ({ route }) => {
                 <View style={styles.card}>
                     <Text style={styles.title}>Selected Department</Text>
                     <Text style={styles.detail}>Department: {selectedDepartment?.Name}</Text>
-                    <Text style={styles.detail}>Role: {selectedDepartmentEmployee.Role}</Text>
+                    <Text style={styles.detail}>Role: {selectedDepartmentEmployee}</Text>
 
                     {selectedDepartment?.Permissions?.Admin && (
                         <View style={styles.checkboxContainer}>
@@ -241,6 +303,34 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         elevation: 5,
     },
+    profilePictureContainer: {
+        alignItems: 'center',
+        marginBottom: 15,
+    },
+    profilePicture: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
+    imagePickerContainer: {
+        alignItems: 'center',
+        marginBottom: 15,
+    },
+    imageContainer: {
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    imageLabel: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#003366',
+    },
+    image: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
@@ -256,6 +346,14 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginBottom: 10,
         paddingHorizontal: 10,
+        borderRadius: 5,
+        backgroundColor: '#fff',
+    },
+    picker: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        marginBottom: 10,
         borderRadius: 5,
         backgroundColor: '#fff',
     },

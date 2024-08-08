@@ -116,7 +116,10 @@ const PersonsScreen = ({ navigation }) => {
                             />
                         ))
                     ) : (
-                        <Text>Kişi bulunamadı</Text>
+                        <View style={{justifyContent:'center',alignItems:'center',paddingVertical:20}}>
+                            <Text style={styles.errorText}>Kişi bulunamadı</Text>
+                        </View>
+                        
                     )}
                 </ScrollView>
             </View>
@@ -143,6 +146,14 @@ const styles = StyleSheet.create({
     highlight: {
         backgroundColor: 'yellow',
     },
+    errorText: {
+        color: '#000',
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginTop: 20,
+        marginBottom: 20,
+      },
 });
 
 export default PersonsScreen;

@@ -41,7 +41,7 @@ export default function SettingsScreen() {
       quality: 1,
     });
 
-    if (!result.cancelled) {
+    if (!result.canceled) {
       setImage(result.assets[0].uri);
       uploadImageToStorage(result.assets[0].uri);
     }

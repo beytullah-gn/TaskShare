@@ -14,7 +14,7 @@ import PersonsScreen from "./src/screens/PersonsScreen";
 import SelectedDepartment from "./src/screens/SelectedDepartment";
 import SettingsScreen from "./src/screens/SettingsScreen";
 import AddNewPersonScreen from "./src/screens/AddNewPerson";
-import GysDöküman from "./src/screens/MyDocument";
+import MyDocument from "./src/screens/MyDocument";
 import EntryScreen from "./src/screens/EntryScreen";
 import EntryDocument from "./src/screens/entryMyDocument";
 import SelectedPerson from "./src/screens/selectedPersonScreen";
@@ -76,7 +76,7 @@ function App() {
           <Stack.Screen name="SelectedDepartment" component={SelectedDepartment} options={{title:'Seçili Departman',headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366'}} />
           <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false,navigationBarColor:'#003366',statusBarColor:'#003366' }} />
           <Stack.Screen name="AddPerson" component={AddNewPersonScreen} options={{ title:"Yeni Kişi Ekle",headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366' }} />
-          <Stack.Screen name="MyDocument" component={GysDöküman} options={{title:"Görev Dökümantasyonu", headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366' }} />
+          <Stack.Screen name="MyDocument" component={MyDocument} options={{title:"Görev Dökümantasyonu", headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366' }} />
           <Stack.Screen
               name="SelectedPerson"
               component={SelectedPerson}

@@ -3,12 +3,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Pdf from "react-native-pdf";
 import { StyleSheet, View, Text } from "react-native";
 
-const GysDöküman = ({ route }) => {
+const MyDocument = ({ route }) => {
   const [pdfUrl, setPdfUrl] = useState(null);
 
   useEffect(() => {
     if (route.params && route.params.pdfUrl) {
-      // URL'yi kontrol et ve set et
       console.log("PDF URL:", route.params.pdfUrl);
       setPdfUrl(route.params.pdfUrl);
     }
@@ -17,12 +16,12 @@ const GysDöküman = ({ route }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        {pdfUrl ? (
+        {pdfUrl && !pdfUrl==='null' ?  (
           <Pdf
             trustAllCerts={false}
             source={{
               uri: pdfUrl,
-              cache: false,  // Cache'i kapalı yapmayı deneyin
+              cache: false, 
             }}
             onLoadComplete={(numberOfPages, filePath) => {
               console.log(`Number of pages: ${numberOfPages}`);
@@ -48,7 +47,7 @@ const GysDöküman = ({ route }) => {
   );
 };
 
-export default GysDöküman;
+export default MyDocument;
 
 const styles = StyleSheet.create({
   container: {

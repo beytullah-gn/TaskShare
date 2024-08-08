@@ -116,7 +116,7 @@ const MyProfile = ({ navigation }) => {
           <>
             {userInfo ? (
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>Kişi Bilgileri</Text>
+                <Text style={styles.cardTitle}>Bilgilerim</Text>
                 <Text><Text style={styles.boldText}>Adı: </Text>{userInfo.Name}</Text>
                 <Text><Text style={styles.boldText}>Soyadı: </Text>{userInfo.Surname}</Text>
                 <Text><Text style={styles.boldText}>TC: </Text>{userInfo.TcNumber}</Text>
@@ -130,7 +130,7 @@ const MyProfile = ({ navigation }) => {
             )}
             {userDepartment && userCurrentDepartment ? (
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>Mevcut Departman ve Bilgileri</Text>
+                <Text style={styles.cardTitle}>Mevcut Departman Bilgilerim</Text>
                 <Text><Text style={styles.boldText}>Departman Adı: </Text>{userCurrentDepartment.DepartmentName}</Text>
                 <Text><Text style={styles.boldText}>Departman Açıklaması: </Text>{userCurrentDepartment.DepartmentDescription}</Text>
                 <Text><Text style={styles.boldText}>Başlama Tarihi: </Text>{formatDateString(userDepartment.StartingDate)}</Text>
@@ -162,7 +162,7 @@ const MyProfile = ({ navigation }) => {
             ) : null}
             {responsibleDepartments.length > 0 && (
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>Sorumlu Olduğu Departmanlar</Text>
+                <Text style={styles.cardTitle}>Sorumlu Olduğum Departmanlar</Text>
                 {renderDepartments(allDepartments, userDepartment?.DepartmentId)}
               </View>
             )}

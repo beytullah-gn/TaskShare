@@ -17,7 +17,7 @@ const EntryDocument = ({ route }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        {pdfUrl ? (
+        {pdfUrl && !pdfUrl==='null' ? (
           <Pdf
             trustAllCerts={false}
             source={{
