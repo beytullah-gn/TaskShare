@@ -29,13 +29,13 @@ const styles = StyleSheet.create({
     toggleButton: {
         flex: 1,
         padding: 10,
-        backgroundColor: '#d9d9d9',
+        backgroundColor: '#8b9dc3',
         alignItems: 'center',
         borderRadius: 20,
         marginHorizontal: 5,
     },
     activeButton: {
-        backgroundColor: '#0055a5',
+        backgroundColor: '#1d3469',
     },
     toggleButtonText: {
         color: '#fff',

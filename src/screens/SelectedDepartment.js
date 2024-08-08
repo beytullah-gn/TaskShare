@@ -310,7 +310,7 @@ const SelectedDepartment = ({navigation}) => {
                   <Button 
                     title={isSaving ? "Kaydediliyor..." : "Kaydet"} 
                     onPress={handleSave} 
-                    color="#003366" 
+                    color="#3b5998" 
                     disabled={isSaving}
                   />
                 </>
@@ -391,7 +391,7 @@ const SelectedDepartment = ({navigation}) => {
                     <Text style={styles.text}>Uygun çalışan bulunamadı</Text>
                   )}
                 </ScrollView>
-                <Button title="Kapat" onPress={() => setShowAddEmployeeModal(false)} color="#003366" />
+                <Button title="Kapat" onPress={() => setShowAddEmployeeModal(false)} color="#3b5998" />
               </View>
             </View>
           </Modal>
@@ -406,7 +406,7 @@ const SelectedDepartment = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ADD8E6',
+    backgroundColor: '#dfe3ee',
     padding: 10,
   },
   content: {
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#003366',
+    color: '#3b5998',
     marginBottom: 8,
   },
   cardContent: {
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#003366',
+    color: '#3b5998',
   },
   text: {
     fontSize: 16,
@@ -494,11 +494,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#003366',
+    color: '#3b5998',
     marginBottom: 12,
   },
   addButton: {
-    backgroundColor: '#003366',
+    backgroundColor: '#3b5998',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   editButton: {
-    backgroundColor: '#003366',
+    backgroundColor: '#3b5998',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
   },
   selectedPdfText: {
     fontSize: 16,
-    color: '#003366',
+    color: '#3b5998',
     marginVertical: 10,
   },
   showButton:{

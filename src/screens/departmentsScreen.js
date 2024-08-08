@@ -174,11 +174,11 @@ const DepartmentScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ADD8E6',
+    backgroundColor: '#dfe3ee',
     paddingBottom: 80, // Alt kısımda boşluk bırakarak içeriğin bottom bar ile çakışmasını engelleyin
   },
   headerContainer: {
-    backgroundColor: '#003366',
+    backgroundColor: '#3b5998',
     paddingVertical: 16,
     paddingHorizontal: 16,
   },
@@ -196,10 +196,10 @@ const styles = StyleSheet.create({
     marginRight: 8,
     borderRadius: 5,
     backgroundColor: '#ffffff',
-    color: '#003366',
+    color: '#3b5998',
   },
   clearButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#8b9dc3',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 5,
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   bottomButton: {
     width: '80%',
-    backgroundColor: '#007bff',
+    backgroundColor: '#3b5998',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,

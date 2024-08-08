@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 10,
-        backgroundColor: '#003366',
+        backgroundColor: '#3b5998',
     },
     searchInput: {
         flex: 1,
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     searchButton: {
-        backgroundColor: '#0055a5',
+        backgroundColor: '#1d3469',
         borderRadius: 20,
         padding: 10,
     },

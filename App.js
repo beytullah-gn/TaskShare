@@ -69,30 +69,30 @@ function App() {
     <NavigationContainer>
       {isLoggedIn ? (
         <Stack.Navigator>
-          <Stack.Screen name="MyProfile" component={MyProfile} options={{ headerShown: false ,navigationBarColor:'#003366',statusBarColor:'#003366'}} />
-          <Stack.Screen name="Departments" component={DepartmentScreen} options={{ headerShown: false ,navigationBarColor:'#003366',statusBarColor:'#003366'}}/>
-          <Stack.Screen name="AddNewDepartment" component={AddNewDepartment} options={{title:"Yeni Departman Oluştur",headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366'}} />
-          <Stack.Screen name="Persons" component={PersonsScreen} options={{ headerShown: false ,navigationBarColor:'#003366',statusBarColor:'#003366' }}/>
-          <Stack.Screen name="SelectedDepartment" component={SelectedDepartment} options={{title:'Seçili Departman',headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366'}} />
-          <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false,navigationBarColor:'#003366',statusBarColor:'#003366' }} />
-          <Stack.Screen name="AddPerson" component={AddNewPersonScreen} options={{ title:"Yeni Kişi Ekle",headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366' }} />
-          <Stack.Screen name="MyDocument" component={MyDocument} options={{title:"Görev Dökümantasyonu", headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366' }} />
+          <Stack.Screen name="MyProfile" component={MyProfile} options={{ headerShown: false ,navigationBarColor:'#3b5998',statusBarColor:'#3b5998'}} />
+          <Stack.Screen name="Departments" component={DepartmentScreen} options={{ headerShown: false ,navigationBarColor:'#3b5998',statusBarColor:'#3b5998'}}/>
+          <Stack.Screen name="AddNewDepartment" component={AddNewDepartment} options={{title:"Yeni Departman Oluştur",headerStyle:{backgroundColor:'#3b5998'},headerTintColor:'#fff',navigationBarColor:'#3b5998',statusBarColor:'#3b5998'}} />
+          <Stack.Screen name="Persons" component={PersonsScreen} options={{ headerShown: false ,navigationBarColor:'#3b5998',statusBarColor:'#3b5998' }}/>
+          <Stack.Screen name="SelectedDepartment" component={SelectedDepartment} options={{title:'Seçili Departman',headerStyle:{backgroundColor:'#3b5998'},headerTintColor:'#fff',navigationBarColor:'#3b5998',statusBarColor:'#3b5998'}} />
+          <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false,navigationBarColor:'#3b5998',statusBarColor:'#3b5998' }} />
+          <Stack.Screen name="AddPerson" component={AddNewPersonScreen} options={{ title:"Yeni Kişi Ekle",headerStyle:{backgroundColor:'#3b5998'},headerTintColor:'#fff',navigationBarColor:'#3b5998',statusBarColor:'#3b5998' }} />
+          <Stack.Screen name="MyDocument" component={MyDocument} options={{title:"Görev Dökümantasyonu", headerStyle:{backgroundColor:'#3b5998'},headerTintColor:'#fff',navigationBarColor:'#3b5998',statusBarColor:'#3b5998' }} />
           <Stack.Screen
               name="SelectedPerson"
               component={SelectedPerson}
               options={({ route }) => ({
                   title: route.params.person.Name+" "+route.params.person.Surname,
-                  headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366'
+                  headerStyle:{backgroundColor:'#3b5998'},headerTintColor:'#fff',navigationBarColor:'#3b5998',statusBarColor:'#3b5998'
               })}
           />
-          <Stack.Screen name="QrScreen" component={QRCodeScannerScreen} options={{title:"Yeni Departman Oluştur",headerShown: false,navigationBarColor:'#003366',statusBarColor:'#003366'}} />
+          <Stack.Screen name="QrScreen" component={QRCodeScannerScreen} options={{title:"Yeni Departman Oluştur",headerShown: false,navigationBarColor:'#3b5998',statusBarColor:'#3b5998'}} />
 
         </Stack.Navigator>
       ) : (
         <AuthStack.Navigator>
-          <AuthStack.Screen name="EntryScreen" component={EntryScreen} options={{ headerShown: false ,navigationBarColor:'#003366',statusBarColor:'#003366'}} />
-          <AuthStack.Screen name="LoginScreen" component={LoginScreen} options={{title:"Giriş Ekranı",headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366'}}/>  
-          <AuthStack.Screen name="EntryDocument" component={EntryDocument}  options={{title:"Dökümantasyon",headerStyle:{backgroundColor:'#003366'},headerTintColor:'#fff',navigationBarColor:'#003366',statusBarColor:'#003366'}}/>  
+          <AuthStack.Screen name="EntryScreen" component={EntryScreen} options={{ headerShown: false ,navigationBarColor:'#3b5998',statusBarColor:'#3b5998'}} />
+          <AuthStack.Screen name="LoginScreen" component={LoginScreen} options={{title:"Giriş Ekranı",headerStyle:{backgroundColor:'#3b5998'},headerTintColor:'#fff',navigationBarColor:'#3b5998',statusBarColor:'#3b5998'}}/>  
+          <AuthStack.Screen name="EntryDocument" component={EntryDocument}  options={{title:"Dökümantasyon",headerStyle:{backgroundColor:'#3b5998'},headerTintColor:'#fff',navigationBarColor:'#3b5998',statusBarColor:'#3b5998'}}/>  
         </AuthStack.Navigator>
       )}
     </NavigationContainer>

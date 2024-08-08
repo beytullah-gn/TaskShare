@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
       fontSize: 24,
       fontWeight: 'bold',
       marginBottom: 20,
-      color: '#003366',
+      color: '#3b5998',
       textAlign: 'center',
     },
     inputContainer: {
@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     },
     input: {
       height: 50,
-      borderColor: '#003366',
+      borderColor: '#3b5998',
       borderWidth: 1,
       borderRadius: 8,
       paddingHorizontal: 16,
@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
       marginBottom: 20,
     },
     button: {
-      backgroundColor: '#003366',
+      backgroundColor: '#3b5998',
       borderRadius: 8,
       paddingVertical: 12,
       paddingHorizontal: 20,
@@ -112,7 +112,7 @@ export const styles = StyleSheet.create({
     },
     departmentText: {
       fontSize: 16,
-      color: '#003366',
+      color: '#3b5998',
     },
     modalContainer: {
       flex: 1,
@@ -131,11 +131,11 @@ export const styles = StyleSheet.create({
       fontSize: 22,
       fontWeight: 'bold',
       marginBottom: 10,
-      color: '#003366',
+      color: '#3b5998',
     },
     loadingText: {
       fontSize: 16,
-      color: '#003366',
+      color: '#3b5998',
       textAlign: 'center',
     },
     closeButton: {
@@ -157,7 +157,7 @@ export const styles = StyleSheet.create({
     selectedDepartmentText: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: '#003366',
+      color: '#3b5998',
       marginTop: 20,
       textAlign: 'center',
     },

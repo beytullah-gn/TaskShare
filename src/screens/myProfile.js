@@ -16,7 +16,7 @@ const formatDateString = (dateString) => {
 
 // Function to get color based on index
 const getColorForIndex = (index) => {
-  return index % 2 === 0 ? '#f0f0f0' : '#ffffff';
+  return index % 2 === 0 ? '#f7f7f7' : '#ffffff';
 };
 
 const renderDepartments = (departments, parentId, index = 0) => {
@@ -164,7 +164,7 @@ const MyProfile = ({ navigation }) => {
                       key={index}
                       style={[
                         styles.oldDepartmentItem,
-                        { backgroundColor: index % 2 === 0 ? '#f0f0f0' : '#ffffff' }
+                        { backgroundColor: index % 2 === 0 ? '##f7f7f7' : '#ffffff' }
                       ]}
                     >
                       <Text><Text style={styles.boldText}>Departman Adı: </Text>{department ? department.DepartmentName : 'Bilinmiyor'}</Text>
@@ -195,11 +195,11 @@ const MyProfile = ({ navigation }) => {
 const styles = StyleSheet.create({
   topView: {
     flex: 1,
-    backgroundColor: '#ADD8E6'
+    backgroundColor: '#dfe3ee'
   },
   header: {
     paddingTop: 30,
-    backgroundColor: '#003366',
+    backgroundColor: '#3b5998',
     paddingVertical: 15,
     alignItems: 'center',
     justifyContent: 'center',
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   card: {
     width: '90%',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#f7f7f7',
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#003366',
+    color: '#3b5998',
   },
   responsibleDepartmentItem: {
     width: 300,
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   boldText: {
-    color: '#003366',
+    color: '#3b5998',
     fontWeight: 'bold',
   },
   profilePictureContainer: {
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginRight: 15,
     borderWidth: 1, 
-    borderColor: '#003366',
+    borderColor: '#3b5998',
     backgroundColor:'#fff',
     marginTop:10,
   },

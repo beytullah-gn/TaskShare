@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: height * 0.1, // Screen height percentage
-    backgroundColor: '#003366', // Dark blue for a professional look
+    backgroundColor: '#3b5998', // Dark blue for a professional look
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: height * 0.1, // Above the bottom bar
     right: 0,
-    backgroundColor: '#003366',
+    backgroundColor: '#3b5998',
     padding: 10,
     borderRadius: 10,
     elevation: 5,

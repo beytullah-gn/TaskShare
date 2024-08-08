@@ -98,7 +98,7 @@ const PersonsScreen = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{backgroundColor:"#003366",paddingTop:20}} />
+            <View style={{backgroundColor:"#3b5998",paddingTop:20}} />
             <PersonSearchInput searchTerm={searchTerm} onSearch={handleSearch} />
             <PersonToggleButton selectedType={selectedType} onSelectType={setSelectedType} />
             <View style={styles.content}>
@@ -137,11 +137,12 @@ const PersonsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#ADD8E6',
+        backgroundColor: '#dfe3ee',
     },
     content: {
         flex: 1,
         padding: 10,
+        paddingBottom: 80,
     },
     highlight: {
         backgroundColor: 'yellow',

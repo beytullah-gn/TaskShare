@@ -206,7 +206,7 @@ const AddNewPersonScreen = () => {
             keyboardType="number-pad"
           />
           <View style={styles.imagePickerContainer}>
-            <Button title="Fotoğraf Seç" onPress={pickImage} color="#003366" />
+            <Button title="Fotoğraf Seç" onPress={pickImage} color="#3b5998" />
             {image && (
               <View style={styles.imageContainer}>
                 <Text style={styles.imageLabel}>Seçilen fotoğraf:</Text>
@@ -218,7 +218,7 @@ const AddNewPersonScreen = () => {
             <Button 
               title="Ekle" 
               onPress={handleAddPerson} 
-              color="#003366" 
+              color="#3b5998" 
               disabled={isButtonDisabled} 
             />
           </View>
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#003366',
+    color: '#3b5998',
     marginBottom: 20,
   },
   input: {
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#003366',
+    color: '#3b5998',
   },
   image: {
     width: 200,

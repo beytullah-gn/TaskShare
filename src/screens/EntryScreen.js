@@ -77,10 +77,10 @@ const EntryScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f2f2', // Açık gri arka plan
+    backgroundColor: '#dfe3ee', // Açık gri arka plan
   },
   header: {
-    backgroundColor: '#003366', // Koyu mavi
+    backgroundColor: '#3b5998', // Koyu mavi
   },
   headerTitle: {
     color: '#ffffff', // Beyaz yazı rengi
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     marginRight: 10,
-    backgroundColor: '#0066cc', // Parlak mavi
+    backgroundColor: '#8b9dc3', // Parlak mavi
   },
   loginText: {
     color: '#ffffff', // Beyaz yazı rengi
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    color: '#003366', // Koyu mavi
+    color: '#3b5998', // Koyu mavi
   },
 });
 

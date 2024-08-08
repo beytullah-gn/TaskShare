@@ -95,6 +95,7 @@ const QRCodeScannerScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.openButton} onPress={handleButtonPress}>
           <Text style={styles.openButtonText}>Kamerayı Aç</Text>
         </TouchableOpacity>
+        
       ) : (
         <>
           <TouchableOpacity style={styles.closeButton} onPress={handleCloseCamera}>
@@ -130,10 +131,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ADD8E6', // Beyaz arka plan
+    backgroundColor: '#dfe3ee', // Beyaz arka plan
   },
   openButton: {
-    backgroundColor: '#003366', // Yeşil arka plan
+    backgroundColor: '#3b5998', // Yeşil arka plan
     padding: 15,
     borderRadius: 30,
     shadowColor: '#000',

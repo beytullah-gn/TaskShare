@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: 25,
-    backgroundColor:'#ADD8E6'
+    backgroundColor:'#dfe3ee'
   },
   pdf: {
     flex: 1,

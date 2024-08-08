@@ -12,7 +12,7 @@ const PersonAddButton = ({onAdd}) => {
 
 const styles = StyleSheet.create({
     addButton: {
-        backgroundColor: '#0055a5',
+        backgroundColor: '#1d3469',
         width: 60,
         height: 60,
         borderRadius: 30,

@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
+import QRCode from "react-qr-code";
 
 const PersonCard = ({ person, searchTerm, highlightText, onPerson }) => {
     return (
@@ -29,13 +30,19 @@ const PersonCard = ({ person, searchTerm, highlightText, onPerson }) => {
                 color="#0055a5"
                 style={styles.icon}
             />
+            <QRCode
+                size={100}
+                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                value={person.PersonId}
+                viewBox={`0 0 256 256`}
+            />
         </TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
     personCard: {
-        backgroundColor: '#fff',
+        backgroundColor: '#ffffff',
         padding: 15,
         borderRadius: 10,
         marginBottom: 10,
@@ -51,7 +58,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         marginRight: 15,
         borderWidth: 1, 
-        borderColor: '#003366',
+        borderColor: '#3b5998',
     },
     profilePicture: {
         width: '100%',
@@ -63,7 +70,7 @@ const styles = StyleSheet.create({
     personName: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#003366',
+        color: '#3b5998',
     },
     highlight: {
         backgroundColor: 'yellow',

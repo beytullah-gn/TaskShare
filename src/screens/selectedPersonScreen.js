@@ -145,7 +145,7 @@ const handleEditToggle = async () => {
                 </View>
                 {isEditing && (
                     <View style={styles.imagePickerContainer}>
-                        <Button title="Fotoğraf Seç" onPress={pickImage} color="#003366" />
+                        <Button title="Fotoğraf Seç" onPress={pickImage} color="#3b5998" />
                         {image && (
                             <View style={styles.imageContainer}>
                                 <Text style={styles.imageLabel}>Seçilen fotoğraf:</Text>
@@ -238,9 +238,7 @@ const handleEditToggle = async () => {
             {selectedDepartmentEmployee && currentDepartmentEmployee?.Permissions?.Admin && (
                 <View style={styles.card}>
                     <Text style={styles.title}>Selected Department</Text>
-                    <Text style={styles.detail}>Department: {selectedDepartment?.Name}</Text>
-                    <Text style={styles.detail}>Role: {selectedDepartmentEmployee}</Text>
-
+                    <Text style={styles.detail}>Department: {selectedDepartment?.DepartmentName}</Text>
                     {selectedDepartment?.Permissions?.Admin && (
                         <View style={styles.checkboxContainer}>
                             <CheckBox
@@ -290,7 +288,7 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         padding: 20,
-        backgroundColor: '#ADD8E6',
+        backgroundColor: '#dfe3ee',
     },
     card: {
         padding: 20,
@@ -324,7 +322,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 10,
-        color: '#003366',
+        color: '#3b5998',
     },
     image: {
         width: 100,
