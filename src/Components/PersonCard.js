@@ -50,6 +50,8 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         overflow: 'hidden',
         marginRight: 15,
+        borderWidth: 1, 
+        borderColor: '#003366',
     },
     profilePicture: {
         width: '100%',

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native';
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Dimensions, SafeAreaView,Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import BottomBar from '../Components/BottomBar';
 import { fetchDepartmentEmployeeData } from '../Services/fetchDepartmentEmployees';
@@ -98,8 +98,6 @@ const MyProfile = ({ navigation }) => {
 
   // Find departments where the current user is responsible
   const responsibleDepartments = allDepartments?.filter(dept => dept.ParentDepartment === userDepartment?.DepartmentId) || [];
-
-  // Determine the max card width for scrollable view
   const maxCardWidth = Math.min(Dimensions.get('window').width - 40, 300);
 
   return (
@@ -114,7 +112,24 @@ const MyProfile = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.contentContainer}>
         {!loading && (
           <>
+             {userInfo.ProfilePictureUrl ? (
+                <View style={styles.profilePictureContainer}> 
+                  <Image 
+                    source={{ uri: userInfo.ProfilePictureUrl }} 
+                     style={styles.profilePicture} 
+                />
+                </View>
+                ) : 
+                <View style={styles.profilePictureContainer}>
+                  <Image 
+                   source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/taskshare-648cf.appspot.com/o/ProfilePictures%2Fprofilephoto.png?alt=media&token=731cf747-ca06-43d3-8a54-2655b2f8ee3c' }} 
+                   style={styles.profilePicture} 
+                  />
+                </View>
+                
+              }
             {userInfo ? (
+              
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>Bilgilerim</Text>
                 <Text><Text style={styles.boldText}>Adı: </Text>{userInfo.Name}</Text>
@@ -257,6 +272,21 @@ const styles = StyleSheet.create({
   boldText: {
     color: '#003366',
     fontWeight: 'bold',
+  },
+  profilePictureContainer: {
+    width: 100, 
+    height: 100, 
+    borderRadius: 50,
+    overflow: 'hidden',
+    marginRight: 15,
+    borderWidth: 1, 
+    borderColor: '#003366',
+    backgroundColor:'#fff',
+    marginTop:10,
+  },
+  profilePicture: {
+    width: '100%',
+    height: '100%',
   },
 });
 

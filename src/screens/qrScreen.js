@@ -81,7 +81,12 @@ const QRCodeScannerScreen = ({ navigation }) => {
   });
 
   if (!hasPermission) {
-    return <Text>Kamera izni gereklidir.</Text>;
+    
+    return(
+      <View style={styles.container}>
+        <Text>Kamera izni gereklidir.</Text>
+      </View>
+    ) ;
   }
 
   return (

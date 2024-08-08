@@ -8,6 +8,7 @@ const MyDocument = ({ route }) => {
 
   useEffect(() => {
     if (route.params && route.params.pdfUrl) {
+      // URL'yi kontrol et ve set et
       console.log("PDF URL:", route.params.pdfUrl);
       setPdfUrl(route.params.pdfUrl);
     }
@@ -16,12 +17,12 @@ const MyDocument = ({ route }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        {pdfUrl && !pdfUrl==='null' ?  (
+        {pdfUrl ? (
           <Pdf
             trustAllCerts={false}
             source={{
               uri: pdfUrl,
-              cache: false, 
+              cache: false,  // Cache'i kapalı yapmayı deneyin
             }}
             onLoadComplete={(numberOfPages, filePath) => {
               console.log(`Number of pages: ${numberOfPages}`);
@@ -55,6 +56,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: 25,
+    backgroundColor:'#ADD8E6'
   },
   pdf: {
     flex: 1,

@@ -17,7 +17,7 @@ const EntryDocument = ({ route }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        {pdfUrl && !pdfUrl==='null' ? (
+        {pdfUrl ? (
           <Pdf
             trustAllCerts={false}
             source={{
@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: 25,
+    backgroundColor:'#ADD8E6'
   },
   pdf: {
     flex: 1,
