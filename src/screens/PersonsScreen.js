@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View,SafeAreaView} from "react-native";
 import BottomBar from "../Components/BottomBar";
 import { Ionicons } from '@expo/vector-icons';
 import fetchAllPersons from "../Services/fetchAllPersons";
-import { fetchCurrentDepartment } from "../Services/fetchCurrentUserDepartment";
+import { fetchDepartmentEmployeeData } from "../Services/fetchDepartmentEmployees";
 import PersonToggleButton from "../Components/PersonToggleButton";
 import PersonCard from "../Components/PersonCard";
 import PersonSearchInput from "../Components/PersonSearchInput";
@@ -33,7 +33,7 @@ const PersonsScreen = ({ navigation }) => {
 
             const checkPermissions = async () => {
                 try {
-                    const department = await fetchCurrentDepartment();
+                    const department = await fetchDepartmentEmployeeData();
                     if (department && department.Permissions && department.Permissions.ManagePersons) {
                         setShowAddButton(true);
                     } else {

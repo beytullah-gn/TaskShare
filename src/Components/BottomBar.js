@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons'; // Or another icon library
 
-const { height, width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 const BottomBar = ({ onProfile, onDepartments, onPersons, onQrScreen, onSettings, activePage }) => {
   const [showMore, setShowMore] = useState(false);
+
+  useEffect(() => {
+    // Reset showMore to false when activePage changes and is not 'more'
+    if (activePage !== 'more') {
+      setShowMore(false);
+    }
+  }, [activePage]);
 
   const getIconName = (page, defaultIcon, activeIcon) => {
     return activePage === page ? activeIcon : defaultIcon;
@@ -18,45 +25,37 @@ const BottomBar = ({ onProfile, onDepartments, onPersons, onQrScreen, onSettings
         onPress={onProfile}
       >
         <Icon name={getIconName('profile', 'person-circle-outline', 'person-circle')} size={24} color="#fff" />
-        <Text style={[styles.buttonText, activePage === 'profile' && styles.activeButtonText]}>
-          Profilim
-        </Text>
+        {/* <Text style={[styles.buttonText, activePage === 'profile' && styles.activeButtonText]}>Profilim</Text> */}
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.button, activePage === 'departments' && styles.activeButton]}
         onPress={onDepartments}
       >
         <Icon name={getIconName('departments', 'layers-outline', 'layers')} size={24} color="#fff" />
-        <Text style={[styles.buttonText, activePage === 'departments' && styles.activeButtonText]}>
-          Departmanlar
-        </Text>
+        {/* <Text style={[styles.buttonText, activePage === 'departments' && styles.activeButtonText]}>Departmanlar</Text> */}
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.button, activePage === 'persons' && styles.activeButton]}
         onPress={onPersons}
       >
         <Icon name={getIconName('persons', 'people-outline', 'people')} size={24} color="#fff" />
-        <Text style={[styles.buttonText, activePage === 'persons' && styles.activeButtonText]}>
-          Kişiler
-        </Text>
+        {/* <Text style={[styles.buttonText, activePage === 'persons' && styles.activeButtonText]}>Kişiler</Text> */}
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.button, activePage === 'more' && styles.activeButton]}
         onPress={() => setShowMore(!showMore)}
       >
         <Icon name={getIconName('more', 'ellipsis-horizontal-outline', 'ellipsis-horizontal')} size={24} color="#fff" />
-        <Text style={[styles.buttonText, activePage === 'more' && styles.activeButtonText]}>
-          Daha Fazla
-        </Text>
+        {/* <Text style={[styles.buttonText, activePage === 'more' && styles.activeButtonText]}>Daha Fazla</Text> */}
       </TouchableOpacity>
 
       {showMore && (
         <View style={styles.moreOptionsContainer}>
-          <TouchableOpacity style={styles.moreButton} onPress={onQrScreen}>
+          <TouchableOpacity style={[styles.moreButton, activePage === 'qr' && styles.activeMoreButton]} onPress={onQrScreen}>
             <Icon name={getIconName('qr', 'scan-outline', 'scan')} size={24} color="#fff" />
             <Text style={styles.moreButtonText}>Tara</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.moreButton} onPress={onSettings}>
+          <TouchableOpacity style={[styles.moreButton, activePage === 'settings' && styles.activeMoreButton]} onPress={onSettings}>
             <Icon name={getIconName('settings', 'settings-outline', 'settings')} size={24} color="#fff" />
             <Text style={styles.moreButtonText}>Ayarlar</Text>
           </TouchableOpacity>
@@ -74,7 +73,7 @@ const styles = StyleSheet.create({
     height: height * 0.1, // Screen height percentage
     backgroundColor: '#3b5998', // Dark blue for a professional look
     flexDirection: 'row',
-    justifyContent: 'space-between', // Adjusted to ensure even spacing
+    justifyContent: 'space-between', // Distribute buttons evenly
     alignItems: 'center',
     paddingVertical: 10,
     borderTopLeftRadius: 15,
@@ -86,24 +85,20 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   button: {
-    flex: 1, // Ensure each button takes equal space
+    flex: 1, // Make each button take equal space
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 5,
-    marginHorizontal: 5,
-    flexDirection: 'column', // Ensure vertical alignment
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 12, // Smaller font size to fit text in a single line
-    textAlign: 'center', // Center align text
-    flexShrink: 1, // Allow text to shrink if necessary
-    overflow: 'hidden', // Hide overflowed text
-    marginTop: 5,
+    padding: 10,
   },
   activeButton: {
     backgroundColor: '#4a89dc', // Lighter blue for active button
     borderRadius: 10, // Rounded corners for active button
+  },
+  buttonText: {
+    color: '#fff',
+    marginTop: 5,
+    fontSize: 16, // Increased font size for better readability
+    paddingLeft: 4,
   },
   activeButtonText: {
     color: '#fff',
@@ -111,7 +106,7 @@ const styles = StyleSheet.create({
   },
   moreOptionsContainer: {
     position: 'absolute',
-    bottom: height * 0.15, // Adjust to ensure container visibility
+    bottom: height * 0.11, // Increase the height to make the container larger
     right: 10,
     backgroundColor: '#3b5998',
     padding: 15, // Increased padding for more space inside the container
@@ -122,18 +117,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     zIndex: 10,
-    width: 150, // Increased width to allow more space for content
+    width: 180, // Increased width to allow more space for content
   },
   moreButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12, // Increase the vertical padding for more button space
+    paddingVertical: 16, // Increased vertical padding for more button space
     justifyContent: 'flex-start',
+    width: '100%', // Make each "more" button take the full width
+  },
+  activeMoreButton: {
+    backgroundColor: '#4a89dc', // Lighter blue for active "More" options button
+    borderRadius: 10, // Rounded corners for active button
   },
   moreButtonText: {
     color: '#fff',
     marginLeft: 10,
-    fontSize: 16, // Increased font size for better readability
+    fontSize: 18, // Increased font size for better readability
   },
 });
 

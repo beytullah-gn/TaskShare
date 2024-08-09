@@ -5,7 +5,7 @@ import TreeCardItem from '../Components/TreeCardItem';
 import { buildHierarchy, findAncestors, findAllExpandedItems } from '../Services/DepartmentUtils';
 import { SafeAreaView } from "react-native-safe-area-context";
 import BottomBar from '../Components/BottomBar';
-import { fetchCurrentDepartment } from "../Services/fetchCurrentUserDepartment";
+import { fetchDepartmentEmployeeData } from '../Services/fetchDepartmentEmployees';
 
 const DepartmentScreen = ({ navigation }) => {
   const [departments, setDepartments] = useState([]);
@@ -14,22 +14,26 @@ const DepartmentScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showAddButton, setShowAddButton] = useState(false);
 
-  useEffect(() => {
-    const checkPermissions = async () => {
-      try {
-        const department = await fetchCurrentDepartment();
-        if (department && department.Permissions && department.Permissions.ManageDepartments) {
-          setShowAddButton(true);
-        } else {
-          setShowAddButton(false);
-        }
-      } catch (error) {
-        console.log("Error fetching department: ", error);
+  // Function to check permissions and update state accordingly
+  const checkPermissions = async () => {
+    setIsLoading(true); // Show loading indicator while checking permissions
+    try {
+      const departmentEmployee = await fetchDepartmentEmployeeData();
+      if (departmentEmployee && departmentEmployee.Permissions && departmentEmployee.Permissions.ManageDepartments) {
+        setShowAddButton(true);
+      } else {
         setShowAddButton(false);
       }
-    };
+    } catch (error) {
+      console.log("Error fetching department: ", error);
+      setShowAddButton(false);
+    } finally {
+      setIsLoading(false); // Hide loading indicator once done
+    }
+  };
 
-    checkPermissions();
+  useEffect(() => {
+    checkPermissions(); // Call permission check on mount
   }, []);
 
   const filteredDepartments = useMemo(() => {
@@ -59,7 +63,7 @@ const DepartmentScreen = ({ navigation }) => {
   }, [departments, searchTerm]);
 
   const handleToggleExpand = useCallback((id) => {
-    setExpandedItems(prevItems => 
+    setExpandedItems(prevItems =>
       prevItems.includes(id) ? prevItems.filter(item => item !== id) : [...prevItems, id]
     );
   }, []);
@@ -79,7 +83,6 @@ const DepartmentScreen = ({ navigation }) => {
   const handleQrScreen = () => {
     navigation.navigate('QrScreen');
   };
-  
 
   useEffect(() => {
     if (searchTerm) {
@@ -120,7 +123,7 @@ const DepartmentScreen = ({ navigation }) => {
               onToggleExpand={handleToggleExpand}
               searchTerm={searchTerm}
               level={0}
-              navigation={navigation} // Navigation prop'unu ekleyin
+              navigation={navigation}
             />
           ))}
         </ScrollView>
@@ -130,7 +133,7 @@ const DepartmentScreen = ({ navigation }) => {
 
   const AddNewDepartment = () => {
     navigation.navigate("AddNewDepartment");
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#dfe3ee',
-    paddingBottom: 80, // Alt kısımda boşluk bırakarak içeriğin bottom bar ile çakışmasını engelleyin
+    paddingBottom: 80,
   },
   headerContainer: {
     backgroundColor: '#3b5998',
@@ -198,16 +201,16 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius:5,
     backgroundColor: '#ffffff',
     color: '#3b5998',
-    height: 40, // Set fixed height
+    height: 40,
   },
   clearButton: {
     backgroundColor: '#8b9dc3',
-    paddingVertical: 0, // Reset vertical padding to adjust height
+    paddingVertical: 0,
     paddingHorizontal: 16,
     borderTopRightRadius:5,
     borderBottomRightRadius:5,
-    height: 40, // Set height to match searchInput
-    justifyContent: 'center', // Center text vertically
+    height: 40,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   clearButtonText: {
@@ -231,7 +234,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20, // Bottom bar'ın hemen üzerinde yer alması için marjin
+    marginBottom: 20,
   },
   bottomButton: {
     width: '80%',
@@ -251,7 +254,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 60, // Bottom bar'ın yüksekliği kadar alan ayırın
+    height: 60,
   },
 });
 
