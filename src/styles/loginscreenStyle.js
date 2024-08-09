@@ -12,9 +12,10 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
+    color:'#3b5998'
   },
   input: {
-    height: 50,
+    height: 50, // Yüksekliği belirleyin
     borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 5,
@@ -23,10 +24,11 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f7f7f7',
   },
   button: {
+    height: 50, // Yüksekliği input ile aynı yapın
     backgroundColor: '#3b5998',
-    paddingVertical: 15,
     borderRadius: 5,
     alignItems: 'center',
+    justifyContent: 'center', // Buton içeriğini ortalar
   },
   buttonText: {
     color: '#fff',

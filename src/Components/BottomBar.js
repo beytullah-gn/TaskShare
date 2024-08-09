@@ -2,39 +2,63 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons'; // Or another icon library
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
-const BottomBar = ({ onProfile, onDepartments, onPersons, onQrScreen, onSettings }) => {
+const BottomBar = ({ onProfile, onDepartments, onPersons, onQrScreen, onSettings, activePage }) => {
   const [showMore, setShowMore] = useState(false);
+
+  const getIconName = (page, defaultIcon, activeIcon) => {
+    return activePage === page ? activeIcon : defaultIcon;
+  };
 
   return (
     <View style={styles.bottomBar}>
-      <TouchableOpacity style={styles.button} onPress={onProfile}>
-        <Icon name="person-circle-outline" size={24} color="#fff" />
-        <Text style={styles.buttonText}>Profilim</Text>
+      <TouchableOpacity
+        style={[styles.button, activePage === 'profile' && styles.activeButton]}
+        onPress={onProfile}
+      >
+        <Icon name={getIconName('profile', 'person-circle-outline', 'person-circle')} size={24} color="#fff" />
+        <Text style={[styles.buttonText, activePage === 'profile' && styles.activeButtonText]}>
+          Profilim
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={onDepartments}>
-        <Icon name="layers-outline" size={24} color="#fff" />
-        <Text style={styles.buttonText}>Departmanlar</Text>
+      <TouchableOpacity
+        style={[styles.button, activePage === 'departments' && styles.activeButton]}
+        onPress={onDepartments}
+      >
+        <Icon name={getIconName('departments', 'layers-outline', 'layers')} size={24} color="#fff" />
+        <Text style={[styles.buttonText, activePage === 'departments' && styles.activeButtonText]}>
+          Departmanlar
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={onPersons}>
-        <Icon name="people-outline" size={24} color="#fff" />
-        <Text style={styles.buttonText}>Kişiler</Text>
+      <TouchableOpacity
+        style={[styles.button, activePage === 'persons' && styles.activeButton]}
+        onPress={onPersons}
+      >
+        <Icon name={getIconName('persons', 'people-outline', 'people')} size={24} color="#fff" />
+        <Text style={[styles.buttonText, activePage === 'persons' && styles.activeButtonText]}>
+          Kişiler
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => setShowMore(!showMore)}>
-        <Icon name="ellipsis-horizontal-outline" size={24} color="#fff" />
-        <Text style={styles.buttonText}>Daha Fazla</Text>
+      <TouchableOpacity
+        style={[styles.button, activePage === 'more' && styles.activeButton]}
+        onPress={() => setShowMore(!showMore)}
+      >
+        <Icon name={getIconName('more', 'ellipsis-horizontal-outline', 'ellipsis-horizontal')} size={24} color="#fff" />
+        <Text style={[styles.buttonText, activePage === 'more' && styles.activeButtonText]}>
+          Daha Fazla
+        </Text>
       </TouchableOpacity>
 
       {showMore && (
         <View style={styles.moreOptionsContainer}>
           <TouchableOpacity style={styles.moreButton} onPress={onQrScreen}>
-            <Icon name="scan" size={24} color="#fff" />
-            <Text style={styles.buttonText}>Tara</Text>
+            <Icon name={getIconName('qr', 'scan-outline', 'scan')} size={24} color="#fff" />
+            <Text style={styles.moreButtonText}>Tara</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.moreButton} onPress={onSettings}>
-            <Icon name="settings-outline" size={24} color="#fff" />
-            <Text style={styles.buttonText}>Ayarlar</Text>
+            <Icon name={getIconName('settings', 'settings-outline', 'settings')} size={24} color="#fff" />
+            <Text style={styles.moreButtonText}>Ayarlar</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -50,7 +74,7 @@ const styles = StyleSheet.create({
     height: height * 0.1, // Screen height percentage
     backgroundColor: '#3b5998', // Dark blue for a professional look
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between', // Adjusted to ensure even spacing
     alignItems: 'center',
     paddingVertical: 10,
     borderTopLeftRadius: 15,
@@ -62,30 +86,54 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   button: {
+    flex: 1, // Ensure each button takes equal space
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 5,
+    marginHorizontal: 5,
+    flexDirection: 'column', // Ensure vertical alignment
   },
   buttonText: {
     color: '#fff',
+    fontSize: 12, // Smaller font size to fit text in a single line
+    textAlign: 'center', // Center align text
+    flexShrink: 1, // Allow text to shrink if necessary
+    overflow: 'hidden', // Hide overflowed text
     marginTop: 5,
-    fontSize: 14,
+  },
+  activeButton: {
+    backgroundColor: '#4a89dc', // Lighter blue for active button
+    borderRadius: 10, // Rounded corners for active button
+  },
+  activeButtonText: {
+    color: '#fff',
+    fontWeight: 'bold', // Bold text for active button
   },
   moreOptionsContainer: {
     position: 'absolute',
-    bottom: height * 0.1, // Above the bottom bar
-    right: 0,
+    bottom: height * 0.15, // Adjust to ensure container visibility
+    right: 10,
     backgroundColor: '#3b5998',
-    padding: 10,
-    borderRadius: 10,
+    padding: 15, // Increased padding for more space inside the container
+    borderRadius: 15, // Slightly larger border radius
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    zIndex: 10,
+    width: 150, // Increased width to allow more space for content
   },
   moreButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12, // Increase the vertical padding for more button space
+    justifyContent: 'flex-start',
+  },
+  moreButtonText: {
+    color: '#fff',
+    marginLeft: 10,
+    fontSize: 16, // Increased font size for better readability
   },
 });
 

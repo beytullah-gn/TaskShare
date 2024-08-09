@@ -25,7 +25,6 @@ const QRCodeScannerScreen = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Kamera her odaklandığında kapalı olarak ayarlanır
       setIsCameraVisible(false);
     }, [])
   );
@@ -81,31 +80,29 @@ const QRCodeScannerScreen = ({ navigation }) => {
   });
 
   if (!hasPermission) {
-    
-    return(
+    return (
       <View style={styles.container}>
         <Text>Kamera izni gereklidir.</Text>
       </View>
-    ) ;
+    );
   }
 
   return (
     <View style={styles.container}>
       {!isCameraVisible ? (
-        <TouchableOpacity style={styles.openButton} onPress={handleButtonPress}>
-          <Text style={styles.openButtonText}>Kamerayı Aç</Text>
-        </TouchableOpacity>
-        
+        <>
+          <TouchableOpacity style={styles.openButton} onPress={handleButtonPress}>
+            <Text style={styles.openButtonText}>Kamerayı Aç</Text>
+          </TouchableOpacity>
+          <Text style={styles.descriptionText}>QR kodu okutmak için kamerayı açın</Text>
+        </>
       ) : (
         <>
-          <TouchableOpacity style={styles.closeButton} onPress={handleCloseCamera}>
-            <Icon name="close-circle" size={30} color="#fff" />
-          </TouchableOpacity>
           <View style={styles.cameraContainer}>
             {device && (
               <Camera
                 ref={cameraRef}
-                style={StyleSheet.absoluteFill}
+                style={styles.camera}
                 device={device}
                 isActive={isCameraVisible}
                 codeScanner={codeScanner}
@@ -114,6 +111,9 @@ const QRCodeScannerScreen = ({ navigation }) => {
               />
             )}
           </View>
+          <TouchableOpacity style={styles.closeButton} onPress={handleCloseCamera}>
+            <Text style={styles.closeButtonText}>Kamerayı Kapat</Text>
+          </TouchableOpacity>
         </>
       )}
       <BottomBar
@@ -121,6 +121,7 @@ const QRCodeScannerScreen = ({ navigation }) => {
         onDepartments={handleDepartments}
         onPersons={handlePersons}
         onSettings={handleSettings}
+        activePage="qr"
       />
     </View>
   );
@@ -131,10 +132,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#dfe3ee', // Beyaz arka plan
+    backgroundColor: '#dfe3ee',
   },
   openButton: {
-    backgroundColor: '#3b5998', // Yeşil arka plan
+    backgroundColor: '#3b5998',
     padding: 15,
     borderRadius: 30,
     shadowColor: '#000',
@@ -148,29 +149,44 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  closeButton: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Yarı şeffaf arka plan
-    borderRadius: 25,
-    padding: 10,
-    elevation: 5,
-    zIndex: 1, // Butonun kamera görüntüsünün üzerinde görünmesini sağlar
+  descriptionText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
   },
   cameraContainer: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
+    width: '80%',
+    aspectRatio: 1, // Kamera kutusunun kare olmasını sağlar
     borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: '#ddd', // Hafif gri kenarlık
+    borderColor: '#ddd',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 5,
+    marginBottom: 20, // Kameranın altında boşluk bırakır
+  },
+  camera: {
+    flex: 1,
+  },
+  closeButton: {
+    backgroundColor: '#3b5998',
+    borderRadius: 30,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

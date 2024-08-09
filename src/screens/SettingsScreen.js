@@ -34,6 +34,7 @@ const SettingsScreen = ({ navigation }) => {
         onDepartments={handleDepartments}
         onPersons={handlePersons}
         onQrScreen={handleQrScreen}
+        activePage="settings"
       />
     </SafeAreaView>
   );

@@ -7,6 +7,8 @@ import { fetchCurrentDepartment } from '../Services/fetchCurrentUserDepartment';
 import { fetchPersonData } from '../Services/fetchPersonData';
 import { fetchInactiveDepartments } from '../Services/fetchInactiveDepartments';
 import fetchAllDepartments from '../Services/fetchAllDepartments';
+import fetchDepartments from '../Services/fetchActiveDepartments';
+
 
 const formatDateString = (dateString) => {
   const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -44,22 +46,25 @@ const MyProfile = ({ navigation }) => {
   const [userOldDepartment, setUserOldDepartment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [allDepartments, setAllDepartments] = useState(null);
+  const [activeDepartments,setActiveDepartments] = useState(null);
 
   const getUserData = useCallback(async () => {
     try {
       setLoading(true);
-      const [employeeData, departmentData, currentDepartmentData, oldDepartmentData, allDepartmentsData] = await Promise.all([
+      const [employeeData, departmentData, currentDepartmentData, oldDepartmentData, allDepartmentsData,activeDepartments] = await Promise.all([
         fetchPersonData(),
         fetchDepartmentEmployeeData(),
         fetchCurrentDepartment(),
         fetchInactiveDepartments(),
         fetchAllDepartments(),
+        fetchDepartments(),
       ]);
       setUserInfo(employeeData);
       setUserDepartment(departmentData);
       setUserCurrentDepartment(currentDepartmentData);
       setUserOldDepartment(oldDepartmentData);
       setAllDepartments(allDepartmentsData);
+      setActiveDepartments(activeDepartments)
     } catch (error) {
       console.log('Error fetching data:', error);
     } finally {
@@ -122,7 +127,7 @@ const MyProfile = ({ navigation }) => {
                 ) : 
                 <View style={styles.profilePictureContainer}>
                   <Image 
-                   source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/taskshare-648cf.appspot.com/o/ProfilePictures%2Fprofilephoto.png?alt=media&token=731cf747-ca06-43d3-8a54-2655b2f8ee3c' }} 
+                   source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/taskshare-648cf.appspot.com/o/ProfilePictures%2Fdefault.jpg?alt=media&token=1c6bf6b4-b46c-4498-ae58-3d86baf568a1' }} 
                    style={styles.profilePicture} 
                   />
                 </View>
@@ -156,7 +161,7 @@ const MyProfile = ({ navigation }) => {
             ) : null}
             {userOldDepartment && userOldDepartment.length > 0 ? (
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>Çalışma Geçmişi</Text>
+                <Text style={styles.cardTitle}>Çalışma Geçmişim</Text>
                 {userOldDepartment.map((dept, index) => {
                   const department = allDepartments.find(d => d.DepartmentId === dept.DepartmentId);
                   return (
@@ -177,8 +182,8 @@ const MyProfile = ({ navigation }) => {
             ) : null}
             {responsibleDepartments.length > 0 && (
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>Sorumlu Olduğum Departmanlar</Text>
-                {renderDepartments(allDepartments, userDepartment?.DepartmentId)}
+                <Text style={styles.cardTitle}>Yetkilisi Olduğum Departmanlar</Text>
+                {renderDepartments(activeDepartments, userDepartment?.DepartmentId)}
               </View>
             )}
           </>
@@ -186,7 +191,7 @@ const MyProfile = ({ navigation }) => {
       </ScrollView>
 
       <View style={styles.bottomBarContainer}>
-        <BottomBar onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} onQrScreen={handleQrScreen} />
+        <BottomBar onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} onQrScreen={handleQrScreen} activePage="profile" />
       </View>
     </SafeAreaView>
   );
@@ -226,6 +231,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     marginVertical: 10,
+    borderColor: '#3b5998',
+    borderWidth:1,
   },
   cardTitle: {
     fontSize: 20,
@@ -234,7 +241,7 @@ const styles = StyleSheet.create({
     color: '#3b5998',
   },
   responsibleDepartmentItem: {
-    width: 300,
+    width: '100%',
     padding: 10,
     borderRadius: 5,
     marginBottom: 5,
@@ -279,10 +286,15 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     overflow: 'hidden',
     marginRight: 15,
-    borderWidth: 1, 
+    borderWidth: 1.5, 
     borderColor: '#3b5998',
     backgroundColor:'#fff',
     marginTop:10,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   profilePicture: {
     width: '100%',

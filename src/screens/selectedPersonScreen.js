@@ -138,7 +138,7 @@ const handleEditToggle = async () => {
                     />
                 ) : 
                     <Image 
-                        source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/taskshare-648cf.appspot.com/o/ProfilePictures%2Fprofilephoto.png?alt=media&token=731cf747-ca06-43d3-8a54-2655b2f8ee3c' }} 
+                        source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/taskshare-648cf.appspot.com/o/ProfilePictures%2Fdefault.jpg?alt=media&token=1c6bf6b4-b46c-4498-ae58-3d86baf568a1' }} 
                         style={styles.profilePicture} 
                     />
                 }

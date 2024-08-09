@@ -165,7 +165,7 @@ const DepartmentScreen = ({ navigation }) => {
         </View>
       )}
       <View style={styles.bottomBarContainer}>
-        <BottomBar onQrScreen={handleQrScreen} onProfile={handleProfile} onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} />
+        <BottomBar onQrScreen={handleQrScreen} onProfile={handleProfile} onDepartments={handleDepartments} onPersons={handlePersons} onSettings={handleSettings} activePage="departments" />
       </View>
     </SafeAreaView>
   );
@@ -193,16 +193,22 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderWidth: 1,
     padding: 10,
-    marginRight: 8,
-    borderRadius: 5,
+    marginRight: 0,
+    borderTopLeftRadius:5,
+    borderBottomLeftRadius:5,
     backgroundColor: '#ffffff',
     color: '#3b5998',
+    height: 40, // Set fixed height
   },
   clearButton: {
     backgroundColor: '#8b9dc3',
-    paddingVertical: 8,
+    paddingVertical: 0, // Reset vertical padding to adjust height
     paddingHorizontal: 16,
-    borderRadius: 5,
+    borderTopRightRadius:5,
+    borderBottomRightRadius:5,
+    height: 40, // Set height to match searchInput
+    justifyContent: 'center', // Center text vertically
+    alignItems: 'center',
   },
   clearButtonText: {
     color: '#ffffff',
@@ -248,6 +254,5 @@ const styles = StyleSheet.create({
     height: 60, // Bottom bar'ın yüksekliği kadar alan ayırın
   },
 });
-
 
 export default DepartmentScreen;

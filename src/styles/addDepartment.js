@@ -5,19 +5,49 @@ export const styles = StyleSheet.create({
     container: {
       flex: 1,
       padding: 16,
-      backgroundColor: '#f8f9fa',
+      backgroundColor: '#dfe3ee',
+    },
+    firstcard:{  
+        width: '100%',
+        padding: 5,
+        paddingTop:20,
+        backgroundColor: '#3b5998',
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 5,
+        marginVertical: 10,
+        borderColor: '#3b5998',
+        borderWidth:1,
+    },
+    card: {
+      width: '100%',
+      padding: 20,
+      backgroundColor: '#ffffff',
+      borderTopLeftRadius:5,
+      borderTopRightRadius:5,
+      borderBottomLeftRadius:15,
+      borderBottomRightRadius:15,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 5,
+      elevation: 5,
+      borderColor: '#3b5998',
+      borderWidth:1,
     },
     header: {
       fontSize: 24,
       fontWeight: 'bold',
       marginBottom: 20,
-      color: '#3b5998',
+      color: '#ffffff',
       textAlign: 'center',
     },
     inputContainer: {
       width: '100%',
       maxWidth: 400,
-      marginBottom: 20,
     },
     input: {
       height: 50,
@@ -30,7 +60,7 @@ export const styles = StyleSheet.create({
       fontSize: 16,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
+      shadowOpacity: 0.7,
       shadowRadius: 4,
       elevation: 2,
     },
@@ -39,27 +69,28 @@ export const styles = StyleSheet.create({
       justifyContent: 'space-between',
       width: '100%',
       flexWrap: 'wrap', // Butonların sarmalanmasını sağlar
-      marginBottom: 20,
+      
     },
     button: {
       backgroundColor: '#3b5998',
       borderRadius: 8,
       paddingVertical: 12,
-      paddingHorizontal: 20,
+      paddingHorizontal: 12,
       alignItems: 'center',
-      marginVertical: 5, // Butonlar arasında boşluk
+      justifyContent:'center',
+      marginVertical: 0, // Butonlar arasında boşluk
       flex: 1, // Butonların eşit genişlikte olmasını sağlar
-      maxWidth: '48%', // Ekrana sığması için maksimum genişlik
+      maxWidth: '46%', // Ekrana sığması için maksimum genişlik
     },
     pdfButtonContainer: {
       flexDirection: 'row',
       justifyContent: 'center',
       width: '100%',
       flexWrap: 'wrap', // Butonların sarmalanmasını sağlar
-      marginBottom: 20,
+      marginBottom: 15,
     },
     pdfButton: {
-      backgroundColor: 'red',
+      backgroundColor: '#d11141',
       borderRadius: 8,
       paddingVertical: 12,
       paddingHorizontal: 20,
@@ -83,7 +114,7 @@ export const styles = StyleSheet.create({
       justifyContent: 'space-between',
       backgroundColor: '#ffffff', // Varsayılan arka plan rengi
       borderRadius: 8,
-      padding: 16,
+      
       marginVertical: 8,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
@@ -92,19 +123,23 @@ export const styles = StyleSheet.create({
       elevation: 2,
     },
     selectedItem: {
-      backgroundColor: '#e0f7fa', // Seçilen departman için arka plan rengi (mavi)
+      backgroundColor: '#8b9dc3', // Seçilen departman için arka plan rengi (mavi)
+    },
+    deleteContainer:{
+      flex:1,
     },
     departmentItem: {
-      flex: 1,
+      flex: 6,
+      padding:10,
     },
     deleteButton: {
       backgroundColor: '#dc3545',
-      borderRadius: 20,
-      width: 30,
-      height: 30,
-      justifyContent: 'center',
-      alignItems: 'center',
+      flex:1,
+      alignItems:'center',
+      borderBottomRightRadius:8,
+      borderTopRightRadius:8,
       marginLeft: 10,
+      justifyContent:'center',
     },
     deleteButtonText: {
       color: '#ffffff',
@@ -121,7 +156,7 @@ export const styles = StyleSheet.create({
     },
     modalContent: {
       width: '100%',
-      backgroundColor: '#f1f1f1',
+      backgroundColor: '#dfe3ee',
       borderTopLeftRadius: 16,
       borderTopRightRadius: 16,
       padding: 20,
@@ -147,6 +182,7 @@ export const styles = StyleSheet.create({
       width: 40,
       height: 40,
       justifyContent: 'center',
+      marginRight:8,
       alignItems: 'center',
       zIndex: 1, // Kapatma butonunun diğer içeriklerin üstünde olmasını sağlar
     },

@@ -129,6 +129,7 @@ const PersonsScreen = ({ navigation }) => {
                 onDepartments={handleDepartments}
                 onSettings={handleSettings}
                 onQrScreen={handleQrScreen}
+                activePage="persons"
             />
         </SafeAreaView>
     );

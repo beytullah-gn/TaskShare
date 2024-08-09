@@ -14,7 +14,7 @@ const PersonCard = ({ person, searchTerm, highlightText, onPerson }) => {
                     />
                 ) : 
                     <Image 
-                        source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/taskshare-648cf.appspot.com/o/ProfilePictures%2Fprofilephoto.png?alt=media&token=731cf747-ca06-43d3-8a54-2655b2f8ee3c' }} 
+                        source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/taskshare-648cf.appspot.com/o/ProfilePictures%2Fdefault.jpg?alt=media&token=1c6bf6b4-b46c-4498-ae58-3d86baf568a1' }} 
                         style={styles.profilePicture} 
                     />
                 }
@@ -27,15 +27,10 @@ const PersonCard = ({ person, searchTerm, highlightText, onPerson }) => {
             <Ionicons
                 name={'arrow-forward'}
                 size={40}
-                color="#0055a5"
+                color="#1d3469"
                 style={styles.icon}
             />
-            <QRCode
-                size={100}
-                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                value={person.PersonId}
-                viewBox={`0 0 256 256`}
-            />
+           
         </TouchableOpacity>
     );
 };
@@ -43,8 +38,10 @@ const PersonCard = ({ person, searchTerm, highlightText, onPerson }) => {
 const styles = StyleSheet.create({
     personCard: {
         backgroundColor: '#ffffff',
-        padding: 15,
+        padding: 5,
         borderRadius: 10,
+        borderTopLeftRadius:25,
+        borderBottomLeftRadius:25,
         marginBottom: 10,
         elevation: 3,
         flexDirection: 'row',
@@ -81,3 +78,13 @@ const styles = StyleSheet.create({
 });
 
 export default PersonCard;
+
+
+/* <QRCode
+                size={100}
+                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                value={person.PersonId}
+                viewBox={`0 0 256 256`}
+            />
+
+            */

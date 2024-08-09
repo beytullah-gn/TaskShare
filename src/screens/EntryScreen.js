@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, View, Text as RNText } from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, View, Text as RNText ,TouchableOpacity} from "react-native";
 import { Appbar, Button, Text } from 'react-native-paper';
-import fetchAllDepartments from "../Services/fetchAllDepartments";
 import TreeCardItem from "../Components/entryScreenTreeCardItem";
 import { buildHierarchy } from "../Services/DepartmentUtils";
+import fetchDepartments from "../Services/fetchActiveDepartments";
+import Icon from "react-native-vector-icons/SimpleLineIcons";
 
 const EntryScreen = ({ navigation }) => {
   const [allDepartments, setAllDepartments] = useState([]);
@@ -13,7 +14,7 @@ const EntryScreen = ({ navigation }) => {
   useEffect(() => {
     const loadDepartments = async () => {
       try {
-        const departments = await fetchAllDepartments();
+        const departments = await fetchDepartments();
         const hierarchicalDepartments = buildHierarchy(departments);
         setAllDepartments(hierarchicalDepartments);
       } catch (error) {
@@ -36,7 +37,7 @@ const EntryScreen = ({ navigation }) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Yükleniyor...</Text>
       </SafeAreaView>
     );
@@ -50,13 +51,13 @@ const EntryScreen = ({ navigation }) => {
           titleStyle={styles.headerTitle}
         />
         <View style={styles.loginContainer}>
-          <Button 
+          <TouchableOpacity 
             mode="contained"
             onPress={() => navigation.navigate('LoginScreen')}
             style={styles.loginButton}
           >
-            Giriş Yap
-          </Button>
+            <Icon name="login" size={35} color='#dfe3ee'/>
+          </TouchableOpacity>
         </View>
       </Appbar.Header>
       <ScrollView style={styles.scrollView}>
@@ -91,22 +92,20 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     marginRight: 10,
-    backgroundColor: '#8b9dc3', // Parlak mavi
-  },
-  loginText: {
-    color: '#ffffff', // Beyaz yazı rengi
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   scrollView: {
     flex: 1,
     padding: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loadingText: {
     fontSize: 18,
     color: '#3b5998', // Koyu mavi
   },
 });
-
 
 export default EntryScreen;

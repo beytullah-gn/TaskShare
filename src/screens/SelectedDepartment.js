@@ -11,6 +11,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import * as DocumentPicker from 'expo-document-picker';
 import CheckBox from "@react-native-community/checkbox";
 import { fetchDepartmentEmployeeData } from "../Services/fetchDepartmentEmployees";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 
 const SelectedDepartment = ({navigation}) => {
@@ -348,7 +349,7 @@ const SelectedDepartment = ({navigation}) => {
                             style={styles.removeButton}
                             onPress={() => handleRemoveEmployee(employee.id)}
                           >
-                            <Text style={styles.removeButtonText}>-</Text>
+                            <Icon name='account-remove' size={25} color='#d11141'/>
                           </TouchableOpacity>
                         )}
                       </View>
@@ -367,34 +368,39 @@ const SelectedDepartment = ({navigation}) => {
               <Text style={styles.addButtonText}>Çalışan Ekle</Text>
             </TouchableOpacity>
           )}
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={showAddEmployeeModal}
-            onRequestClose={() => setShowAddEmployeeModal(false)}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Çalışan Seç</Text>
-                <ScrollView>
-                  {availablePersons.length > 0 ? (
-                    availablePersons.map(person => (
-                      <TouchableOpacity
-                        key={person.id}
-                        style={styles.personCard}
-                        onPress={() => handleAddEmployee(person.id)}
-                      >
-                        <Text style={styles.personName}>{person.Name} {person.Surname}</Text>
-                      </TouchableOpacity>
-                    ))
-                  ) : (
-                    <Text style={styles.text}>Uygun çalışan bulunamadı</Text>
-                  )}
-                </ScrollView>
-                <Button title="Kapat" onPress={() => setShowAddEmployeeModal(false)} color="#3b5998" />
+         <Modal
+  animationType="slide"
+  transparent={true}
+  visible={showAddEmployeeModal}
+  onRequestClose={() => setShowAddEmployeeModal(false)}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Çalışan Seç</Text>
+      <ScrollView>
+        {availablePersons.length > 0 ? (
+          availablePersons.map(person => (
+            <View key={person.id} style={styles.personCard}>
+              <View style={styles.personCardContent}>
+                <Text style={styles.personName}>{person.Name} {person.Surname}</Text>
               </View>
+              <TouchableOpacity
+                style={styles.addButtonWithIcon}
+                onPress={() => handleAddEmployee(person.id)}
+              >
+                <Icon name="account-plus" size={24} color="green" />
+              </TouchableOpacity>
             </View>
-          </Modal>
+          ))
+        ) : (
+          <Text style={styles.text}>Uygun çalışan bulunamadı</Text>
+        )}
+      </ScrollView>
+      <Button title="Kapat" onPress={() => setShowAddEmployeeModal(false)} color="#3b5998" />
+    </View>
+  </View>
+</Modal>
+
         </ScrollView>
       ) : (
         <Text style={styles.text}>Departman bilgisi bulunamadı</Text>
@@ -450,24 +456,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontSize: 16,
   },
-  personCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  personName: {
-    fontSize: 16,
-  },
   removeButton: {
-    backgroundColor: '#ff4d4d', 
     borderRadius: 25, 
     justifyContent: 'center',
     alignItems: 'center',
-    width: 40, 
-    height: 40, 
   },
   removeButtonText: {
     color: '#fff',
@@ -479,10 +471,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
+    
   },
   modalContent: {
     width: '80%',
-    backgroundColor: '#fff',
+    backgroundColor: '#dfe3ee',
     borderRadius: 8,
     padding: 16,
     shadowColor: '#000',
@@ -522,7 +515,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#ff4d4d',
+    backgroundColor: '#fa3c4c',
     padding: 5,
     borderRadius: 5,
     marginVertical:10,
@@ -541,7 +534,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   showButton:{
-    backgroundColor: 'skyblue',
+    backgroundColor: '#8b9dc3',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -556,6 +549,46 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
   },
+  personCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  personCardContent: {
+    flex: 1,
+    flexDirection: 'column',
+    
+  },
+  personName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#3b5998',
+  },
+  personRole: {
+    fontSize: 16,
+    color: '#666',
+  },
+  addButtonWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 0,
+    borderRadius: 8,
+  },
+  addButtonTextWithIcon: {
+    color: 'green',
+    fontSize: 16,
+    marginRight: 8,
+  },
 });
+
 
 export default SelectedDepartment;

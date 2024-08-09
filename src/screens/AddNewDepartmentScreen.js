@@ -8,6 +8,7 @@ import { fetchUserData } from '../Services/fetchUserData';
 import fetchActiveDepartments from '../Services/fetchActiveDepartments';
 import { deactivateDepartmentAndEmployees } from '../Services/deactivateDepartmentsAndEmployees';
 import { styles } from '../styles/addDepartment';
+import Icon from "react-native-vector-icons/Feather";
 
 const AddNewDepartment = () => {
   const [departmentName, setDepartmentName] = useState('');
@@ -181,12 +182,15 @@ const AddNewDepartment = () => {
         <Text style={styles.departmentText}>Departman Adı: {item.DepartmentName}</Text>
         <Text style={styles.departmentText}>Departman Açıklaması: {item.DepartmentDescription}</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => confirmAndDeactivate(item.id, item.DepartmentName)}
-      >
-        <Text style={styles.deleteButtonText}>✕</Text>
-      </TouchableOpacity>
+      <View style={styles.deleteContainer}>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => confirmAndDeactivate(item.id, item.DepartmentName)}
+        >
+          <Icon name="trash-2" size={24} color="#fff"/>
+        </TouchableOpacity>
+      </View>
+      
     </View>
   );
 
@@ -220,39 +224,44 @@ const AddNewDepartment = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Yeni Departman Oluştur</Text>
+      <View style={styles.firstcard}>
+        <Text style={styles.header}>Yeni Departman Oluştur</Text>
+        <View style={styles.card}>
+          
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={departmentName}
+              onChangeText={setDepartmentName}
+              placeholder="Departman Adı"
+              placeholderTextColor="#888"
+            />
+            <TextInput
+              style={styles.input}
+              value={departmentDescription}
+              onChangeText={setDepartmentDescription}
+              placeholder="Açıklama"
+              placeholderTextColor="#888"
+            />
+          </View>
+          <View style={styles.pdfButtonContainer}>
+            <TouchableOpacity style={styles.pdfButton} onPress={pickPDF}>
+              <Text style={styles.buttonText}>PDF Seç</Text>
+            </TouchableOpacity>
+          </View>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={departmentName}
-          onChangeText={setDepartmentName}
-          placeholder="Departman Adı"
-          placeholderTextColor="#888"
-        />
-        <TextInput
-          style={styles.input}
-          value={departmentDescription}
-          onChangeText={setDepartmentDescription}
-          placeholder="Açıklama"
-          placeholderTextColor="#888"
-        />
-      </View>
-      <View style={styles.pdfButtonContainer}>
-        <TouchableOpacity style={styles.pdfButton} onPress={pickPDF}>
-          <Text style={styles.buttonText}>PDF Seç</Text>
-        </TouchableOpacity>
-      </View>
 
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleListDepartments}>
-          <Text style={styles.buttonText}>Yetkili Departman Seç</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={saveDepartment}>
-          <Text style={styles.buttonText}>Departmanı Oluştur</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={handleListDepartments}>
+              <Text style={styles.buttonText}>Yetkili Seç</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={saveDepartment}>
+              <Text style={styles.buttonText}>Departmanı Oluştur</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>  
+            
 
       {selectedDepartmentName ? (
         <Text style={styles.selectedDepartmentText}>Seçilen departman: {selectedDepartmentName}</Text>
